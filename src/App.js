@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Plus, Bell, CheckCircle, Clock, Star, Settings, Menu, X, Trash2, Edit3, AlertCircle, Mic, MicOff } from 'lucide-react';
+import { Calendar, Plus, Bell, CheckCircle, Clock, Star, Settings, Menu, X, Trash2, Edit3, AlertCircle, Mic, MicOff, FileText } from 'lucide-react';
 
 const WeeklyPlannerApp = () => {
   const [currentView, setCurrentView] = useState('dashboard');
@@ -61,7 +61,8 @@ const WeeklyPlannerApp = () => {
         dueTime: '14:30',
         duration: '2 hours',
         reminder: true,
-        category: 'work'
+        category: 'work',
+        notes: 'Focus on budget section and timeline. Check technical requirements.'
       },
       {
         id: 2,
@@ -72,7 +73,8 @@ const WeeklyPlannerApp = () => {
         dueTime: '10:00',
         duration: '1 hour',
         reminder: false,
-        category: 'personal'
+        category: 'personal',
+        notes: 'Milk, bread, eggs, vegetables. Check if store has organic options.'
       },
       {
         id: 3,
@@ -83,7 +85,8 @@ const WeeklyPlannerApp = () => {
         dueTime: '09:15',
         duration: '15 minutes',
         reminder: true,
-        category: 'health'
+        category: 'health',
+        notes: 'Schedule cleaning appointment for next month.'
       },
       {
         id: 4,
@@ -94,7 +97,8 @@ const WeeklyPlannerApp = () => {
         dueTime: '09:00',
         duration: '30 minutes',
         reminder: true,
-        category: 'work'
+        category: 'work',
+        notes: 'Discuss sprint progress and blockers. Prepare status update.'
       },
       {
         id: 5,
@@ -105,7 +109,8 @@ const WeeklyPlannerApp = () => {
         dueTime: '18:00',
         duration: '1.5 hours',
         reminder: true,
-        category: 'health'
+        category: 'health',
+        notes: 'Cardio and strength training. Bring water bottle and towel.'
       }
     ];
 
@@ -531,7 +536,8 @@ const WeeklyPlannerApp = () => {
       dueTime: '',
       duration: '',
       reminder: false,
-      category: 'personal'
+      category: 'personal',
+      notes: ''
     });
 
     const handleSubmit = (e) => {
@@ -544,7 +550,7 @@ const WeeklyPlannerApp = () => {
 
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-lg w-full max-w-md p-6">
+        <div className="bg-white rounded-lg w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold">Add New Task</h3>
             <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
@@ -561,6 +567,17 @@ const WeeklyPlannerApp = () => {
                 onChange={(e) => setTaskData({...taskData, title: e.target.value})}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Enter task title..."
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Notes (Optional)</label>
+              <textarea
+                value={taskData.notes}
+                onChange={(e) => setTaskData({...taskData, notes: e.target.value})}
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Add any additional details or notes..."
+                rows="3"
               />
             </div>
             
@@ -766,6 +783,12 @@ const WeeklyPlannerApp = () => {
                   </button>
                   <div className={`flex-1 min-w-0 ${task.completed ? 'line-through text-gray-500' : ''}`}>
                     <div className="font-medium truncate">{task.title}</div>
+                    {task.notes && (
+                      <div className="text-sm text-gray-600 mt-1 flex items-start space-x-1">
+                        <FileText size={12} className="text-gray-400 mt-0.5 flex-shrink-0" />
+                        <span className="line-clamp-2">{task.notes}</span>
+                      </div>
+                    )}
                     <div className="text-sm text-gray-500 flex items-center space-x-2">
                       <span className="capitalize">{task.category}</span>
                       {task.dueTime && (
@@ -832,6 +855,12 @@ const WeeklyPlannerApp = () => {
                   </button>
                   <div className="flex-1 min-w-0 line-through text-gray-500">
                     <div className="font-medium truncate">{task.title}</div>
+                    {task.notes && (
+                      <div className="text-sm text-gray-400 mt-1 flex items-start space-x-1">
+                        <FileText size={12} className="text-gray-400 mt-0.5 flex-shrink-0" />
+                        <span className="line-clamp-2">{task.notes}</span>
+                      </div>
+                    )}
                     <div className="text-sm text-gray-400 flex items-center space-x-2">
                       <span className="capitalize">{task.category}</span>
                       {task.dueTime && (
@@ -1012,6 +1041,12 @@ const WeeklyPlannerApp = () => {
                     </button>
                     <div className="line-through text-gray-500">
                       <div className="font-medium">{task.title}</div>
+                      {task.notes && (
+                        <div className="text-sm text-gray-400 mt-1 flex items-start space-x-1">
+                          <FileText size={12} className="text-gray-400 mt-0.5 flex-shrink-0" />
+                          <span className="line-clamp-2">{task.notes}</span>
+                        </div>
+                      )}
                       <div className="text-sm text-gray-400 flex items-center space-x-2">
                         <span>{task.category}</span>
                         <span>•</span>
@@ -1072,6 +1107,12 @@ const WeeklyPlannerApp = () => {
                     </button>
                     <div>
                       <div className="font-medium">{task.title}</div>
+                      {task.notes && (
+                        <div className="text-sm text-gray-600 mt-1 flex items-start space-x-1">
+                          <FileText size={12} className="text-gray-400 mt-0.5 flex-shrink-0" />
+                          <span className="line-clamp-2">{task.notes}</span>
+                        </div>
+                      )}
                       <div className="text-sm text-gray-500 flex items-center space-x-2">
                         <span>{task.category}</span>
                         <span>•</span>
@@ -1291,6 +1332,12 @@ const WeeklyPlannerApp = () => {
                                     <div className="font-medium text-sm text-gray-900">
                                       {item.title}
                                     </div>
+                                    {item.notes && (
+                                      <div className="text-xs text-gray-600 mt-1 flex items-start space-x-1">
+                                        <FileText size={10} className="text-gray-400 mt-0.5 flex-shrink-0" />
+                                        <span className="line-clamp-1">{item.notes}</span>
+                                      </div>
+                                    )}
                                     <div className="text-xs text-gray-600 mt-1">
                                       {'date' in item ? (
                                         `${item.time} • ${item.duration} • ${item.type}`
