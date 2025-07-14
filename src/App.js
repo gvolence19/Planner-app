@@ -1063,19 +1063,19 @@ const WeeklyPlannerApp = () => {
                   className="flex items-center space-x-3 flex-1 min-w-0 cursor-pointer"
                   onClick={() => openTaskModal(task)}
                 >
-                  <button
+                  <div
                     onClick={(e) => {
                       e.stopPropagation();
                       toggleTask(task.id);
                     }}
-                    className={`flex-shrink-0 ${
+                    className={`flex-shrink-0 cursor-pointer ${
                       task.completed 
                         ? 'text-green-600' 
                         : 'text-gray-400 hover:text-blue-600'
                     }`}
                   >
                     <CheckCircle size={20} />
-                  </button>
+                  </div>
                   <div className={`flex-1 min-w-0 ${task.completed ? 'line-through text-gray-500' : ''}`}>
                     <div className="font-medium truncate">{task.title}</div>
                     {task.notes && (
@@ -1328,15 +1328,15 @@ const WeeklyPlannerApp = () => {
               <div key={task.id} className="p-4 bg-green-50 cursor-pointer hover:bg-green-100" onClick={() => openTaskModal(task)}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <button
+                    <div
                       onClick={(e) => {
                         e.stopPropagation();
                         toggleTask(task.id);
                       }}
-                      className="text-green-600"
+                      className="text-green-600 cursor-pointer"
                     >
                       <CheckCircle size={20} />
-                    </button>
+                    </div>
                     <div className="line-through text-gray-500">
                       <div className="font-medium">{task.title}</div>
                       {task.notes && (
@@ -1367,15 +1367,15 @@ const WeeklyPlannerApp = () => {
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className="text-sm font-medium text-green-600">Completed</span>
-                    <button
+                    <div
                       onClick={(e) => {
                         e.stopPropagation();
                         deleteTask(task.id);
                       }}
-                      className="text-red-500 hover:text-red-700"
+                      className="text-red-500 hover:text-red-700 cursor-pointer p-1"
                     >
                       <Trash2 size={16} />
-                    </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1400,15 +1400,15 @@ const WeeklyPlannerApp = () => {
               <div key={task.id} className="p-4 cursor-pointer hover:bg-gray-50" onClick={() => openTaskModal(task)}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <button
+                    <div
                       onClick={(e) => {
                         e.stopPropagation();
                         toggleTask(task.id);
                       }}
-                      className="text-gray-400 hover:text-blue-600"
+                      className="text-gray-400 hover:text-blue-600 cursor-pointer"
                     >
                       <CheckCircle size={20} />
-                    </button>
+                    </div>
                     <div>
                       <div className="font-medium">{task.title}</div>
                       {task.notes && (
@@ -1442,15 +1442,15 @@ const WeeklyPlannerApp = () => {
                     <div className={`text-sm font-medium ${getPriorityColor(task.priority)}`}>
                       {task.priority}
                     </div>
-                    <button
+                    <div
                       onClick={(e) => {
                         e.stopPropagation();
                         deleteTask(task.id);
                       }}
-                      className="text-red-500 hover:text-red-700"
+                      className="text-red-500 hover:text-red-700 cursor-pointer p-1"
                     >
                       <Trash2 size={16} />
-                    </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1655,15 +1655,15 @@ const WeeklyPlannerApp = () => {
                                     </div>
                                   </div>
                                   {!('date' in item) && (
-                                    <button
+                                    <div
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         toggleTask(item.id);
                                       }}
-                                      className="text-gray-400 hover:text-blue-600 ml-2"
+                                      className="text-gray-400 hover:text-blue-600 ml-2 cursor-pointer p-1"
                                     >
                                       <CheckCircle size={16} />
-                                    </button>
+                                    </div>
                                   )}
                                 </div>
                               </div>
@@ -1695,15 +1695,15 @@ const WeeklyPlannerApp = () => {
                             {task.category} • {task.duration || 'No duration'} • {task.priority} priority
                           </div>
                         </div>
-                        <button
+                        <div
                           onClick={(e) => {
                             e.stopPropagation();
                             toggleTask(task.id);
                           }}
-                          className="text-gray-400 hover:text-blue-600"
+                          className="text-gray-400 hover:text-blue-600 cursor-pointer p-1"
                         >
                           <CheckCircle size={18} />
-                        </button>
+                        </div>
                       </div>
                     ))}
                 </div>
