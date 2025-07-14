@@ -1081,7 +1081,7 @@ const WeeklyPlannerApp = () => {
                     {task.notes && (
                       <div className="text-sm text-gray-600 mt-1 flex items-start space-x-1">
                         <FileText size={12} className="text-gray-400 mt-0.5 flex-shrink-0" />
-                        <span className="line-clamp-2">{task.notes}</span>
+                        <span className="truncate">{task.notes}</span>
                       </div>
                     )}
                     <div className="text-sm text-gray-500 flex items-center space-x-2">
@@ -1153,7 +1153,7 @@ const WeeklyPlannerApp = () => {
                     {task.notes && (
                       <div className="text-sm text-gray-400 mt-1 flex items-start space-x-1">
                         <FileText size={12} className="text-gray-400 mt-0.5 flex-shrink-0" />
-                        <span className="line-clamp-2">{task.notes}</span>
+                                                  <span className="truncate">{task.notes}</span>
                       </div>
                     )}
                     <div className="text-sm text-gray-400 flex items-center space-x-2">
@@ -1342,7 +1342,7 @@ const WeeklyPlannerApp = () => {
                       {task.notes && (
                         <div className="text-sm text-gray-400 mt-1 flex items-start space-x-1">
                           <FileText size={12} className="text-gray-400 mt-0.5 flex-shrink-0" />
-                          <span className="line-clamp-2">{task.notes}</span>
+                          <span className="truncate">{task.notes}</span>
                         </div>
                       )}
                       <div className="text-sm text-gray-400 flex items-center space-x-2">
@@ -1414,7 +1414,7 @@ const WeeklyPlannerApp = () => {
                       {task.notes && (
                         <div className="text-sm text-gray-600 mt-1 flex items-start space-x-1">
                           <FileText size={12} className="text-gray-400 mt-0.5 flex-shrink-0" />
-                          <span className="line-clamp-2">{task.notes}</span>
+                          <span className="truncate">{task.notes}</span>
                         </div>
                       )}
                       <div className="text-sm text-gray-500 flex items-center space-x-2">
@@ -1628,11 +1628,12 @@ const WeeklyPlannerApp = () => {
                             {hourItems.map((item, idx) => (
                               <div
                                 key={`${item.id}-${idx}`}
-                                className={`p-2 rounded-lg border-l-4 ${
+                                className={`p-2 rounded-lg border-l-4 cursor-pointer hover:bg-gray-100 ${
                                   'date' in item 
                                     ? `bg-gray-50 ${getEventTypeColor(item.type).replace('bg-', 'border-l-')}`
                                     : `bg-blue-50 ${getTaskTypeColor(item.category).replace('bg-', 'border-l-')}`
                                 }`}
+                                onClick={() => !('date' in item) && openTaskModal(item)}
                               >
                                 <div className="flex items-center justify-between">
                                   <div className="flex-1">
@@ -1642,7 +1643,7 @@ const WeeklyPlannerApp = () => {
                                     {item.notes && (
                                       <div className="text-xs text-gray-600 mt-1 flex items-start space-x-1">
                                         <FileText size={10} className="text-gray-400 mt-0.5 flex-shrink-0" />
-                                        <span className="line-clamp-1">{item.notes}</span>
+                                        <span className="truncate">{item.notes}</span>
                                       </div>
                                     )}
                                     <div className="text-xs text-gray-600 mt-1">
@@ -1686,7 +1687,7 @@ const WeeklyPlannerApp = () => {
                   {getActiveTasksForDate(selectedDate)
                     .filter(task => !task.dueTime)
                     .map(task => (
-                      <div key={task.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                      <div key={task.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-100" onClick={() => openTaskModal(task)}>
                         <div className={`w-3 h-3 ${getTaskTypeColor(task.category)} rounded-full flex-shrink-0`}></div>
                         <div className="flex-1">
                           <div className="font-medium text-gray-900">{task.title}</div>
@@ -1695,7 +1696,10 @@ const WeeklyPlannerApp = () => {
                           </div>
                         </div>
                         <button
-                          onClick={() => toggleTask(task.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleTask(task.id);
+                          }}
                           className="text-gray-400 hover:text-blue-600"
                         >
                           <CheckCircle size={18} />
@@ -2056,6 +2060,16 @@ const WeeklyPlannerApp = () => {
           </button>
         </div>
       </div>
+
+      {/* Task Detail Modal */}
+      {showTaskModal && selectedTask && (
+        <TaskDetailModal
+          task={selectedTask}
+          onClose={closeTaskModal}
+          onUpdate={updateTask}
+          onDelete={deleteTask}
+        />
+      )}
 
       {/* Add Task Modal */}
       {showAddModal && (
