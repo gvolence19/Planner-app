@@ -64,6 +64,11 @@ const WeeklyPlannerApp = () => {
         duration: '2 hours',
         reminder: true,
         category: 'work',
+        isRecurring: false,
+        recurringType: 'none', // 'daily', 'weekly', 'monthly', 'yearly'
+        recurringInterval: 1, // every X days/weeks/months
+        recurringEndDate: null, // when to stop recurring
+        originalTaskId: null, // for tracking which task this recurred from
         notes: 'Focus on budget section and timeline. Check technical requirements.'
       },
       {
@@ -492,13 +497,19 @@ const WeeklyPlannerApp = () => {
   };
 
   const addTask = (taskData) => {
-    const newTask = {
-      id: Date.now(),
-      ...taskData,
-      completed: false
-    };
-    setTasks([...tasks, newTask]);
+  const newTask = {
+    id: Date.now(),
+    ...taskData,
+    completed: false
   };
+  setTasks([...tasks, newTask]);
+  
+  // CREATE RECURRING INSTANCES
+  if (newTask.isRecurring) {
+    setTimeout(() => createRecurringTasks(newTask), 100);
+  }
+};
+
 
   const deleteTask = (taskId) => {
     setTasks(tasks.filter(task => task.id !== taskId));
@@ -512,6 +523,57 @@ const WeeklyPlannerApp = () => {
     ));
   };
 
+// ADD THE createRecurringTasks FUNCTION HERE
+const createRecurringTasks = (originalTask) => {
+  if (!originalTask.isRecurring) return;
+  
+  const newTasks = [];
+  const startDate = new Date(originalTask.dueDate);
+  let currentDate = new Date(startDate);
+  
+  // Create up to 10 future instances (or until end date)
+  for (let i = 0; i < 10; i++) {
+    // Calculate next date based on recurring type
+    switch (originalTask.recurringType) {
+      case 'daily':
+        currentDate.setDate(currentDate.getDate() + originalTask.recurringInterval);
+        break;
+      case 'weekly':
+        currentDate.setDate(currentDate.getDate() + (7 * originalTask.recurringInterval));
+        break;
+      case 'monthly':
+        currentDate.setMonth(currentDate.getMonth() + originalTask.recurringInterval);
+        break;
+      case 'yearly':
+        currentDate.setFullYear(currentDate.getFullYear() + originalTask.recurringInterval);
+        break;
+    }
+    
+    // Stop if we've reached the end date
+    if (originalTask.recurringEndDate && currentDate > originalTask.recurringEndDate) {
+      break;
+    }
+    
+    // Create new task instance
+    const newTask = {
+      ...originalTask,
+      id: Date.now() + i,
+      dueDate: new Date(currentDate),
+      completed: false,
+      originalTaskId: originalTask.id
+    };
+    
+    newTasks.push(newTask);
+  }
+  
+  // Add all new tasks
+  setTasks(prevTasks => [...prevTasks, ...newTasks]);
+};
+
+const openTaskModal = (task) => {
+  setSelectedTask(task);
+  setShowTaskModal(true);
+};
   const openTaskModal = (task) => {
     setSelectedTask(task);
     setShowTaskModal(true);
@@ -559,6 +621,10 @@ const WeeklyPlannerApp = () => {
       dueTime: task?.dueTime || '',
       duration: task?.duration || '',
       reminder: task?.reminder || false
+      isRecurring: task?.isRecurring || false,
+      recurringType: task?.recurringType || 'none',
+      recurringInterval: task?.recurringInterval || 1,
+      recurringEndDate: task?.recurringEndDate || null
     });
 
     const handleSave = () => {
@@ -777,7 +843,73 @@ const WeeklyPlannerApp = () => {
                 )}
               </div>
             </div>
-            
+            {/* Recurring Task Info */}
+<div className="border-t border-gray-200 pt-4">
+  <div className="flex items-center justify-between mb-2">
+    <label className="block text-sm font-medium text-gray-700">Recurring Task</label>
+    {isEditing ? (
+      <input
+        type="checkbox"
+        checked={editData.isRecurring}
+        onChange={(e) => setEditData({...editData, isRecurring: e.target.checked})}
+        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+      />
+    ) : (
+      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+        task.isRecurring ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'
+      }`}>
+        {task.isRecurring ? 'Yes' : 'No'}
+      </span>
+    )}
+  </div>
+  
+  {(isEditing ? editData.isRecurring : task.isRecurring) && (
+    <div className="ml-4 p-3 bg-blue-50 rounded-lg space-y-2">
+      {isEditing ? (
+        <>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Repeat</label>
+            <select
+              value={editData.recurringType}
+              onChange={(e) => setEditData({...editData, recurringType: e.target.value})}
+              className="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="yearly">Yearly</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Every</label>
+            <div className="flex items-center space-x-2">
+              <input
+                type="number"
+                min="1"
+                max="30"
+                value={editData.recurringInterval}
+                onChange={(e) => setEditData({...editData, recurringInterval: parseInt(e.target.value)})}
+                className="w-16 p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              />
+              <span className="text-xs text-gray-600">
+                {editData.recurringType === 'daily' ? 'day(s)' :
+                 editData.recurringType === 'weekly' ? 'week(s)' :
+                 editData.recurringType === 'monthly' ? 'month(s)' : 'year(s)'}
+              </span>
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className="text-sm text-blue-700">
+          <div>Repeats: Every {task.recurringInterval} {task.recurringType.slice(0, -2)}{task.recurringInterval > 1 ? 's' : ''}</div>
+          {task.recurringEndDate && (
+            <div>Until: {task.recurringEndDate.toLocaleDateString()}</div>
+          )}
+        </div>
+      )}
+    </div>
+  )}
+</div>
             {/* Action Buttons */}
             <div className="flex space-x-3 pt-4 border-t border-gray-200">
               {isEditing ? (
@@ -829,6 +961,10 @@ const [taskData, setTaskData] = useState({
       reminder: false,
       category: 'personal',
       notes: ''
+      isRecurring: false,
+      recurringType: 'none',
+      recurringInterval: 1,
+      recurringEndDate: null
     });
 
     const handleSubmit = (e) => {
@@ -956,6 +1092,68 @@ const [taskData, setTaskData] = useState({
               </label>
             </div>
             
+{/* Recurring Task Section */}
+<div className="border-t border-gray-200 pt-4">
+  <div className="flex items-center mb-3">
+    <input
+      type="checkbox"
+      id="recurring"
+      checked={taskData.isRecurring}
+      onChange={(e) => setTaskData({...taskData, isRecurring: e.target.checked})}
+      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+    />
+    <label htmlFor="recurring" className="ml-2 block text-sm font-medium text-gray-700">
+      Make this a recurring task
+    </label>
+  </div>
+  
+  {taskData.isRecurring && (
+    <div className="space-y-3 ml-6 p-3 bg-blue-50 rounded-lg">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Repeat</label>
+        <select
+          value={taskData.recurringType}
+          onChange={(e) => setTaskData({...taskData, recurringType: e.target.value})}
+          className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+          <option value="yearly">Yearly</option>
+        </select>
+      </div>
+      
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Every</label>
+        <div className="flex items-center space-x-2">
+          <input
+            type="number"
+            min="1"
+            max="30"
+            value={taskData.recurringInterval}
+            onChange={(e) => setTaskData({...taskData, recurringInterval: parseInt(e.target.value)})}
+            className="w-20 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+          />
+          <span className="text-sm text-gray-600">
+            {taskData.recurringType === 'daily' ? 'day(s)' :
+             taskData.recurringType === 'weekly' ? 'week(s)' :
+             taskData.recurringType === 'monthly' ? 'month(s)' : 'year(s)'}
+          </span>
+        </div>
+      </div>
+      
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">End Date (Optional)</label>
+        <input
+          type="date"
+          value={taskData.recurringEndDate ? taskData.recurringEndDate.toISOString().split('T')[0] : ''}
+          onChange={(e) => setTaskData({...taskData, recurringEndDate: e.target.value ? new Date(e.target.value) : null})}
+          className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+    </div>
+  )}
+</div>
             <div className="flex space-x-3 pt-4">
               <button
                 type="button"
@@ -1078,7 +1276,14 @@ const [taskData, setTaskData] = useState({
                     <CheckCircle size={20} />
                   </div>
                   <div className={`flex-1 min-w-0 ${task.completed ? 'line-through text-gray-500' : ''}`}>
-                    <div className="font-medium truncate">{task.title}</div>
+                    <div className="font-medium truncate flex items-center">
+  {task.title}
+  {task.isRecurring && (
+    <span className="ml-2 text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
+      🔄 Recurring
+    </span>
+  )}
+</div>
                     {task.notes && (
                       <div className="text-sm text-gray-600 mt-1 flex items-start space-x-1">
                         <FileText size={12} className="text-gray-400 mt-0.5 flex-shrink-0" />
@@ -1150,7 +1355,14 @@ const [taskData, setTaskData] = useState({
                     <CheckCircle size={20} />
                   </button>
                   <div className="flex-1 min-w-0 line-through text-gray-500">
-                    <div className="font-medium truncate">{task.title}</div>
+                    <div className="font-medium truncate flex items-center">
+  {task.title}
+  {task.isRecurring && (
+    <span className="ml-2 text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
+      🔄 Recurring
+    </span>
+  )}
+</div>
                     {task.notes && (
                       <div className="text-sm text-gray-400 mt-1 flex items-start space-x-1">
                         <FileText size={12} className="text-gray-400 mt-0.5 flex-shrink-0" />
@@ -1339,7 +1551,14 @@ const [taskData, setTaskData] = useState({
                       <CheckCircle size={20} />
                     </div>
                     <div className="line-through text-gray-500">
-                      <div className="font-medium">{task.title}</div>
+                      <div className="font-medium flex items-center">
+  {task.title}
+  {task.isRecurring && (
+    <span className="ml-2 text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
+      🔄 Recurring
+    </span>
+  )}
+</div>
                       {task.notes && (
                         <div className="text-sm text-gray-400 mt-1 flex items-start space-x-1">
                           <FileText size={12} className="text-gray-400 mt-0.5 flex-shrink-0" />
@@ -1411,7 +1630,14 @@ const [taskData, setTaskData] = useState({
                       <CheckCircle size={20} />
                     </div>
                     <div>
-                      <div className="font-medium">{task.title}</div>
+                      <div className="font-medium flex items-center">
+  {task.title}
+  {task.isRecurring && (
+    <span className="ml-2 text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
+      🔄 Recurring
+    </span>
+  )}
+</div>
                       {task.notes && (
                         <div className="text-sm text-gray-600 mt-1 flex items-start space-x-1">
                           <FileText size={12} className="text-gray-400 mt-0.5 flex-shrink-0" />
@@ -1638,9 +1864,14 @@ const [taskData, setTaskData] = useState({
                               >
                                 <div className="flex items-center justify-between">
                                   <div className="flex-1">
-                                    <div className="font-medium text-sm text-gray-900">
-                                      {item.title}
-                                    </div>
+                                    <div className="font-medium text-sm text-gray-900 flex items-center">
+  {item.title}
+  {item.isRecurring && (
+    <span className="ml-2 text-xs bg-blue-100 text-blue-600 px-1 py-0.5 rounded-full">
+      🔄
+    </span>
+  )}
+</div>
                                     {item.notes && (
                                       <div className="text-xs text-gray-600 mt-1 flex items-start space-x-1">
                                         <FileText size={10} className="text-gray-400 mt-0.5 flex-shrink-0" />
@@ -1691,7 +1922,14 @@ const [taskData, setTaskData] = useState({
                       <div key={task.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-100" onClick={() => openTaskModal(task)}>
                         <div className={`w-3 h-3 ${getTaskTypeColor(task.category)} rounded-full flex-shrink-0`}></div>
                         <div className="flex-1">
-                          <div className="font-medium text-gray-900">{task.title}</div>
+                          <div className="font-medium text-gray-900 flex items-center">
+  {task.title}
+  {task.isRecurring && (
+    <span className="ml-2 text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
+      🔄 Recurring
+    </span>
+  )}
+</div>
                           <div className="text-sm text-gray-600">
                             {task.category} • {task.duration || 'No duration'} • {task.priority} priority
                           </div>
