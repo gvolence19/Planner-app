@@ -956,7 +956,7 @@ const [taskData, setTaskData] = useState({
       duration: '',
       reminder: false,
       category: 'personal',
-      notes: ''
+      notes: '',
       isRecurring: false,
       recurringType: 'none',
       recurringInterval: 1,
