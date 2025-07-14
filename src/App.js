@@ -616,7 +616,7 @@ const openTaskModal = (task) => {
       dueDate: task?.dueDate || new Date(),
       dueTime: task?.dueTime || '',
       duration: task?.duration || '',
-      reminder: task?.reminder || false
+      reminder: task?.reminder || false,
       isRecurring: task?.isRecurring || false,
       recurringType: task?.recurringType || 'none',
       recurringInterval: task?.recurringInterval || 1,
