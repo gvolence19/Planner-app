@@ -818,7 +818,9 @@ const WeeklyPlannerApp = () => {
       </div>
     );
   };
-    const [taskData, setTaskData] = useState({
+    
+const AddTaskModal = ({ onClose, onAdd }) => {
+const [taskData, setTaskData] = useState({
       title: '',
       priority: 'medium',
       dueDate: new Date(),
@@ -975,7 +977,6 @@ const WeeklyPlannerApp = () => {
       </div>
     );
   };
-
   const Dashboard = () => (
     <div className="space-y-6 max-h-full">
       {userTier === 'free' && <FreemiumBanner />}
