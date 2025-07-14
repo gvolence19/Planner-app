@@ -574,10 +574,6 @@ const openTaskModal = (task) => {
   setSelectedTask(task);
   setShowTaskModal(true);
 };
-  const openTaskModal = (task) => {
-    setSelectedTask(task);
-    setShowTaskModal(true);
-  };
 
   const closeTaskModal = () => {
     setSelectedTask(null);
