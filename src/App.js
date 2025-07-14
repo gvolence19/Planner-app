@@ -15,6 +15,8 @@ const WeeklyPlannerApp = () => {
   const [isListening, setIsListening] = useState(false);
   const [speechRecognition, setSpeechRecognition] = useState(null);
   const [showCompleted, setShowCompleted] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [showTaskModal, setShowTaskModal] = useState(false);
 
   // Sample data initialization
   useEffect(() => {
@@ -502,6 +504,24 @@ const WeeklyPlannerApp = () => {
     setTasks(tasks.filter(task => task.id !== taskId));
   };
 
+  const updateTask = (taskId, updatedData) => {
+    setTasks(tasks.map(task => 
+      task.id === taskId 
+        ? { ...task, ...updatedData }
+        : task
+    ));
+  };
+
+  const openTaskModal = (task) => {
+    setSelectedTask(task);
+    setShowTaskModal(true);
+  };
+
+  const closeTaskModal = () => {
+    setSelectedTask(null);
+    setShowTaskModal(false);
+  };
+
   const getPriorityColor = (priority) => {
     switch (priority) {
       case 'high': return 'text-red-500';
@@ -528,7 +548,276 @@ const WeeklyPlannerApp = () => {
     </div>
   );
 
-  const AddTaskModal = ({ onClose, onAdd }) => {
+  const TaskDetailModal = ({ task, onClose, onUpdate, onDelete }) => {
+    const [isEditing, setIsEditing] = useState(false);
+    const [editData, setEditData] = useState({
+      title: task?.title || '',
+      notes: task?.notes || '',
+      priority: task?.priority || 'medium',
+      category: task?.category || 'personal',
+      dueDate: task?.dueDate || new Date(),
+      dueTime: task?.dueTime || '',
+      duration: task?.duration || '',
+      reminder: task?.reminder || false
+    });
+
+    const handleSave = () => {
+      onUpdate(task.id, editData);
+      setIsEditing(false);
+    };
+
+    const handleDelete = () => {
+      if (window.confirm('Are you sure you want to delete this task?')) {
+        onDelete(task.id);
+        onClose();
+      }
+    };
+
+    if (!task) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold">
+              {isEditing ? 'Edit Task' : 'Task Details'}
+            </h3>
+            <div className="flex items-center space-x-2">
+              {!isEditing && (
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="text-blue-600 hover:text-blue-700"
+                >
+                  <Edit3 size={20} />
+                </button>
+              )}
+              <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+                <X size={24} />
+              </button>
+            </div>
+          </div>
+          
+          <div className="space-y-4">
+            {/* Task Status */}
+            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <span className="text-sm font-medium">Status:</span>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => onUpdate(task.id, { completed: !task.completed })}
+                  className={`flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium ${
+                    task.completed 
+                      ? 'bg-green-100 text-green-700' 
+                      : 'bg-blue-100 text-blue-700'
+                  }`}
+                >
+                  <CheckCircle size={16} />
+                  <span>{task.completed ? 'Completed' : 'Active'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Title */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={editData.title}
+                  onChange={(e) => setEditData({...editData, title: e.target.value})}
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                />
+              ) : (
+                <p className="text-gray-900 font-medium">{task.title}</p>
+              )}
+            </div>
+
+            {/* Notes */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+              {isEditing ? (
+                <textarea
+                  value={editData.notes}
+                  onChange={(e) => setEditData({...editData, notes: e.target.value})}
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                  rows="4"
+                  placeholder="Add notes..."
+                />
+              ) : (
+                <div className="min-h-[80px] p-3 bg-gray-50 rounded-md">
+                  {task.notes ? (
+                    <p className="text-gray-700 whitespace-pre-wrap">{task.notes}</p>
+                  ) : (
+                    <p className="text-gray-500 italic">No notes added</p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Task Details Grid */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                {isEditing ? (
+                  <select
+                    value={editData.priority}
+                    onChange={(e) => setEditData({...editData, priority: e.target.value})}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                ) : (
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(task.priority)} bg-gray-100`}>
+                    {task.priority}
+                  </span>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                {isEditing ? (
+                  <select
+                    value={editData.category}
+                    onChange={(e) => setEditData({...editData, category: e.target.value})}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="personal">Personal</option>
+                    <option value="work">Work</option>
+                    <option value="health">Health</option>
+                    <option value="shopping">Shopping</option>
+                  </select>
+                ) : (
+                  <span className="text-gray-700 capitalize">{task.category}</span>
+                )}
+              </div>
+            </div>
+
+            {/* Date and Time */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+                {isEditing ? (
+                  <input
+                    type="date"
+                    value={editData.dueDate.toISOString().split('T')[0]}
+                    onChange={(e) => setEditData({...editData, dueDate: new Date(e.target.value)})}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                  />
+                ) : (
+                  <p className="text-gray-700">{task.dueDate.toLocaleDateString()}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Time</label>
+                {isEditing ? (
+                  <input
+                    type="time"
+                    value={editData.dueTime}
+                    onChange={(e) => setEditData({...editData, dueTime: e.target.value})}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                  />
+                ) : (
+                  <p className="text-gray-700">{task.dueTime ? formatTime(task.dueTime) : 'No time set'}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Duration and Reminder */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Duration</label>
+                {isEditing ? (
+                  <select
+                    value={editData.duration}
+                    onChange={(e) => setEditData({...editData, duration: e.target.value})}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">No duration</option>
+                    <option value="15 minutes">15 minutes</option>
+                    <option value="30 minutes">30 minutes</option>
+                    <option value="45 minutes">45 minutes</option>
+                    <option value="1 hour">1 hour</option>
+                    <option value="1.5 hours">1.5 hours</option>
+                    <option value="2 hours">2 hours</option>
+                    <option value="3 hours">3 hours</option>
+                    <option value="4 hours">4 hours</option>
+                    <option value="Half day">Half day</option>
+                    <option value="Full day">Full day</option>
+                  </select>
+                ) : (
+                  <p className="text-gray-700">{task.duration || 'No duration'}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Reminder</label>
+                {isEditing ? (
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={editData.reminder}
+                      onChange={(e) => setEditData({...editData, reminder: e.target.checked})}
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                    <span className="ml-2 text-sm text-gray-700">Set reminder</span>
+                  </label>
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    {task.reminder ? (
+                      <>
+                        <Bell size={16} className="text-yellow-500" />
+                        <span className="text-gray-700">Enabled</span>
+                      </>
+                    ) : (
+                      <span className="text-gray-500">Disabled</span>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex space-x-3 pt-4 border-t border-gray-200">
+              {isEditing ? (
+                <>
+                  <button
+                    onClick={() => setIsEditing(false)}
+                    className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSave}
+                    className="flex-1 py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  >
+                    Save Changes
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={handleDelete}
+                    className="flex-1 py-2 px-4 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center justify-center space-x-2"
+                  >
+                    <Trash2 size={16} />
+                    <span>Delete</span>
+                  </button>
+                  <button
+                    onClick={onClose}
+                    className="flex-1 py-2 px-4 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+                  >
+                    Close
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
     const [taskData, setTaskData] = useState({
       title: '',
       priority: 'medium',
@@ -770,9 +1059,15 @@ const WeeklyPlannerApp = () => {
           <div className="max-h-48 overflow-y-auto space-y-2 pr-2">
             {sortTasksByTime(getActiveTasksForDate(selectedDate)).map(task => (
               <div key={task.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                <div className="flex items-center space-x-3 flex-1 min-w-0">
+                <div 
+                  className="flex items-center space-x-3 flex-1 min-w-0 cursor-pointer"
+                  onClick={() => openTaskModal(task)}
+                >
                   <button
-                    onClick={() => toggleTask(task.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleTask(task.id);
+                    }}
                     className={`flex-shrink-0 ${
                       task.completed 
                         ? 'text-green-600' 
@@ -1030,11 +1325,14 @@ const WeeklyPlannerApp = () => {
             </div>
           ) : (
             sortTasksByTime(tasks.filter(t => t.completed)).map(task => (
-              <div key={task.id} className="p-4 bg-green-50">
+              <div key={task.id} className="p-4 bg-green-50 cursor-pointer hover:bg-green-100" onClick={() => openTaskModal(task)}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <button
-                      onClick={() => toggleTask(task.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleTask(task.id);
+                      }}
                       className="text-green-600"
                     >
                       <CheckCircle size={20} />
@@ -1070,7 +1368,10 @@ const WeeklyPlannerApp = () => {
                   <div className="flex items-center space-x-2">
                     <span className="text-sm font-medium text-green-600">Completed</span>
                     <button
-                      onClick={() => deleteTask(task.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteTask(task.id);
+                      }}
                       className="text-red-500 hover:text-red-700"
                     >
                       <Trash2 size={16} />
@@ -1096,11 +1397,14 @@ const WeeklyPlannerApp = () => {
             </div>
           ) : (
             sortTasksByTime(tasks.filter(t => !t.completed)).map(task => (
-              <div key={task.id} className="p-4">
+              <div key={task.id} className="p-4 cursor-pointer hover:bg-gray-50" onClick={() => openTaskModal(task)}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <button
-                      onClick={() => toggleTask(task.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleTask(task.id);
+                      }}
                       className="text-gray-400 hover:text-blue-600"
                     >
                       <CheckCircle size={20} />
@@ -1139,7 +1443,10 @@ const WeeklyPlannerApp = () => {
                       {task.priority}
                     </div>
                     <button
-                      onClick={() => deleteTask(task.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteTask(task.id);
+                      }}
                       className="text-red-500 hover:text-red-700"
                     >
                       <Trash2 size={16} />
@@ -1348,7 +1655,10 @@ const WeeklyPlannerApp = () => {
                                   </div>
                                   {!('date' in item) && (
                                     <button
-                                      onClick={() => toggleTask(item.id)}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        toggleTask(item.id);
+                                      }}
                                       className="text-gray-400 hover:text-blue-600 ml-2"
                                     >
                                       <CheckCircle size={16} />
