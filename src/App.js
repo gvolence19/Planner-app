@@ -671,14 +671,6 @@ const openTaskModal = (task) => {
   setSelectedTask(task);
   setShowTaskModal(true);
 };
-  // Add all new tasks
-  setTasks(prevTasks => [...prevTasks, ...newTasks]);
-};
-
-const openTaskModal = (task) => {
-  setSelectedTask(task);
-  setShowTaskModal(true);
-};
 
 const closeTaskModal = () => {
   setSelectedTask(null);
@@ -783,22 +775,257 @@ const closeTaskModal = () => {
               </div>
             </div>
 
-            {/* Title */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-              {isEditing ? (
-                <input
-                  type="text"
-                  value={editData.title}
-                  onChange={(e) => setEditData({...editData, title: e.target.value})}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                />
-              ) : (
-                <p className="text-gray-900 font-medium">{task.title}</p>
-              )}
-            </div>
-
             {/* Notes */}
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+  {isEditing ? (
+    <textarea
+      value={editData.notes}
+      onChange={(e) => setEditData({...editData, notes: e.target.value})}
+      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+      rows="4"
+      placeholder="Add notes..."
+    />
+  ) : (
+    <div className="min-h-[80px] p-3 bg-gray-50 rounded-md">
+      {task.notes ? (
+        <p className="text-gray-700 whitespace-pre-wrap">{task.notes}</p>
+      ) : (
+        <p className="text-gray-500 italic">No notes added</p>
+      )}
+    </div>
+  )}
+</div>
+{/* Task Details Grid */}
+<div className="grid grid-cols-2 gap-4">
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+    {isEditing ? (
+      <select
+        value={editData.priority}
+        onChange={(e) => setEditData({...editData, priority: e.target.value})}
+        className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+      >
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+      </select>
+    ) : (
+      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(task.priority)} bg-gray-100`}>
+        {task.priority}
+      </span>
+    )}
+  </div>
+
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+    {isEditing ? (
+      <select
+        value={editData.category}
+        onChange={(e) => setEditData({...editData, category: e.target.value})}
+        className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+      >
+        <option value="personal">Personal</option>
+        <option value="work">Work</option>
+        <option value="health">Health</option>
+        <option value="shopping">Shopping</option>
+      </select>
+    ) : (
+      <span className="text-gray-700 capitalize">{task.category}</span>
+    )}
+  </div>
+</div>
+ {/* Date and Time */}
+<div className="grid grid-cols-2 gap-4">
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+    {isEditing ? (
+      <input
+        type="date"
+        value={editData.dueDate.toISOString().split('T')[0]}
+        onChange={(e) => setEditData({...editData, dueDate: new Date(e.target.value)})}
+        className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+      />
+    ) : (
+      <p className="text-gray-700">{task.dueDate.toLocaleDateString()}</p>
+    )}
+  </div>
+
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-1">Time</label>
+    {isEditing ? (
+      <input
+        type="time"
+        value={editData.dueTime}
+        onChange={(e) => setEditData({...editData, dueTime: e.target.value})}
+        className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+      />
+    ) : (
+      <p className="text-gray-700">{task.dueTime ? formatTime(task.dueTime) : 'No time set'}</p>
+    )}
+  </div>
+</div>
+{/* Duration and Reminder */}
+<div className="grid grid-cols-2 gap-4">
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-1">Duration</label>
+    {isEditing ? (
+      <select
+        value={editData.duration}
+        onChange={(e) => setEditData({...editData, duration: e.target.value})}
+        className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+      >
+        <option value="">No duration</option>
+        <option value="15 minutes">15 minutes</option>
+        <option value="30 minutes">30 minutes</option>
+        <option value="45 minutes">45 minutes</option>
+        <option value="1 hour">1 hour</option>
+        <option value="1.5 hours">1.5 hours</option>
+        <option value="2 hours">2 hours</option>
+        <option value="3 hours">3 hours</option>
+        <option value="4 hours">4 hours</option>
+        <option value="Half day">Half day</option>
+        <option value="Full day">Full day</option>
+      </select>
+    ) : (
+      <p className="text-gray-700">{task.duration || 'No duration'}</p>
+    )}
+  </div>
+
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-1">Reminder</label>
+    {isEditing ? (
+      <label className="flex items-center">
+        <input
+          type="checkbox"
+          checked={editData.reminder}
+          onChange={(e) => setEditData({...editData, reminder: e.target.checked})}
+          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+        />
+        <span className="ml-2 text-sm text-gray-700">Set reminder</span>
+      </label>
+    ) : (
+      <div className="flex items-center space-x-2">
+        {task.reminder ? (
+          <>
+            <Bell size={16} className="text-yellow-500" />
+            <span className="text-gray-700">Enabled</span>
+          </>
+        ) : (
+          <span className="text-gray-500">Disabled</span>
+        )}
+      </div>
+    )}
+  </div>
+</div>
+{/* Recurring Task Info */}
+<div className="border-t border-gray-200 pt-4">
+  <div className="flex items-center justify-between mb-2">
+    <label className="block text-sm font-medium text-gray-700">Recurring Task</label>
+    {isEditing ? (
+      <input
+        type="checkbox"
+        checked={editData.isRecurring}
+        onChange={(e) => setEditData({...editData, isRecurring: e.target.checked})}
+        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+      />
+    ) : (
+      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+        task.isRecurring ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'
+      }`}>
+        {task.isRecurring ? 'Yes' : 'No'}
+      </span>
+    )}
+  </div>
+  
+  {(isEditing ? editData.isRecurring : task.isRecurring) && (
+    <div className="ml-4 p-3 bg-blue-50 rounded-lg space-y-2">
+      {isEditing ? (
+        <>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Repeat</label>
+            <select
+              value={editData.recurringType}
+              onChange={(e) => setEditData({...editData, recurringType: e.target.value})}
+              className="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="yearly">Yearly</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Every</label>
+            <div className="flex items-center space-x-2">
+              <input
+                type="number"
+                min="1"
+                max="30"
+                value={editData.recurringInterval}
+                onChange={(e) => setEditData({...editData, recurringInterval: parseInt(e.target.value)})}
+                className="w-16 p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              />
+              <span className="text-xs text-gray-600">
+                {editData.recurringType === 'daily' ? 'day(s)' :
+                 editData.recurringType === 'weekly' ? 'week(s)' :
+                 editData.recurringType === 'monthly' ? 'month(s)' : 'year(s)'}
+              </span>
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className="text-sm text-blue-700">
+          <div>Repeats: Every {task.recurringInterval} {task.recurringType.slice(0, -2)}{task.recurringInterval > 1 ? 's' : ''}</div>
+          {task.recurringEndDate && (
+            <div>Until: {task.recurringEndDate.toLocaleDateString()}</div>
+          )}
+        </div>
+      )}
+    </div>
+  )}
+</div>
+{/* Action Buttons */}
+<div className="flex space-x-3 pt-4 border-t border-gray-200">
+  {isEditing ? (
+    <>
+      <button
+        onClick={() => setIsEditing(false)}
+        className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+      >
+        Cancel
+      </button>
+      <button
+        onClick={handleSave}
+        className="flex-1 py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+      >
+        Save Changes
+      </button>
+    </>
+  ) : (
+    <>
+      <button
+        onClick={handleDelete}
+        className="flex-1 py-2 px-4 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center justify-center space-x-2"
+      >
+        <Trash2 size={16} />
+        <span>Delete</span>
+      </button>
+      <button
+        onClick={onClose}
+        className="flex-1 py-2 px-4 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+      >
+        Close
+      </button>
+    </>
+  )}
+</div>
+</div>
+        </div>
+      </div>
+    );
+  };
+           {/* Notes */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
               {isEditing ? (
