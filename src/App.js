@@ -626,7 +626,6 @@ const addGroceryItem = (itemData) => {
   };
   setGroceryList([...groceryList, newItem]);
 };
-
 const toggleGroceryItem = (itemId) => {
   setGroceryList(groceryList.map(item => 
     item.id === itemId 
