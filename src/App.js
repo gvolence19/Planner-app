@@ -630,16 +630,6 @@ const addGroceryItem = (itemData) => {
   };
   setGroceryList([...groceryList, newItem]);
 };
-const addGroceryItem = (itemData) => {
-  const newItem = {
-    id: Date.now(),
-    ...itemData,
-    purchased: false,
-    addedDate: new Date()
-  };
-  setGroceryList([...groceryList, newItem]);
-};
-
 const toggleGroceryItem = (itemId) => {
   setGroceryList(groceryList.map(item => 
     item.id === itemId 
