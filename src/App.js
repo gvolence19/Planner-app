@@ -2571,7 +2571,22 @@ const GroceryListView = () => {
       </div>
     </div>
   );
-
+const GroceryListView = () => {
+  const [showCompleted, setShowCompleted] = useState(false);
+  
+  const activeItems = groceryList.filter(item => !item.purchased);
+  const purchasedItems = groceryList.filter(item => item.purchased);
+  
+  const groupItemsByCategory = (items) => {
+    return items.reduce((groups, item) => {
+      const category = item.category;
+      if (!groups[category]) {
+        groups[category] = [];
+      }
+      groups[category].push(item);
+      return groups;
+    }, {});
+  };
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
