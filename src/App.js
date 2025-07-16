@@ -608,12 +608,12 @@ const createRecurringTasks = (originalTask) => {
     newTasks.push(newTask);
   }
   
-  // Add all new tasks
-  setTasks(prevTasks => [...prevTasks, ...newTasks]);
-};
 newTasks.push(newTask);
   }
   
+  // Add all new tasks
+  setTasks(prevTasks => [...prevTasks, ...newTasks]);
+};
   // Add all new tasks
   setTasks(prevTasks => [...prevTasks, ...newTasks]);
 };
