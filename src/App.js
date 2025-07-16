@@ -17,6 +17,8 @@ const WeeklyPlannerApp = () => {
   const [showCompleted, setShowCompleted] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
   const [showTaskModal, setShowTaskModal] = useState(false);
+  const [groceryList, setGroceryList] = useState([]);
+  const [showGroceryModal, setShowGroceryModal] = useState(false);
 
   // Sample data initialization
   useEffect(() => {
@@ -203,6 +205,55 @@ const WeeklyPlannerApp = () => {
         type: 'work'
       }
     ];
+const sampleGroceryList = [
+  {
+    id: 1,
+    item: 'Milk',
+    category: 'Dairy',
+    quantity: '1 gallon',
+    purchased: false,
+    addedDate: new Date(),
+    priority: 'high'
+  },
+  {
+    id: 2,
+    item: 'Bread',
+    category: 'Bakery',
+    quantity: '1 loaf',
+    purchased: true,
+    addedDate: new Date(Date.now() - 86400000),
+    priority: 'medium'
+  },
+  {
+    id: 3,
+    item: 'Bananas',
+    category: 'Produce',
+    quantity: '1 bunch',
+    purchased: false,
+    addedDate: new Date(),
+    priority: 'low'
+  },
+  {
+    id: 4,
+    item: 'Chicken breast',
+    category: 'Meat',
+    quantity: '2 lbs',
+    purchased: false,
+    addedDate: new Date(),
+    priority: 'high'
+  },
+  {
+    id: 5,
+    item: 'Apples',
+    category: 'Produce',
+    quantity: '6 count',
+    purchased: false,
+    addedDate: new Date(),
+    priority: 'medium'
+  }
+];
+
+setGroceryList(sampleGroceryList);
 
     setTasks(sampleTasks);
     setEvents(sampleEvents);
@@ -562,6 +613,52 @@ const createRecurringTasks = (originalTask) => {
       completed: false,
       originalTaskId: originalTask.id
     };
+const addGroceryItem = (itemData) => {
+  const newItem = {
+    id: Date.now(),
+    ...itemData,
+    purchased: false,
+    addedDate: new Date()
+  };
+  setGroceryList([...groceryList, newItem]);
+};
+
+const toggleGroceryItem = (itemId) => {
+  setGroceryList(groceryList.map(item => 
+    item.id === itemId 
+      ? { ...item, purchased: !item.purchased }
+      : item
+  ));
+};
+
+const deleteGroceryItem = (itemId) => {
+  setGroceryList(groceryList.filter(item => item.id !== itemId));
+};
+
+const updateGroceryItem = (itemId, updatedData) => {
+  setGroceryList(groceryList.map(item => 
+    item.id === itemId 
+      ? { ...item, ...updatedData }
+      : item
+  ));
+};
+
+const clearPurchasedItems = () => {
+  setGroceryList(groceryList.filter(item => !item.purchased));
+};
+
+const getGroceryCategoryColor = (category) => {
+  switch (category) {
+    case 'Produce': return 'bg-green-500';
+    case 'Dairy': return 'bg-blue-500';
+    case 'Meat': return 'bg-red-500';
+    case 'Bakery': return 'bg-yellow-500';
+    case 'Pantry': return 'bg-purple-500';
+    case 'Frozen': return 'bg-cyan-500';
+    case 'Snacks': return 'bg-orange-500';
+    default: return 'bg-gray-500';
+  }
+};
     
     newTasks.push(newTask);
   }
@@ -1171,6 +1268,440 @@ const [taskData, setTaskData] = useState({
       </div>
     );
   };
+const AddGroceryModal = ({ onClose, onAdd }) => {
+  const [itemData, setItemData] = useState({
+    item: '',
+    category: 'Produce',
+    quantity: '',
+    priority: 'medium',
+    notes: ''
+  });
+
+  const handleSubmit = (e) => {
+    if (e) e.preventDefault();
+    if (itemData.item.trim()) {
+      onAdd(itemData);
+      onClose();
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg w-full max-w-md p-6">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold">Add Grocery Item</h3>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+            <X size={24} />
+          </button>
+        </div>
+        
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Item Name</label>
+            <input
+              type="text"
+              value={itemData.item}
+              onChange={(e) => setItemData({...itemData, item: e.target.value})}
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter item name..."
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+            <select
+              value={itemData.category}
+              onChange={(e) => setItemData({...itemData, category: e.target.value})}
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="Produce">Produce</option>
+              <option value="Dairy">Dairy</option>
+              <option value="Meat">Meat</option>
+              <option value="Bakery">Bakery</option>
+              <option value="Pantry">Pantry</option>
+              <option value="Frozen">Frozen</option>
+              <option value="Snacks">Snacks</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+            <input
+              type="text"
+              value={itemData.quantity}
+              onChange={(e) => setItemData({...itemData, quantity: e.target.value})}
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              placeholder="e.g., 2 lbs, 1 gallon, 6 count..."
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+            <select
+              value={itemData.priority}
+              onChange={(e) => setItemData({...itemData, priority: e.target.value})}
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Notes (Optional)</label>
+            <textarea
+              value={itemData.notes}
+              onChange={(e) => setItemData({...itemData, notes: e.target.value})}
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              placeholder="Brand preference, store location, etc..."
+              rows="2"
+            />
+          </div>
+          
+          <div className="flex space-x-3 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              className="flex-1 py-2 px-4 bg-green-600 text-white rounded-md hover:bg-green-700"
+            >
+              Add Item
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};const AddGroceryModal = ({ onClose, onAdd }) => {
+  const [itemData, setItemData] = useState({
+    item: '',
+    category: 'Produce',
+    quantity: '',
+    priority: 'medium',
+    notes: ''
+  });
+
+  const handleSubmit = (e) => {
+    if (e) e.preventDefault();
+    if (itemData.item.trim()) {
+      onAdd(itemData);
+      onClose();
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg w-full max-w-md p-6">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold">Add Grocery Item</h3>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+            <X size={24} />
+          </button>
+        </div>
+        
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Item Name</label>
+            <input
+              type="text"
+              value={itemData.item}
+              onChange={(e) => setItemData({...itemData, item: e.target.value})}
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter item name..."
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+            <select
+              value={itemData.category}
+              onChange={(e) => setItemData({...itemData, category: e.target.value})}
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="Produce">Produce</option>
+              <option value="Dairy">Dairy</option>
+              <option value="Meat">Meat</option>
+              <option value="Bakery">Bakery</option>
+              <option value="Pantry">Pantry</option>
+              <option value="Frozen">Frozen</option>
+              <option value="Snacks">Snacks</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+            <input
+              type="text"
+              value={itemData.quantity}
+              onChange={(e) => setItemData({...itemData, quantity: e.target.value})}
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              placeholder="e.g., 2 lbs, 1 gallon, 6 count..."
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+            <select
+              value={itemData.priority}
+              onChange={(e) => setItemData({...itemData, priority: e.target.value})}
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Notes (Optional)</label>
+            <textarea
+              value={itemData.notes}
+              onChange={(e) => setItemData({...itemData, notes: e.target.value})}
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              placeholder="Brand preference, store location, etc..."
+              rows="2"
+            />
+          </div>
+          
+          <div className="flex space-x-3 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              className="flex-1 py-2 px-4 bg-green-600 text-white rounded-md hover:bg-green-700"
+            >
+              Add Item
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+const GroceryListView = () => {
+  const [showCompleted, setShowCompleted] = useState(false);
+  
+  const activeItems = groceryList.filter(item => !item.purchased);
+  const purchasedItems = groceryList.filter(item => item.purchased);
+  
+  const groupItemsByCategory = (items) => {
+    return items.reduce((groups, item) => {
+      const category = item.category;
+      if (!groups[category]) {
+        groups[category] = [];
+      }
+      groups[category].push(item);
+      return groups;
+    }, {});
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold">Grocery List</h2>
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={() => setShowGroceryModal(true)}
+            className="bg-green-600 text-white p-2 rounded-full hover:bg-green-700"
+          >
+            <Plus size={20} />
+          </button>
+          {purchasedItems.length > 0 && (
+            <button
+              onClick={clearPurchasedItems}
+              className="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 text-sm"
+            >
+              Clear Purchased
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Summary Stats */}
+      <div className="bg-white rounded-lg shadow-sm p-4">
+        <div className="grid grid-cols-3 gap-4">
+          <div className="text-center">
+            <div className="text-2xl font-bold text-green-600">{activeItems.length}</div>
+            <div className="text-sm text-gray-600">To Buy</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-blue-600">{purchasedItems.length}</div>
+            <div className="text-sm text-gray-600">Purchased</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-purple-600">{groceryList.length}</div>
+            <div className="text-sm text-gray-600">Total</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Filter Buttons */}
+      <div className="bg-white rounded-lg shadow-sm p-4">
+        <div className="flex space-x-4">
+          <button
+            onClick={() => setShowCompleted(false)}
+            className={`px-4 py-2 rounded-lg font-medium ${
+              !showCompleted 
+                ? 'bg-green-600 text-white' 
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            Shopping List ({activeItems.length})
+          </button>
+          <button
+            onClick={() => setShowCompleted(true)}
+            className={`px-4 py-2 rounded-lg font-medium ${
+              showCompleted 
+                ? 'bg-blue-600 text-white' 
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            Purchased ({purchasedItems.length})
+          </button>
+        </div>
+      </div>
+
+      {/* Grocery Items */}
+      <div className="space-y-4">
+        {showCompleted ? (
+          // Purchased Items
+          purchasedItems.length === 0 ? (
+            <div className="bg-white rounded-lg shadow-sm p-8 text-center text-gray-500">
+              <div className="text-4xl mb-4">🛒</div>
+              <div className="text-lg font-medium mb-2">No purchased items</div>
+              <div className="text-sm">Items you check off will appear here</div>
+            </div>
+          ) : (
+            Object.entries(groupItemsByCategory(purchasedItems)).map(([category, items]) => (
+              <div key={category} className="bg-white rounded-lg shadow-sm">
+                <div className="p-4 border-b border-gray-200">
+                  <div className="flex items-center space-x-2">
+                    <div className={`w-3 h-3 ${getGroceryCategoryColor(category)} rounded-full`}></div>
+                    <h3 className="font-semibold text-gray-700">{category}</h3>
+                    <span className="text-sm text-gray-500">({items.length})</span>
+                  </div>
+                </div>
+                <div className="divide-y divide-gray-200">
+                  {items.map(item => (
+                    <div key={item.id} className="p-4 bg-green-50">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <button
+                            onClick={() => toggleGroceryItem(item.id)}
+                            className="text-green-600"
+                          >
+                            <CheckCircle size={20} />
+                          </button>
+                          <div className="line-through text-gray-500">
+                            <div className="font-medium">{item.item}</div>
+                            {item.quantity && (
+                              <div className="text-sm text-gray-400">{item.quantity}</div>
+                            )}
+                            {item.notes && (
+                              <div className="text-sm text-gray-400">{item.notes}</div>
+                            )}
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => deleteGroceryItem(item.id)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))
+          )
+        ) : (
+          // Active Items (Shopping List)
+          activeItems.length === 0 ? (
+            <div className="bg-white rounded-lg shadow-sm p-8 text-center text-gray-500">
+              <div className="text-4xl mb-4">🛒</div>
+              <div className="text-lg font-medium mb-2">Your grocery list is empty</div>
+              <div className="text-sm mb-4">Add items to start building your shopping list</div>
+              <button
+                onClick={() => setShowGroceryModal(true)}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+              >
+                Add Your First Item
+              </button>
+            </div>
+          ) : (
+            Object.entries(groupItemsByCategory(activeItems)).map(([category, items]) => (
+              <div key={category} className="bg-white rounded-lg shadow-sm">
+                <div className="p-4 border-b border-gray-200">
+                  <div className="flex items-center space-x-2">
+                    <div className={`w-3 h-3 ${getGroceryCategoryColor(category)} rounded-full`}></div>
+                    <h3 className="font-semibold text-gray-700">{category}</h3>
+                    <span className="text-sm text-gray-500">({items.length})</span>
+                  </div>
+                </div>
+                <div className="divide-y divide-gray-200">
+                  {items.map(item => (
+                    <div key={item.id} className="p-4 hover:bg-gray-50">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <button
+                            onClick={() => toggleGroceryItem(item.id)}
+                            className="text-gray-400 hover:text-green-600"
+                          >
+                            <CheckCircle size={20} />
+                          </button>
+                          <div>
+                            <div className="font-medium flex items-center">
+                              {item.item}
+                              <span className={`ml-2 text-xs px-2 py-1 rounded-full ${
+                                item.priority === 'high' ? 'bg-red-100 text-red-600' :
+                                item.priority === 'medium' ? 'bg-yellow-100 text-yellow-600' :
+                                'bg-green-100 text-green-600'
+                              }`}>
+                                {item.priority}
+                              </span>
+                            </div>
+                            {item.quantity && (
+                              <div className="text-sm text-gray-500">{item.quantity}</div>
+                            )}
+                            {item.notes && (
+                              <div className="text-sm text-gray-500">{item.notes}</div>
+                            )}
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => deleteGroceryItem(item.id)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))
+          )
+        )}
+      </div>
+    </div>
+  );
+};
   const Dashboard = () => (
     <div className="space-y-6 max-h-full">
       {userTier === 'free' && <FreemiumBanner />}
@@ -2217,6 +2748,23 @@ const [taskData, setTaskData] = useState({
                 >
                   Calendar
                 </button>
+<button
+  onClick={() => setCurrentView('grocery')}
+  className={`flex flex-col items-center py-2 px-3 rounded-lg ${
+    currentView === 'grocery' ? 'text-blue-600' : 'text-gray-600'
+  }`}
+>
+  <CheckCircle size={20} />
+  <span className="text-xs mt-1">Grocery</span>
+</button>
+<button
+  onClick={() => { setCurrentView('grocery'); setMenuOpen(false); }}
+  className={`w-full text-left p-3 rounded-lg ${
+    currentView === 'grocery' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+  }`}
+>
+  Grocery List
+</button>
                 <button
                   onClick={() => { setCurrentView('settings'); setMenuOpen(false); }}
                   className={`w-full text-left p-3 rounded-lg ${
@@ -2245,6 +2793,7 @@ const [taskData, setTaskData] = useState({
         {currentView === 'tasks' && <TasksView />}
         {currentView === 'calendar' && <CalendarView />}
         {currentView === 'settings' && <SettingsView />}
+        {currentView === 'grocery' && <GroceryListView />}
       </div>
 
       {/* Bottom Navigation */}
@@ -2319,6 +2868,13 @@ const [taskData, setTaskData] = useState({
           }}
         />
       )}
+{/* Add Grocery Item Modal */}
+{showGroceryModal && (
+  <AddGroceryModal
+    onClose={() => setShowGroceryModal(false)}
+    onAdd={addGroceryItem}
+  />
+)}
     </div>
   );
 };
