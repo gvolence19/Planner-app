@@ -2868,6 +2868,8 @@ const GroceryListView = () => {
   />
 )}
     </div>
+   </div>
+  </div>
   );
 };
 
