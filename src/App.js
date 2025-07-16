@@ -611,7 +611,12 @@ const createRecurringTasks = (originalTask) => {
   // Add all new tasks
   setTasks(prevTasks => [...prevTasks, ...newTasks]);
 };
-
+newTasks.push(newTask);
+  }
+  
+  // Add all new tasks
+  setTasks(prevTasks => [...prevTasks, ...newTasks]);
+};
 const addGroceryItem = (itemData) => {
   const newItem = {
     id: Date.now(),
