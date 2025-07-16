@@ -659,21 +659,21 @@ const openTaskModal = (task) => {
   setShowTaskModal(true);
 };
 
-  const closeTaskModal = () => {
-    setSelectedTask(null);
-    setShowTaskModal(false);
-  };
+const closeTaskModal = () => {
+  setSelectedTask(null);
+  setShowTaskModal(false);
+};
 
   const getPriorityColor = (priority) => {
-    switch (priority) {
-      case 'high': return 'text-red-500';
-      case 'medium': return 'text-yellow-500';
-      case 'low': return 'text-green-500';
-      default: return 'text-gray-500';
-    }
-  };
+  switch (priority) {
+    case 'high': return 'text-red-500';
+    case 'medium': return 'text-yellow-500';
+    case 'low': return 'text-green-500';
+    default: return 'text-gray-500';
+  }
+};
 
-  const FreemiumBanner = () => (
+ const FreemiumBanner = () => (
     <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-lg mb-4">
       <div className="flex justify-between items-center">
         <div>
@@ -690,7 +690,7 @@ const openTaskModal = (task) => {
     </div>
   );
 
-  const TaskDetailModal = ({ task, onClose, onUpdate, onDelete }) => {
+ const TaskDetailModal = ({ task, onClose, onUpdate, onDelete }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editData, setEditData] = useState({
       title: task?.title || '',
