@@ -605,14 +605,13 @@ const createRecurringTasks = (originalTask) => {
       break;
     }
     
-    // Create new task instance
-    const newTask = {
-      ...originalTask,
-      id: Date.now() + i,
-      dueDate: new Date(currentDate),
-      completed: false,
-      originalTaskId: originalTask.id
-    };
+    newTasks.push(newTask);
+  }
+  
+  // Add all new tasks
+  setTasks(prevTasks => [...prevTasks, ...newTasks]);
+};
+
 const addGroceryItem = (itemData) => {
   const newItem = {
     id: Date.now(),
@@ -1277,110 +1276,6 @@ const AddGroceryModal = ({ onClose, onAdd }) => {
     notes: ''
   });
 
-  const handleSubmit = (e) => {
-    if (e) e.preventDefault();
-    if (itemData.item.trim()) {
-      onAdd(itemData);
-      onClose();
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg w-full max-w-md p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold">Add Grocery Item</h3>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-            <X size={24} />
-          </button>
-        </div>
-        
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Item Name</label>
-            <input
-              type="text"
-              value={itemData.item}
-              onChange={(e) => setItemData({...itemData, item: e.target.value})}
-              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter item name..."
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-            <select
-              value={itemData.category}
-              onChange={(e) => setItemData({...itemData, category: e.target.value})}
-              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="Produce">Produce</option>
-              <option value="Dairy">Dairy</option>
-              <option value="Meat">Meat</option>
-              <option value="Bakery">Bakery</option>
-              <option value="Pantry">Pantry</option>
-              <option value="Frozen">Frozen</option>
-              <option value="Snacks">Snacks</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
-            <input
-              type="text"
-              value={itemData.quantity}
-              onChange={(e) => setItemData({...itemData, quantity: e.target.value})}
-              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-              placeholder="e.g., 2 lbs, 1 gallon, 6 count..."
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
-            <select
-              value={itemData.priority}
-              onChange={(e) => setItemData({...itemData, priority: e.target.value})}
-              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-            </select>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Notes (Optional)</label>
-            <textarea
-              value={itemData.notes}
-              onChange={(e) => setItemData({...itemData, notes: e.target.value})}
-              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-              placeholder="Brand preference, store location, etc..."
-              rows="2"
-            />
-          </div>
-          
-          <div className="flex space-x-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleSubmit}
-              className="flex-1 py-2 px-4 bg-green-600 text-white rounded-md hover:bg-green-700"
-            >
-              Add Item
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
     if (itemData.item.trim()) {
