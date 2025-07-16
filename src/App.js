@@ -605,18 +605,22 @@ const createRecurringTasks = (originalTask) => {
       break;
     }
     
+    // Create new task instance
+    const newTask = {
+      ...originalTask,
+      id: Date.now() + i,
+      dueDate: new Date(currentDate),
+      completed: false,
+      originalTaskId: originalTask.id
+    };
+    
     newTasks.push(newTask);
   }
   
-newTasks.push(newTask);
-  }
-  
   // Add all new tasks
   setTasks(prevTasks => [...prevTasks, ...newTasks]);
 };
-  // Add all new tasks
-  setTasks(prevTasks => [...prevTasks, ...newTasks]);
-};
+
 const addGroceryItem = (itemData) => {
   const newItem = {
     id: Date.now(),
@@ -626,26 +630,6 @@ const addGroceryItem = (itemData) => {
   };
   setGroceryList([...groceryList, newItem]);
 };
-const toggleGroceryItem = (itemId) => {
-  setGroceryList(groceryList.map(item => 
-    item.id === itemId 
-      ? { ...item, purchased: !item.purchased }
-      : item
-  ));
-};
-
-const deleteGroceryItem = (itemId) => {
-  setGroceryList(groceryList.filter(item => item.id !== itemId));
-};
-
-const updateGroceryItem = (itemId, updatedData) => {
-  setGroceryList(groceryList.map(item => 
-    item.id === itemId 
-      ? { ...item, ...updatedData }
-      : item
-  ));
-};
-
 const clearPurchasedItems = () => {
   setGroceryList(groceryList.filter(item => !item.purchased));
 };
