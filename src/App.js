@@ -1380,15 +1380,7 @@ const AddGroceryModal = ({ onClose, onAdd }) => {
       </div>
     </div>
   );
-};const AddGroceryModal = ({ onClose, onAdd }) => {
-  const [itemData, setItemData] = useState({
-    item: '',
-    category: 'Produce',
-    quantity: '',
-    priority: 'medium',
-    notes: ''
-  });
-
+};
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
     if (itemData.item.trim()) {
