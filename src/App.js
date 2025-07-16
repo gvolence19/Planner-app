@@ -671,23 +671,6 @@ const openTaskModal = (task) => {
   setSelectedTask(task);
   setShowTaskModal(true);
 };
-const clearPurchasedItems = () => {
-  setGroceryList(groceryList.filter(item => !item.purchased));
-};
-
-const getGroceryCategoryColor = (category) => {
-  switch (category) {
-    case 'Produce': return 'bg-green-500';
-    case 'Dairy': return 'bg-blue-500';
-    case 'Meat': return 'bg-red-500';
-    case 'Bakery': return 'bg-yellow-500';
-    case 'Pantry': return 'bg-purple-500';
-    case 'Frozen': return 'bg-cyan-500';
-    case 'Snacks': return 'bg-orange-500';
-    default: return 'bg-gray-500';
-  }
-};
-  
   // Add all new tasks
   setTasks(prevTasks => [...prevTasks, ...newTasks]);
 };
