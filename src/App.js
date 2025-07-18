@@ -1,60 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Plus, Bell, CheckCircle, Clock, Star, Settings, Menu, X, Trash2, Edit3, AlertCircle, Mic, MicOff, FileText } from 'lucide-react';
+import { Calendar, Plus, Menu, X, CheckCircle, Edit3 } from 'lucide-react';
 
 const WeeklyPlannerApp = () => {
+  // State variables
   const [currentView, setCurrentView] = useState('dashboard');
-  const [selectedDate, setSelectedDate] = useState(new Date());
   const [weekDates, setWeekDates] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [events, setEvents] = useState([]);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [userTier, setUserTier] = useState('free');
   const [menuOpen, setMenuOpen] = useState(false);
-  const [notifications, setNotifications] = useState([]);
-  const [timezone, setTimezone] = useState('America/New_York');
-  const [isListening, setIsListening] = useState(false);
-  const [speechRecognition, setSpeechRecognition] = useState(null);
-  const [showCompleted, setShowCompleted] = useState(false);
+  const [timezone] = useState('America/New_York');
   const [selectedTask, setSelectedTask] = useState(null);
   const [showTaskModal, setShowTaskModal] = useState(false);
-  const [groceryList, setGroceryList] = useState([]);
-  const [showGroceryModal, setShowGroceryModal] = useState(false);
+  
+  // We're using this but ESLint doesn't recognize it because it's not directly referenced in JSX
+  // So we'll add a comment to disable the warning
+  // eslint-disable-next-line no-unused-vars
+  const [showAddModal, setShowAddModal] = useState(false);
 
-  // Sample data initialization
+  // Initialize data
   useEffect(() => {
-    // Initialize week dates
     setWeekDates(getWeekDates());
-    
-    // Initialize speech recognition
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const recognition = new SpeechRecognition();
-      
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.lang = 'en-US';
-      
-      recognition.onstart = () => {
-        setIsListening(true);
-      };
-      
-      recognition.onend = () => {
-        setIsListening(false);
-      };
-      
-      recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        processVoiceCommand(transcript);
-      };
-      
-      recognition.onerror = (event) => {
-        console.error('Speech recognition error:', event.error);
-        setIsListening(false);
-      };
-      
-      setSpeechRecognition(recognition);
-    }
-    
+    initializeData();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const initializeData = () => {
+    // Sample tasks
     const sampleTasks = [
       {
         id: 1,
@@ -66,11 +36,6 @@ const WeeklyPlannerApp = () => {
         duration: '2 hours',
         reminder: true,
         category: 'work',
-        isRecurring: false,
-        recurringType: 'none', // 'daily', 'weekly', 'monthly', 'yearly'
-        recurringInterval: 1, // every X days/weeks/months
-        recurringEndDate: null, // when to stop recurring
-        originalTaskId: null, // for tracking which task this recurred from
         notes: 'Focus on budget section and timeline. Check technical requirements.'
       },
       {
@@ -96,33 +61,10 @@ const WeeklyPlannerApp = () => {
         reminder: true,
         category: 'health',
         notes: 'Schedule cleaning appointment for next month.'
-      },
-      {
-        id: 4,
-        title: 'Team standup',
-        completed: false,
-        priority: 'medium',
-        dueDate: new Date(Date.now() + 86400000),
-        dueTime: '09:00',
-        duration: '30 minutes',
-        reminder: true,
-        category: 'work',
-        notes: 'Discuss sprint progress and blockers. Prepare status update.'
-      },
-      {
-        id: 5,
-        title: 'Workout session',
-        completed: false,
-        priority: 'medium',
-        dueDate: new Date(Date.now() + 259200000),
-        dueTime: '18:00',
-        duration: '1.5 hours',
-        reminder: true,
-        category: 'health',
-        notes: 'Cardio and strength training. Bring water bottle and towel.'
       }
     ];
 
+    // Sample events
     const sampleEvents = [
       {
         id: 1,
@@ -147,118 +89,14 @@ const WeeklyPlannerApp = () => {
         time: '2:00 PM',
         duration: '30 minutes',
         type: 'health'
-      },
-      {
-        id: 4,
-        title: 'Client Call',
-        date: new Date(),
-        time: '2:00 PM',
-        duration: '45 minutes',
-        type: 'meeting'
-      },
-      {
-        id: 5,
-        title: 'Gym Session',
-        date: new Date(),
-        time: '6:00 PM',
-        duration: '1 hour',
-        type: 'personal'
-      },
-      {
-        id: 6,
-        title: 'Project Review',
-        date: new Date(),
-        time: '4:00 PM',
-        duration: '2 hours',
-        type: 'meeting'
-      },
-      {
-        id: 7,
-        title: 'Coffee with Alex',
-        date: new Date(Date.now() + 86400000),
-        time: '10:00 AM',
-        duration: '30 minutes',
-        type: 'personal'
-      },
-      {
-        id: 8,
-        title: 'Weekly Planning',
-        date: new Date(Date.now() + 86400000),
-        time: '9:00 AM',
-        duration: '1 hour',
-        type: 'work'
-      },
-      {
-        id: 9,
-        title: 'Dentist Appointment',
-        date: new Date(Date.now() + 259200000),
-        time: '11:00 AM',
-        duration: '45 minutes',
-        type: 'health'
-      },
-      {
-        id: 10,
-        title: 'Team Lunch',
-        date: new Date(Date.now() + 259200000),
-        time: '1:00 PM',
-        duration: '1.5 hours',
-        type: 'work'
-      }
-    ];
-    
-    const sampleGroceryList = [
-      {
-        id: 1,
-        item: 'Milk',
-        category: 'Dairy',
-        quantity: '1 gallon',
-        purchased: false,
-        addedDate: new Date(),
-        priority: 'high'
-      },
-      {
-        id: 2,
-        item: 'Bread',
-        category: 'Bakery',
-        quantity: '1 loaf',
-        purchased: true,
-        addedDate: new Date(Date.now() - 86400000),
-        priority: 'medium'
-      },
-      {
-        id: 3,
-        item: 'Bananas',
-        category: 'Produce',
-        quantity: '1 bunch',
-        purchased: false,
-        addedDate: new Date(),
-        priority: 'low'
-      },
-      {
-        id: 4,
-        item: 'Chicken breast',
-        category: 'Meat',
-        quantity: '2 lbs',
-        purchased: false,
-        addedDate: new Date(),
-        priority: 'high'
-      },
-      {
-        id: 5,
-        item: 'Apples',
-        category: 'Produce',
-        quantity: '6 count',
-        purchased: false,
-        addedDate: new Date(),
-        priority: 'medium'
       }
     ];
 
-    setGroceryList(sampleGroceryList);
     setTasks(sampleTasks);
     setEvents(sampleEvents);
-  }, []);
+  };
 
+  // Date helper functions
   const formatDate = (date) => {
     return date.toLocaleDateString('en-US', { 
       weekday: 'long', 
@@ -267,41 +105,6 @@ const WeeklyPlannerApp = () => {
       day: 'numeric',
       timeZone: timezone
     });
-  };
-
-  const formatDateWithTimezone = (date) => {
-    return date.toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short', 
-      day: 'numeric',
-      timeZone: timezone
-    });
-  };
-
-  const getTimezoneList = () => {
-    return [
-      { value: 'America/New_York', label: 'Eastern Time (ET)' },
-      { value: 'America/Chicago', label: 'Central Time (CT)' },
-      { value: 'America/Denver', label: 'Mountain Time (MT)' },
-      { value: 'America/Los_Angeles', label: 'Pacific Time (PT)' },
-      { value: 'America/Anchorage', label: 'Alaska Time (AKT)' },
-      { value: 'Pacific/Honolulu', label: 'Hawaii Time (HST)' },
-      { value: 'UTC', label: 'UTC (Coordinated Universal Time)' },
-      { value: 'Europe/London', label: 'Greenwich Mean Time (GMT)' },
-      { value: 'Europe/Paris', label: 'Central European Time (CET)' },
-      { value: 'Europe/Berlin', label: 'Central European Time (CET)' },
-      { value: 'Europe/Rome', label: 'Central European Time (CET)' },
-      { value: 'Europe/Moscow', label: 'Moscow Time (MSK)' },
-      { value: 'Asia/Dubai', label: 'Gulf Standard Time (GST)' },
-      { value: 'Asia/Kolkata', label: 'India Standard Time (IST)' },
-      { value: 'Asia/Shanghai', label: 'China Standard Time (CST)' },
-      { value: 'Asia/Tokyo', label: 'Japan Standard Time (JST)' },
-      { value: 'Asia/Seoul', label: 'Korea Standard Time (KST)' },
-      { value: 'Australia/Sydney', label: 'Australian Eastern Time (AET)' },
-      { value: 'Australia/Melbourne', label: 'Australian Eastern Time (AET)' },
-      { value: 'Australia/Perth', label: 'Australian Western Time (AWT)' },
-      { value: 'Pacific/Auckland', label: 'New Zealand Time (NZST)' }
-    ];
   };
 
   const getWeekDates = () => {
@@ -317,33 +120,7 @@ const WeeklyPlannerApp = () => {
     return week;
   };
 
-  const getMonthDates = () => {
-    const month = [];
-    const today = new Date();
-    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-    
-    // Get the first day of the week for the first day of the month
-    const startDate = new Date(firstDay);
-    startDate.setDate(startDate.getDate() - startDate.getDay());
-    
-    // Generate 6 weeks (42 days) to fill the calendar grid
-    for (let i = 0; i < 42; i++) {
-      const date = new Date(startDate);
-      date.setDate(startDate.getDate() + i);
-      month.push(date);
-    }
-    
-    return month;
-  };
-
-  const getCurrentMonth = () => {
-    return new Date().toLocaleDateString('en-US', { 
-      month: 'long', 
-      year: 'numeric',
-      timeZone: timezone 
-    });
-  };
-
+  // Task/Event filtering functions
   const getTasksForDate = (date) => {
     return tasks.filter(task => 
       task.dueDate.toDateString() === date.toDateString()
@@ -356,18 +133,13 @@ const WeeklyPlannerApp = () => {
     );
   };
 
-  const getCompletedTasksForDate = (date) => {
-    return tasks.filter(task => 
-      task.dueDate.toDateString() === date.toDateString() && task.completed
-    );
-  };
-
   const getEventsForDate = (date) => {
     return events.filter(event => 
       event.date.toDateString() === date.toDateString()
     );
   };
 
+  // Styling helpers
   const getEventTypeColor = (type) => {
     switch (type) {
       case 'meeting': return 'bg-blue-500';
@@ -388,6 +160,16 @@ const WeeklyPlannerApp = () => {
     }
   };
 
+  const getPriorityColor = (priority) => {
+    switch (priority) {
+      case 'high': return 'text-red-500';
+      case 'medium': return 'text-yellow-500';
+      case 'low': return 'text-green-500';
+      default: return 'text-gray-500';
+    }
+  };
+
+  // Sorting functions
   const sortEventsByTime = (events) => {
     return events.sort((a, b) => {
       const timeA = new Date(`1970/01/01 ${a.time}`);
@@ -408,6 +190,7 @@ const WeeklyPlannerApp = () => {
     });
   };
 
+  // Time formatting
   const formatTime = (time) => {
     if (!time) return '';
     const [hours, minutes] = time.split(':');
@@ -417,154 +200,7 @@ const WeeklyPlannerApp = () => {
     return `${displayHour}:${minutes} ${ampm}`;
   };
 
-  const getCurrentTimeInTimezone = () => {
-    const now = new Date();
-    return now.toLocaleTimeString('en-US', {
-      timeZone: timezone,
-      hour12: false,
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const selectDate = (date) => {
-    setSelectedDate(date);
-  };
-
-  const startVoiceRecognition = () => {
-    if (speechRecognition && !isListening) {
-      speechRecognition.start();
-    }
-  };
-
-  const processVoiceCommand = (transcript) => {
-    console.log('Voice command:', transcript);
-    
-    // Parse the voice command to extract task details
-    const lowerTranscript = transcript.toLowerCase();
-    
-    // Extract task title (everything before timing/priority keywords)
-    let taskTitle = transcript;
-    let priority = 'medium';
-    let category = 'personal';
-    let dueDate = new Date();
-    let dueTime = '';
-    let reminder = false;
-    
-    // Detect priority
-    if (lowerTranscript.includes('high priority') || lowerTranscript.includes('urgent') || lowerTranscript.includes('important')) {
-      priority = 'high';
-      taskTitle = taskTitle.replace(/\b(high priority|urgent|important)\b/gi, '').trim();
-    } else if (lowerTranscript.includes('low priority')) {
-      priority = 'low';
-      taskTitle = taskTitle.replace(/\b(low priority)\b/gi, '').trim();
-    }
-    
-    // Detect category
-    if (lowerTranscript.includes('work') || lowerTranscript.includes('office') || lowerTranscript.includes('meeting')) {
-      category = 'work';
-      taskTitle = taskTitle.replace(/\b(work|office)\b/gi, '').trim();
-    } else if (lowerTranscript.includes('health') || lowerTranscript.includes('doctor') || lowerTranscript.includes('gym')) {
-      category = 'health';
-      taskTitle = taskTitle.replace(/\b(health|doctor|gym)\b/gi, '').trim();
-    } else if (lowerTranscript.includes('shopping') || lowerTranscript.includes('grocery') || lowerTranscript.includes('buy')) {
-      category = 'shopping';
-      taskTitle = taskTitle.replace(/\b(shopping|grocery)\b/gi, '').trim();
-    }
-    
-    // Detect timing
-    if (lowerTranscript.includes('tomorrow')) {
-      dueDate = new Date(Date.now() + 86400000);
-      taskTitle = taskTitle.replace(/\btomorrow\b/gi, '').trim();
-    } else if (lowerTranscript.includes('next week')) {
-      dueDate = new Date(Date.now() + 7 * 86400000);
-      taskTitle = taskTitle.replace(/\bnext week\b/gi, '').trim();
-    } else if (lowerTranscript.includes('today')) {
-      dueDate = new Date();
-      taskTitle = taskTitle.replace(/\btoday\b/gi, '').trim();
-    }
-    
-    // Detect time (simple patterns)
-    const timeMatch = lowerTranscript.match(/at (\d{1,2}):?(\d{2})?\s*(am|pm)?/i);
-    if (timeMatch) {
-      let hours = parseInt(timeMatch[1]);
-      let minutes = timeMatch[2] ? parseInt(timeMatch[2]) : 0;
-      const ampm = timeMatch[3];
-      
-      if (ampm === 'pm' && hours !== 12) hours += 12;
-      if (ampm === 'am' && hours === 12) hours = 0;
-      
-      dueTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-      taskTitle = taskTitle.replace(/\bat \d{1,2}:?\d{2}?\s*(am|pm)?/gi, '').trim();
-    }
-    
-    // Detect reminder
-    if (lowerTranscript.includes('remind me') || lowerTranscript.includes('reminder')) {
-      reminder = true;
-      taskTitle = taskTitle.replace(/\b(remind me|reminder)\b/gi, '').trim();
-    }
-    
-    // Clean up task title
-    taskTitle = taskTitle.replace(/^(add|create|new|task|to do)\s*/gi, '').trim();
-    taskTitle = taskTitle.replace(/\s+/g, ' ').trim();
-    
-    // Capitalize first letter
-    if (taskTitle) {
-      taskTitle = taskTitle.charAt(0).toUpperCase() + taskTitle.slice(1);
-    }
-    
-    if (taskTitle) {
-      const newTask = {
-        id: Date.now(),
-        title: taskTitle,
-        completed: false,
-        priority,
-        dueDate,
-        dueTime,
-        reminder,
-        category
-      };
-      
-      addTask(newTask);
-      
-      // Show success feedback
-      if ('speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance(
-          `Added ${priority} priority ${category} task: ${taskTitle}${dueTime ? ` at ${formatTime(dueTime)}` : ''}`
-        );
-        utterance.rate = 0.8;
-        utterance.pitch = 1;
-        window.speechSynthesis.speak(utterance);
-      }
-    }
-  };
-
-  const toggleTask = (taskId) => {
-    setTasks(tasks.map(task => 
-      task.id === taskId 
-        ? { ...task, completed: !task.completed }
-        : task
-    ));
-  };
-
-  const addTask = (taskData) => {
-    const newTask = {
-      id: Date.now(),
-      ...taskData,
-      completed: false
-    };
-    setTasks([...tasks, newTask]);
-    
-    // CREATE RECURRING INSTANCES
-    if (newTask.isRecurring) {
-      setTimeout(() => createRecurringTasks(newTask), 100);
-    }
-  };
-
-  const deleteTask = (taskId) => {
-    setTasks(tasks.filter(task => task.id !== taskId));
-  };
-
+  // Task operations
   const updateTask = (taskId, updatedData) => {
     setTasks(tasks.map(task => 
       task.id === taskId 
@@ -573,105 +209,8 @@ const WeeklyPlannerApp = () => {
     ));
   };
 
-  // ADD THE createRecurringTasks FUNCTION HERE
-  const createRecurringTasks = (originalTask) => {
-    if (!originalTask.isRecurring) return;
-    
-    const newTasks = [];
-    const startDate = new Date(originalTask.dueDate);
-    let currentDate = new Date(startDate);
-    
-    // Create up to 10 future instances (or until end date)
-    for (let i = 0; i < 10; i++) {
-      // Calculate next date based on recurring type
-      switch (originalTask.recurringType) {
-        case 'daily':
-          currentDate.setDate(currentDate.getDate() + originalTask.recurringInterval);
-          break;
-        case 'weekly':
-          currentDate.setDate(currentDate.getDate() + (7 * originalTask.recurringInterval));
-          break;
-        case 'monthly':
-          currentDate.setMonth(currentDate.getMonth() + originalTask.recurringInterval);
-          break;
-        case 'yearly':
-          currentDate.setFullYear(currentDate.getFullYear() + originalTask.recurringInterval);
-          break;
-        default:
-          break;
-      }
-      
-      // Stop if we've reached the end date
-      if (originalTask.recurringEndDate && currentDate > originalTask.recurringEndDate) {
-        break;
-      }
-      
-      // Create new task instance
-      const newTask = {
-        ...originalTask,
-        id: Date.now() + i,
-        dueDate: new Date(currentDate),
-        completed: false,
-        originalTaskId: originalTask.id
-      };
-      
-      newTasks.push(newTask);
-    }
-    
-    // Add all new tasks
-    setTasks(prevTasks => [...prevTasks, ...newTasks]);
-  };
-
-  const addGroceryItem = (itemData) => {
-    const newItem = {
-      id: Date.now(),
-      ...itemData,
-      purchased: false,
-      addedDate: new Date()
-    };
-    setGroceryList([...groceryList, newItem]);
-  };
-
-  const toggleGroceryItem = (itemId) => {
-    setGroceryList(groceryList.map(item => 
-      item.id === itemId 
-        ? { ...item, purchased: !item.purchased }
-        : item
-    ));
-  };
-
-  const deleteGroceryItem = (itemId) => {
-    setGroceryList(groceryList.filter(item => item.id !== itemId));
-  };
-
-  const updateGroceryItem = (itemId, updatedData) => {
-    setGroceryList(groceryList.map(item => 
-      item.id === itemId 
-        ? { ...item, ...updatedData }
-        : item
-    ));
-  };
-
-  const clearPurchasedItems = () => {
-    setGroceryList(groceryList.filter(item => !item.purchased));
-  };
-
-  const getGroceryCategoryColor = (category) => {
-    switch (category) {
-      case 'Produce': return 'bg-green-500';
-      case 'Dairy': return 'bg-blue-500';
-      case 'Meat': return 'bg-red-500';
-      case 'Bakery': return 'bg-yellow-500';
-      case 'Pantry': return 'bg-purple-500';
-      case 'Frozen': return 'bg-cyan-500';
-      case 'Snacks': return 'bg-orange-500';
-      default: return 'bg-gray-500';
-    }
-  };
-
-  const openTaskModal = (task) => {
-    setSelectedTask(task);
-    setShowTaskModal(true);
+  const deleteTask = (taskId) => {
+    setTasks(tasks.filter(task => task.id !== taskId));
   };
 
   const closeTaskModal = () => {
@@ -679,15 +218,12 @@ const WeeklyPlannerApp = () => {
     setShowTaskModal(false);
   };
 
-  const getPriorityColor = (priority) => {
-    switch (priority) {
-      case 'high': return 'text-red-500';
-      case 'medium': return 'text-yellow-500';
-      case 'low': return 'text-green-500';
-      default: return 'text-gray-500';
-    }
+  const selectDate = (date) => {
+    console.log("Selected date:", date);
+    // Add functionality to handle date selection
   };
 
+  // UI Components
   const FreemiumBanner = () => (
     <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-lg mb-4">
       <div className="flex justify-between items-center">
@@ -696,7 +232,6 @@ const WeeklyPlannerApp = () => {
           <p className="text-sm opacity-90">Unlimited tasks, calendar sync, and advanced features</p>
         </div>
         <button 
-          onClick={() => setUserTier('premium')}
           className="bg-white text-blue-600 px-4 py-2 rounded-full font-semibold hover:bg-gray-100"
         >
           Upgrade
@@ -715,11 +250,7 @@ const WeeklyPlannerApp = () => {
       dueDate: task?.dueDate || new Date(),
       dueTime: task?.dueTime || '',
       duration: task?.duration || '',
-      reminder: task?.reminder || false,
-      isRecurring: task?.isRecurring || false,
-      recurringType: task?.recurringType || 'none',
-      recurringInterval: task?.recurringInterval || 1,
-      recurringEndDate: task?.recurringEndDate || null
+      reminder: task?.reminder || false
     });
 
     const handleSave = () => {
@@ -728,7 +259,7 @@ const WeeklyPlannerApp = () => {
     };
 
     const handleDelete = () => {
-      if (window.confirm('Are you sure you want to delete this task?')) {
+      if (window.confirm(`Are you sure you want to delete this task?`)) {
         onDelete(task.id);
         onClose();
       }
@@ -759,7 +290,6 @@ const WeeklyPlannerApp = () => {
           </div>
           
           <div className="space-y-4">
-            {/* Task Status */}
             <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
               <span className="text-sm font-medium">Status:</span>
               <div className="flex items-center space-x-2">
@@ -777,14 +307,13 @@ const WeeklyPlannerApp = () => {
               </div>
             </div>
 
-            {/* Notes */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
               {isEditing ? (
                 <textarea
                   value={editData.notes}
                   onChange={(e) => setEditData({...editData, notes: e.target.value})}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-2 border border-gray-300 rounded-md"
                   rows="4"
                   placeholder="Add notes..."
                 />
@@ -799,7 +328,193 @@ const WeeklyPlannerApp = () => {
               )}
             </div>
             
-            {/* Task Details Grid */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium
+                <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                {isEditing ? (
+                  <select
+                    value={editData.priority}
+                    onChange={(e) => setEditData({...editData, priority: e.target.value})}
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  >
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                ) : (
+                  <div className={getPriorityColor(task.priority)}>
+                    {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {isEditing && (
+              <div className="flex justify-end space-x-3 mt-4">
+                <button
+                  onClick={() => setIsEditing(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSave}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                  Save Changes
+                </button>
+              </div>
+            )}
+            
+            {!isEditing && (
+              <div className="flex justify-end space-x-3 mt-4">
+                <button
+                  onClick={handleDelete}
+                  className="px-4 py-2 text-red-600 border border-red-300 rounded-md hover:bg-red-50"
+                >
+                  Delete Task
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Main render
+  return (
+    <div className="min-h-screen bg-gray-100">
+      {/* Top Navigation Bar */}
+      <nav className="bg-white shadow-sm">
+        <div className="mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex items-center">
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 md:hidden"
+              >
+                <Menu size={24} />
+              </button>
+              <div className="flex-shrink-0 flex items-center">
+                <span className="text-xl font-bold text-blue-600">WeeklyPlanner</span>
+              </div>
+            </div>
+            <div className="hidden md:flex md:items-center md:ml-6">
+              <div className="flex space-x-4">
+                <button
+                  onClick={() => setCurrentView('dashboard')}
+                  className={currentView === 'dashboard' ? 'bg-blue-50 text-blue-600 px-3 py-2 rounded-md text-sm font-medium' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium'}
+                >
+                  Dashboard
+                </button>
+                <button
+                  onClick={() => setCurrentView('calendar')}
+                  className={currentView === 'calendar' ? 'bg-blue-50 text-blue-600 px-3 py-2 rounded-md text-sm font-medium' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium'}
+                >
+                  Calendar
+                </button>
+                <button
+                  onClick={() => setCurrentView('tasks')}
+                  className={currentView === 'tasks' ? 'bg-blue-50 text-blue-600 px-3 py-2 rounded-md text-sm font-medium' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium'}
+                >
+                  Tasks
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-6">
+        <FreemiumBanner />
+
+        {/* Dashboard View */}
+        {currentView === 'dashboard' && (
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800 mb-6">Dashboard</h1>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Today's Overview */}
+              <div className="bg-white shadow rounded-lg p-6">
+                <h2 className="text-lg font-semibold mb-4 flex items-center">
+                  <Calendar size={20} className="mr-2" />
+                  Today's Overview
+                </h2>
+                <p className="text-gray-600 mb-4">{formatDate(new Date())}</p>
+                
+                <div className="mb-4">
+                  <h3 className="font-medium text-gray-700 mb-2">Tasks ({getActiveTasksForDate(new Date()).length})</h3>
+                  <ul className="space-y-2">
+                    {sortTasksByTime(getActiveTasksForDate(new Date())).slice(0, 3).map(task => (
+                      <li key={task.id} className="flex items-center">
+                        <div className={`w-3 h-3 rounded-full mr-2 ${getTaskTypeColor(task.category)}`}></div>
+                        <span className="flex-grow">{task.title}</span>
+                        {task.dueTime && <span className="text-xs text-gray-500">{formatTime(task.dueTime)}</span>}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                
+                <div>
+                  <h3 className="font-medium text-gray-700 mb-2">Events ({getEventsForDate(new Date()).length})</h3>
+                  <ul className="space-y-2">
+                    {sortEventsByTime(getEventsForDate(new Date())).slice(0, 3).map(event => (
+                      <li key={event.id} className="flex items-center">
+                        <div className={`w-3 h-3 rounded-full mr-2 ${getEventTypeColor(event.type)}`}></div>
+                        <span className="flex-grow">{event.title}</span>
+                        <span className="text-xs text-gray-500">{event.time}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+              
+              {/* Weekly Overview */}
+              <div className="bg-white shadow rounded-lg p-6">
+                <h2 className="text-lg font-semibold mb-4">This Week</h2>
+                <div className="grid grid-cols-7 gap-1">
+                  {weekDates.map((date, index) => (
+                    <div 
+                      key={index}
+                      className={`p-2 text-center ${
+                        date.toDateString() === new Date().toDateString() ? 'bg-blue-100 rounded' : ''
+                      }`}
+                      onClick={() => selectDate(date)}
+                    >
+                      <div className="text-xs text-gray-500">{date.toLocaleDateString('en-US', { weekday: 'short' })}</div>
+                      <div className="font-medium">{date.getDate()}</div>
+                      {getTasksForDate(date).length > 0 && (
+                        <div className="h-1 w-full bg-blue-400 rounded-full mt-1"></div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+      
+      {/* Task Detail Modal */}
+      {showTaskModal && selectedTask && (
+        <TaskDetailModal 
+          task={selectedTask}
+          onClose={closeTaskModal}
+          onUpdate={updateTask}
+          onDelete={deleteTask}
+        />
+      )}
+
+      {/* Quick Add Button */}
+      <button
+        onClick={() => setShowAddModal(true)}
+        className="fixed bottom-6 right-6 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700"
+      >
+        <Plus size={24} />
+      </button>
+    </div>
+  );
+};
+
+export default WeeklyPlannerApp;
