@@ -21,7 +21,7 @@ const WeeklyPlannerApp = () => {
   useEffect(() => {
     setWeekDates(getWeekDates());
     initializeData();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   const initializeData = () => {
     // Sample tasks
@@ -435,11 +435,11 @@ const WeeklyPlannerApp = () => {
           <div>
             <h1 className="text-2xl font-bold text-gray-800 mb-6">Dashboard</h1>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Today's Overview */}
+              {/* TodayToday's Overviewapos;s Overview */}
               <div className="bg-white shadow rounded-lg p-6">
                 <h2 className="text-lg font-semibold mb-4 flex items-center">
                   <Calendar size={20} className="mr-2" />
-                  Today's Overview
+                  Today&apos;s Overview
                 </h2>
                 <p className="text-gray-600 mb-4">{formatDate(new Date())}</p>
                 
