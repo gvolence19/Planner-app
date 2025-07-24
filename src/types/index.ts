@@ -9,6 +9,31 @@ export interface Task {
   createdAt: Date;
   recurring?: 'none' | 'daily' | 'weekly' | 'biweekly' | 'monthly';
   recurringParentId?: string;
+  location?: string;
+}
+
+export interface CalendarEvent {
+  id: string;
+  title: string;
+  description?: string;
+  startTime?: Date;
+  endTime?: Date;
+  location?: string;
+  allDay: boolean;
+  calendarId: string;
+  color: string;
+  sourceId: string;
+}
+
+export interface CalendarAccount {
+  id: string;
+  name: string;
+  email: string;
+  provider: 'google' | 'outlook' | 'apple' | 'other';
+  token: string;
+  visible: boolean;
+  lastSynced: Date;
+  color: string;
 }
 
 export type TaskCategory = {

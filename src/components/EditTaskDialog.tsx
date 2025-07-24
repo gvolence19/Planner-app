@@ -7,10 +7,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, RepeatIcon, Trash } from 'lucide-react';
+import { CalendarIcon, RepeatIcon, Trash, Lock } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Task, TaskCategory, PRIORITIES, RECURRING_OPTIONS } from '@/types';
+import { useSubscription } from '@/contexts/SubscriptionContext';
+import { FREE_CATEGORIES } from '@/types/subscription';
+import LocationInput from './LocationInput';
 
 interface EditTaskDialogProps {
   task: Task;
@@ -22,14 +25,22 @@ interface EditTaskDialogProps {
 }
 
 export default function EditTaskDialog({ task, open, onOpenChange, onUpdateTask, onDeleteTask, categories }: EditTaskDialogProps) {
+  const { isPremium } = useSubscription();
+  
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description || '');
-  const [category, setCategory] = useState<string | undefined>(task.category);
+  const [category, setCategory] = useState<string | undefined>(task.category?.name);
   const [priority, setPriority] = useState<Task['priority']>(task.priority);
   const [dueDate, setDueDate] = useState<Date | undefined>(task.dueDate);
   const [completed, setCompleted] = useState(task.completed);
   const [recurring, setRecurring] = useState<Task['recurring']>(task.recurring || 'none');
   const [recurringUpdateOption, setRecurringUpdateOption] = useState<'this' | 'all'>('this');
+  const [location, setLocation] = useState(task.location || '');
+  
+  // Filter categories for free users
+  const availableCategories = isPremium 
+    ? categories 
+    : categories.filter(cat => FREE_CATEGORIES.includes(cat.name));
 
   useEffect(() => {
     if (open) {
@@ -40,6 +51,7 @@ export default function EditTaskDialog({ task, open, onOpenChange, onUpdateTask,
       setDueDate(task.dueDate);
       setCompleted(task.completed);
       setRecurring(task.recurring || 'none');
+      setLocation(task.location || '');
       setRecurringUpdateOption('this');
     }
   }, [task, open]);
@@ -61,6 +73,7 @@ export default function EditTaskDialog({ task, open, onOpenChange, onUpdateTask,
       priority,
       dueDate,
       recurring: isRecurringInstance ? 'none' : recurring,
+      location: location.trim() || undefined,
     };
 
     onUpdateTask(updatedTask);
@@ -191,6 +204,11 @@ export default function EditTaskDialog({ task, open, onOpenChange, onUpdateTask,
               )}
             </div>
           )}
+          
+          <LocationInput
+            value={location}
+            onChange={setLocation}
+          />
           
           <div className="flex justify-between pt-2">
             {onDeleteTask && (

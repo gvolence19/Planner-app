@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mobile Planner</title>
+  <meta name="description" content="Mobile task planner with voice commands and grocery list" />
+  <meta name="author" content="MGX" />
+
+  <meta property="og:title" content="Mobile Planner" />
+  <meta property="og:description" content="Mobile task planner with voice commands and grocery list" />
+  <meta property="og:type" content="website" />
+  
+  <!-- Google Places API for location autocomplete -->
+  <script>
+    // Define global initAutocomplete function to be accessible in the global scope
+    window.initAutocomplete = function() {
+      console.log("Google Maps API loaded successfully");
+      window.dispatchEvent(new CustomEvent('google-maps-loaded'));
+    };
+
+    // Function to check if Google Maps API is loaded
+    function isGoogleMapsLoaded() {
+      return window.google && 
+             window.google.maps && 
+             window.google.maps.places && 
+             typeof window.google.maps.places.Autocomplete === 'function';
+    }
+
+    // Function to handle loading failure
+    function handleLoadingFailure() {
+      console.error("Google Maps API failed to load");
+      window.dispatchEvent(new CustomEvent('google-maps-failed'));
+    }
+
+    // Create the script element
+    function createGoogleMapsScript() {
+      console.log("Creating Google Maps script element");
+      const script = document.createElement('script');
+      script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyCZKxGCLdtfeCfKc3_1fEPgIz3BFOtoMkM&libraries=places&callback=initAutocomplete";
+      script.async = true;
+      script.defer = true;
+      script.id = "google-maps-script";
+      
+      // Add error handling
+      script.onerror = function() {
+        console.error("Script load error");
+        handleLoadingFailure();
+      };
+      
+      document.head.appendChild(script);
+      
+      // Set a safety timeout
+      setTimeout(function() {
+        if (!isGoogleMapsLoaded()) {
+          console.warn("Google Maps API didn't load within timeout");
+          handleLoadingFailure();
+        }
+      }, 10000);
+    }
+
+    // Main initialization function
+    function initGoogleMaps() {
+      // Check if API is already loaded (maybe from a previous attempt)
+      if (isGoogleMapsLoaded()) {
+        console.log("Google Maps API already loaded");
+        window.initAutocomplete();
+        return;
+      }
+      
+      // Check if script is already being loaded
+      if (document.getElementById('google-maps-script')) {
+        console.log("Google Maps script is already being loaded");
+        return;
+      }
+      
+      console.log("Starting Google Maps API loading process");
+      createGoogleMapsScript();
+    }
+
+    // Start loading the API when the document is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initGoogleMaps);
+    } else {
+      initGoogleMaps();
+    }
+  </script>
+
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
+</html>

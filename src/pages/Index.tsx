@@ -1,13 +1,18 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Calendar, ListChecks, ShoppingBasket, Tags } from 'lucide-react';
+import { PlusCircle, Calendar, ListChecks, ShoppingBasket, Tags, Lock } from 'lucide-react';
 import TaskList from '@/components/TaskList';
 import CalendarView from '@/components/CalendarView';
 import GroceryList from '@/components/GroceryList';
 import VoiceCommandButton from '@/components/VoiceCommandButton';
 import NewTaskDialog from '@/components/NewTaskDialog';
 import CategoryManager from '@/components/CategoryManager';
+import SettingsDialog from '@/components/SettingsDialog';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import AnimatedGradientText from '@/components/AnimatedGradientText';
 import { Task, TaskCategory, DEFAULT_CATEGORIES } from '@/types';
+import { useSubscription } from '@/contexts/SubscriptionContext';
+import { FREE_CATEGORIES } from '@/types/subscription';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { addDays, addWeeks, addMonths, isSameDay } from 'date-fns';
 
@@ -17,6 +22,8 @@ export default function PlannerApp() {
   const [view, setView] = useLocalStorage<'list' | 'calendar' | 'grocery'>('planner-view', 'list');
   const [isNewTaskDialogOpen, setIsNewTaskDialogOpen] = useLocalStorage<boolean>('planner-new-task-dialog', false);
   const [isCategoryManagerOpen, setIsCategoryManagerOpen] = useState(false);
+  const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
+  const { isPremium } = useSubscription();
 
   // Fix date objects that come from localStorage as strings
   useEffect(() => {
@@ -105,7 +112,8 @@ export default function PlannerApp() {
             priority: parentTask.priority,
             dueDate: new Date(currentDate),
             createdAt: new Date(),
-            recurringParentId: parentTask.id
+            recurringParentId: parentTask.id,
+            location: parentTask.location
           };
           
           newTasks.push(newTask);
@@ -126,11 +134,32 @@ export default function PlannerApp() {
   };
 
   const updateTask = (updatedTask: Task) => {
-    // Check if this is a recurring task parent
+    // Get the original task to compare changes
+    const originalTask = tasks.find(t => t.id === updatedTask.id);
+    if (!originalTask) return;
+    
+    // Handle completion status for recurring tasks
+    if ((updatedTask.completed !== originalTask.completed)) {
+      // If this is a recurring task or instance of a recurring task
+      if (originalTask.recurring && originalTask.recurring !== 'none' || originalTask.recurringParentId) {
+        // For recurring tasks, we should update all instances to the same completion state
+        // Find the parent ID
+        const parentId = originalTask.recurringParentId || updatedTask.id;
+        
+        // Update all related tasks with the same completion status
+        setTasks(tasks.map(task => {
+          if (task.id === parentId || task.recurringParentId === parentId) {
+            return { ...task, completed: updatedTask.completed };
+          }
+          return task;
+        }));
+        return;
+      }
+    }
+    
+    // Check if this is a recurring task parent with changed recurring pattern
     if (updatedTask.recurring && updatedTask.recurring !== 'none') {
-      // If the recurring pattern changed, also update child instances
-      const originalTask = tasks.find(t => t.id === updatedTask.id);
-      if (originalTask && originalTask.recurring !== updatedTask.recurring) {
+      if (originalTask.recurring !== updatedTask.recurring) {
         // Delete all child instances and let the useEffect regenerate them
         const filteredTasks = tasks.filter(task => 
           task.id === updatedTask.id || task.recurringParentId !== updatedTask.id
@@ -140,37 +169,36 @@ export default function PlannerApp() {
       }
     }
     
-    // Normal update for non-recurring or unchanged recurring tasks
+    // Normal update for non-recurring tasks or other property changes
     setTasks(tasks.map(task => task.id === updatedTask.id ? updatedTask : task));
   };
 
   const deleteTask = (id: string) => {
-    // Check if this is a recurring parent task
+    // Check if this is a recurring task
     const taskToDelete = tasks.find(task => task.id === id);
-    if (taskToDelete?.recurring && taskToDelete.recurring !== 'none') {
-      // Ask if user wants to delete all recurring instances
-      const deleteAll = window.confirm(
-        "Do you want to delete all recurring instances of this task?"
-      );
-      
-      if (deleteAll) {
-        // Delete the parent task and all its instances
-        setTasks(tasks.filter(task => 
-          task.id !== id && task.recurringParentId !== id
-        ));
-      } else {
-        // Delete just this task
+    
+    // If not a recurring task or is not related to recurrence, just delete it
+    if (!taskToDelete?.recurring || taskToDelete.recurring === 'none') {
+      if (!taskToDelete?.recurringParentId) {
+        // Regular delete for non-recurring tasks
         setTasks(tasks.filter(task => task.id !== id));
+        return;
       }
-    } else {
-      // Regular delete for non-recurring tasks
-      setTasks(tasks.filter(task => task.id !== id));
     }
+    
+    // Handle recurring tasks (either parent or child instance)
+    const isParent = taskToDelete.recurring && taskToDelete.recurring !== 'none' && !taskToDelete.recurringParentId;
+    const parentId = isParent ? id : taskToDelete.recurringParentId;
+    
+    // Per requirement: if we delete a recurring task, it should delete all tasks created for that
+    setTasks(tasks.filter(task => 
+      task.id !== parentId && task.recurringParentId !== parentId
+    ));
   };
 
   // Check if a category is in use by any tasks
   const isCategoryInUse = (categoryName: string) => {
-    return tasks.some(task => task.category === categoryName);
+    return tasks.some(task => task.category?.name === categoryName);
   };
 
   // Handle category deletion - reassign tasks to "Other" if their category is deleted
@@ -180,15 +208,50 @@ export default function PlannerApp() {
     const newCategoryNames = newCategories.map(c => c.name);
     const removedCategories = oldCategoryNames.filter(name => !newCategoryNames.includes(name));
     
-    // Update tasks if needed
+    // For free users, ensure they can't have more than the allowed categories
+    if (!isPremium) {
+      // Limit to free categories, always keeping the default ones
+      const freeCategoriesToKeep = newCategories.filter(
+        cat => FREE_CATEGORIES.includes(cat.name)
+      ).slice(0, FREE_CATEGORIES.length);
+      
+      if (freeCategoriesToKeep.length < newCategories.length) {
+        // Update tasks to reassign those with premium categories
+        const premiumCategoryNames = newCategories
+          .filter(cat => !FREE_CATEGORIES.includes(cat.name))
+          .map(cat => cat.name);
+        
+        // Reassign tasks from premium categories to "Other" or first available free category
+        const otherCategory = freeCategoriesToKeep.find(c => c.name === "Other") || freeCategoriesToKeep[0];
+        
+        if (premiumCategoryNames.length > 0) {
+          const updatedTasks = tasks.map(task => {
+            if (task.category && premiumCategoryNames.includes(task.category.name)) {
+              return {
+                ...task,
+                category: otherCategory
+              };
+            }
+            return task;
+          });
+          
+          setTasks(updatedTasks);
+        }
+        
+        // Only keep the free categories
+        newCategories = freeCategoriesToKeep;
+      }
+    }
+    
+    // Update tasks if needed for deleted categories
     if (removedCategories.length > 0) {
       const updatedTasks = tasks.map(task => {
-        if (task.category && removedCategories.includes(task.category)) {
+        if (task.category && removedCategories.includes(task.category.name)) {
           // Assign to "Other" category or undefined if "Other" doesn't exist
           const otherCategory = newCategories.find(c => c.name === "Other");
           return {
             ...task,
-            category: otherCategory ? "Other" : undefined
+            category: otherCategory || undefined
           };
         }
         return task;
@@ -204,69 +267,78 @@ export default function PlannerApp() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur">
-        <div className="container flex h-16 items-center justify-between py-4">
-          <h1 className="text-xl font-bold">Planner</h1>
-          <div className="flex items-center gap-2">
+      <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex flex-col sm:flex-row h-auto sm:h-16 items-center justify-between py-2 sm:py-4">
+          <h1 className="text-xl font-bold mb-2 sm:mb-0">
+            <AnimatedGradientText text="Task Planner" className="text-xl sm:text-2xl" />
+          </h1>
+          <div className="flex items-center gap-1 sm:gap-2">
             <Button
               variant={view === 'list' ? 'default' : 'outline'}
-              size="icon"
+              size="sm"
               onClick={() => setView('list')}
               title="List View"
               className="rounded-full"
             >
-              <ListChecks className="h-5 w-5" />
+              <ListChecks className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
             <Button
               variant={view === 'calendar' ? 'default' : 'outline'}
-              size="icon"
+              size="sm"
               onClick={() => setView('calendar')}
               title="Calendar View"
               className="rounded-full"
             >
-              <Calendar className="h-5 w-5" />
+              <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
             <Button
               variant={view === 'grocery' ? 'default' : 'outline'}
-              size="icon"
+              size="sm"
               onClick={() => setView('grocery')}
               title="Grocery List"
               className="rounded-full"
             >
-              <ShoppingBasket className="h-5 w-5" />
+              <ShoppingBasket className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
             <Button
               variant="outline"
-              size="icon"
+              size="sm"
               onClick={() => setIsCategoryManagerOpen(true)}
               title="Manage Categories"
-              className="rounded-full ml-2"
+              className="rounded-full ml-1 sm:ml-2"
             >
-              <Tags className="h-5 w-5" />
+              <Tags className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
+            <ThemeToggle />
+            <SettingsDialog 
+              open={isSettingsDialogOpen} 
+              onOpenChange={setIsSettingsDialogOpen} 
+            />
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 container py-4">
-        {view === 'list' ? (
-          <TaskList tasks={tasks} onUpdateTask={updateTask} onDeleteTask={deleteTask} categories={categories} />
-        ) : view === 'calendar' ? (
-          <CalendarView 
-            tasks={tasks} 
-            onUpdateTask={updateTask} 
-            onDeleteTask={deleteTask}
-            onAddTask={addTask}
-            categories={categories}
-          />
-        ) : (
-          <GroceryList />
-        )}
+      <main className="flex-1 container py-3 sm:py-6">
+        <div className="rounded-xl border shadow-sm bg-card text-card-foreground p-3 sm:p-4 mb-4 sm:mb-6">
+          {view === 'list' ? (
+            <TaskList tasks={tasks} onUpdateTask={updateTask} onDeleteTask={deleteTask} categories={categories} />
+          ) : view === 'calendar' ? (
+            <CalendarView 
+              tasks={tasks} 
+              onUpdateTask={updateTask} 
+              onDeleteTask={deleteTask}
+              onAddTask={addTask}
+              categories={categories}
+            />
+          ) : (
+            <GroceryList />
+          )}
+        </div>
       </main>
 
       {/* Add Task Button */}
-      <div className="fixed bottom-6 right-6 flex flex-col gap-4">
+      <div className="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 flex flex-col gap-3 sm:gap-4">
         {/* Voice Command Button */}
         <VoiceCommandButton onAddTask={addTask} />
         
@@ -274,9 +346,9 @@ export default function PlannerApp() {
         <Button 
           size="lg" 
           onClick={() => setIsNewTaskDialogOpen(true)}
-          className="rounded-full h-14 w-14 shadow-lg"
+          className="rounded-full h-12 w-12 sm:h-14 sm:w-14 shadow-lg btn-floating"
         >
-          <PlusCircle className="h-6 w-6" />
+          <PlusCircle className="h-5 w-5 sm:h-6 sm:w-6" />
         </Button>
       </div>
 
