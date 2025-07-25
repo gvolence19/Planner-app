@@ -10,7 +10,8 @@
     "dev": "vite",
     "build": "NODE_OPTIONS='--max-old-space-size=6144 --max-semi-space-size=128' vite build",
     "build:safe": "NODE_OPTIONS='--max-old-space-size=4096 --gc-interval=100' vite build",
-    "start": "npx serve -s dist -p $PORT",
+    "start": "serve -s dist -p 8080",
+    "start:port": "serve -s dist -p $PORT",
     "lint": "eslint --quiet ./src",
     "preview": "vite preview"
   },
