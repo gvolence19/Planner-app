@@ -1,1 +1,1 @@
-web: serve -s dist -p $PORT
+web: serve -s dist -p $PORT --single --cors --no-clipboard
