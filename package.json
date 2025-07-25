@@ -10,12 +10,14 @@
     "dev": "vite",
     "build": "NODE_OPTIONS='--max-old-space-size=6144 --max-semi-space-size=128' vite build",
     "build:safe": "NODE_OPTIONS='--max-old-space-size=4096 --gc-interval=100' vite build",
-    "start": "serve -s dist -l tcp://0.0.0.0:${PORT:-8080} --single",
+    "start": "node server.js",
+    "start:dev": "serve -s dist -p 3000 --host 0.0.0.0",
     "heroku-postbuild": "npm run build",
     "lint": "eslint --quiet ./src",
     "preview": "vite preview"
   },
   "dependencies": {
+    "express": "^4.18.2",
     "@googlemaps/js-api-loader": "^1.16.10",
     "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-accordion": "^1.2.0",

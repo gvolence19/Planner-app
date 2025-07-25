@@ -1,1 +1,1 @@
-web: serve -s dist -l tcp://0.0.0.0:$PORT --single --cors --no-clipboard
+web: node server.js
