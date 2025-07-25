@@ -1,1 +1,1 @@
-web: node server.js
+web: chmod +x start.sh && ./start.sh
