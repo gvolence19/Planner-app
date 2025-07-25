@@ -1,10 +1,15 @@
 {
   "name": "shadcnui",
   "type": "module",
-  "packageManager": "pnpm@8.10.0",
+  "packageManager": "pnpm@10.13.1",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=10.0.0"
+  },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "NODE_OPTIONS='--max-old-space-size=6144 --max-semi-space-size=128' vite build",
+    "build:safe": "NODE_OPTIONS='--max-old-space-size=4096 --gc-interval=100' vite build",
     "start": "npx serve -s dist -p $PORT",
     "lint": "eslint --quiet ./src",
     "preview": "vite preview"
