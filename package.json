@@ -3,7 +3,7 @@
   "type": "module",
   "packageManager": "pnpm@10.13.1",
   "engines": {
-    "node": "18.20.4"
+    "node": ">=18.0.0"
   },
   "scripts": {
     "dev": "vite",
@@ -12,6 +12,8 @@
     "start": "node server.js",
     "start:dev": "serve -s dist -p 3000 --host 0.0.0.0",
     "heroku-postbuild": "npm run build",
+    "digitalocean-postbuild": "npm run build",
+    "security-fix": "npm audit fix --force",
     "lint": "eslint --quiet ./src",
     "preview": "vite preview"
   },

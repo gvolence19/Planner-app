@@ -1,7 +1,13 @@
 #!/usr/bin/env node
 
-const express = require('express');
-const path = require('path');
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
+
+// ES module equivalent of __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 // Force port 8080 if no PORT env var is set, or if we detect we're in a deployment that expects 8080
@@ -18,7 +24,6 @@ const distPath = path.join(__dirname, 'dist');
 console.log(`Dist path: ${distPath}`);
 
 try {
-  const fs = require('fs');
   const distExists = fs.existsSync(distPath);
   console.log(`Dist directory exists: ${distExists}`);
   
