@@ -1,0 +1,27 @@
+name: daily-planner-calendar
+services:
+- name: web
+  source_dir: /
+  github:
+    repo: your-github-username/your-repo-name
+    branch: main
+  run_command: npm start
+  build_command: npm run digitalocean-postbuild
+  environment_slug: node-js
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  http_port: 8080
+  routes:
+  - path: /
+  envs:
+  - key: NODE_ENV
+    value: production
+  - key: GOOGLE_CLIENT_ID
+    value: 246690586453-lhel5i1bk1gmn503u6to8rsl8r3d3hrb.apps.googleusercontent.com
+  - key: GOOGLE_CLIENT_SECRET
+    value: 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
+    type: SECRET
+  - key: FRONTEND_URL
+    value: https://plankton-app-9ml95.ondigitalocean.app
+  - key: PORT
+    value: "8080"
