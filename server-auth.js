@@ -189,7 +189,7 @@ app.post('/api/oauth/google/callback', async (req, res) => {
   }
 });
 
-// NEW: Token refresh endpoint
+// Token refresh endpoint
 app.post('/api/oauth/google/refresh', async (req, res) => {
   console.log('🔄 Token refresh requested');
   
@@ -211,4 +211,72 @@ app.post('/api/oauth/google/refresh', async (req, res) => {
 
     console.log('📤 Requesting new access token...');
 
-    const response = await fetch('https://oaut
+    const response = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        client_id: GOOGLE_CLIENT_ID,
+        client_secret: GOOGLE_CLIENT_SECRET,
+        refresh_token: refresh_token,
+        grant_type: 'refresh_token',
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Token refresh failed:', errorText);
+      return res.status(400).json({ 
+        error: 'Failed to refresh token',
+        details: errorText 
+      });
+    }
+
+    const tokens = await response.json();
+    console.log('✅ Token refreshed successfully');
+    
+    res.json({
+      access_token: tokens.access_token,
+      expires_in: tokens.expires_in,
+      token_type: tokens.token_type || 'Bearer'
+    });
+
+  } catch (error) {
+    console.error('💥 Token refresh error:', error);
+    res.status(500).json({ 
+      error: 'Internal server error',
+      details: error.message 
+    });
+  }
+});
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    environment: NODE_ENV,
+    port: PORT
+  });
+});
+
+// Catch-all handler: send back React's index.html file for client-side routing
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('💥 Unhandled error:', err);
+  res.status(500).json({ 
+    error: 'Internal server error',
+    details: NODE_ENV === 'development' ? err.message : 'Something went wrong'
+  });
+});
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🌟 Server running on port ${PORT}`);
+  console.log(`🔗 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`🌍 External URL: ${FRONTEND_URL}`);
+});
