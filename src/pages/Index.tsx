@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Calendar, ListChecks, ShoppingBasket, Tags, Lock } from 'lucide-react';
+import { PlusCircle, Calendar, ListChecks, ShoppingBasket, Tags, Utensils } from 'lucide-react';
 import TaskList from '@/components/TaskList';
 import CalendarView from '@/components/CalendarView';
 import GroceryList from '@/components/GroceryList';
@@ -10,6 +10,7 @@ import CategoryManager from '@/components/CategoryManager';
 import SettingsDialog from '@/components/SettingsDialog';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import AnimatedGradientText from '@/components/AnimatedGradientText';
+import MealReminderManager from '@/components/MealReminderManager';
 import { Task, TaskCategory, DEFAULT_CATEGORIES } from '@/types';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { FREE_CATEGORIES } from '@/types/subscription';
@@ -19,7 +20,7 @@ import { addDays, addWeeks, addMonths, isSameDay } from 'date-fns';
 export default function PlannerApp() {
   const [tasks, setTasks] = useLocalStorage<Task[]>('planner-tasks', []);
   const [categories, setCategories] = useLocalStorage<TaskCategory[]>('planner-categories', DEFAULT_CATEGORIES);
-  const [view, setView] = useLocalStorage<'list' | 'calendar' | 'grocery'>('planner-view', 'list');
+  const [view, setView] = useLocalStorage<'list' | 'calendar' | 'grocery' | 'meals'>('planner-view', 'list');
   const [isNewTaskDialogOpen, setIsNewTaskDialogOpen] = useLocalStorage<boolean>('planner-new-task-dialog', false);
   const [isCategoryManagerOpen, setIsCategoryManagerOpen] = useState(false);
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
@@ -301,6 +302,15 @@ export default function PlannerApp() {
               <ShoppingBasket className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
             <Button
+              variant={view === 'meals' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setView('meals')}
+              title="Meal Reminders"
+              className="rounded-full"
+            >
+              <Utensils className="h-4 w-4 sm:h-5 sm:w-5" />
+            </Button>
+            <Button
               variant="outline"
               size="sm"
               onClick={() => setIsCategoryManagerOpen(true)}
@@ -331,9 +341,11 @@ export default function PlannerApp() {
               onAddTask={addTask}
               categories={categories}
             />
-          ) : (
+          ) : view === 'grocery' ? (
             <GroceryList />
-          )}
+          ) : view === 'meals' ? (
+            <MealReminderManager onAddTask={addTask} />
+          ) : null}
         </div>
       </main>
 
