@@ -686,7 +686,7 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
               <p>No sleep timers set</p>
             </CardContent>
           </Card>
-        ) : (
+) : (
           <div className="grid gap-3">
             {wakeTimers.map(timer => (
               <Card key={timer.id}>
