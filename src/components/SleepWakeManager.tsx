@@ -686,9 +686,9 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
               <p>No sleep timers set</p>
             </CardContent>
           </Card>
-) : (
+        ) : (
           <div className="grid gap-3">
-            {wakeTimers.map(timer => (
+            {sleepTimers.map(timer => (
               <Card key={timer.id}>
                 <CardContent className="pt-4">
                   <div className="flex items-center justify-between">
@@ -770,9 +770,54 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
       </Card>
     </div>
   );
-} (
+}"
+                      >
+                        {timer.enabled ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => openDialog(timer)}
+                        className="touch-target"
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deleteTimer(timer.id)}
+                        className="text-destructive hover:text-destructive touch-target"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <Separator />
+
+      {/* Wake Timers */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Sun className="h-5 w-5 text-yellow-500" />
+          <h3 className="text-lg font-semibold">Wake Timers</h3>
+        </div>
+        
+        {wakeTimers.length === 0 ? (
+          <Card>
+            <CardContent className="pt-6 text-center text-muted-foreground">
+              <Sun className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p>No wake timers set</p>
+            </CardContent>
+          </Card>
+        ) : (
           <div className="grid gap-3">
-            {sleepTimers.map(timer => (
+            {wakeTimers.map(timer => (
               <Card key={timer.id}>
                 <CardContent className="pt-4">
                   <div className="flex items-center justify-between">
@@ -808,49 +853,4 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
                         variant="ghost"
                         size="sm"
                         onClick={() => toggleTimer(timer.id)}
-                        className="touch-target"
-                      >
-                        {timer.enabled ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => openDialog(timer)}
-                        className="touch-target"
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deleteTimer(timer.id)}
-                        className="text-destructive hover:text-destructive touch-target"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )
-      </div>
-
-      <Separator />
-
-      {/* Wake Timers */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <Sun className="h-5 w-5 text-yellow-500" />
-          <h3 className="text-lg font-semibold">Wake Timers</h3>
-        </div>
-        
-        {wakeTimers.length === 0 ? (
-          <Card>
-            <CardContent className="pt-6 text-center text-muted-foreground">
-              <Sun className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p>No wake timers set</p>
-            </CardContent>
-          </Card>
-        ) :
+                        className="touch-target
