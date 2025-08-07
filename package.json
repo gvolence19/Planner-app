@@ -3,7 +3,7 @@
   "type": "module",
   "packageManager": "pnpm@8.15.6",
   "engines": {
-    "node": ">=18.18.0 <19.0.0 || >=20.0.0"
+    "node": "20.17.0"
   },
   "scripts": {
     "dev": "vite",
@@ -22,7 +22,8 @@
     "health": "curl http://localhost:8080/api/health 2>/dev/null || echo 'Server not responding'",
     "check-env": "node -e \"console.log('Environment Check:'); console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? 'Set' : 'Missing'); console.log('GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET ? 'Set' : 'Missing'); console.log('NODE_ENV:', process.env.NODE_ENV || 'Not set');\"",
     "security-fix": "npm audit fix --force",
-    "lint": "eslint --quiet ./src"
+    "lint": "eslint --quiet ./src",
+    "check-deprecated": "grep -r \"url\\.parse\" . --exclude-dir=node_modules --exclude-dir=dist || echo 'No deprecated url.parse() found'"
   },
   "dependencies": {
     "vite": "^5.4.1",
