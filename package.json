@@ -3,20 +3,22 @@
   "type": "module",
   "packageManager": "pnpm@8.15.6",
   "engines": {
-    "node": "20.17.0",
-    "pnpm": "8.15.6"
+    "node": ">=18.18.0 <19.0.0 || >=20.0.0"
   },
   "scripts": {
     "dev": "vite",
     "dev:frontend": "vite",
     "dev:backend": "node server-auth.js",
-    "build": "NODE_OPTIONS='--max-old-space-size=8192 --max-semi-space-size=2048' vite build",
-    "build:safe": "NODE_OPTIONS='--max-old-space-size=4096 --gc-interval=100' vite build",
+    "build": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192 --max-semi-space-size=2048\" vite build",
+    "build:safe": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096 --gc-interval=100\" vite build",
+    "build:minimal": "vite build --minify=false --sourcemap=false",
+    "build:simple": "vite build",
+    "build:windows": "vite build",
     "start": "node server-auth.js",
     "start:dev": "serve -s dist -p 3000 --host 0.0.0.0",
     "preview": "vite preview",
-    "heroku-postbuild": "npm run build",
-    "digitalocean-postbuild": "npm run build",
+    "heroku-postbuild": "npm run build:simple",
+    "digitalocean-postbuild": "npm run build:simple",
     "health": "curl http://localhost:8080/api/health 2>/dev/null || echo 'Server not responding'",
     "check-env": "node -e \"console.log('Environment Check:'); console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? 'Set' : 'Missing'); console.log('GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET ? 'Set' : 'Missing'); console.log('NODE_ENV:', process.env.NODE_ENV || 'Not set');\"",
     "security-fix": "npm audit fix --force",
@@ -92,11 +94,18 @@
     "@types/node": "^22.5.5",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
+    "cross-env": "^7.0.3",
     "eslint": "^9.9.0",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.9",
     "globals": "^15.9.0",
     "lovable-tagger": "^1.1.7",
     "typescript-eslint": "^8.0.1"
+  },
+  "pnpm": {
+    "overrides": {
+      "esbuild@<=0.24.2": ">=0.25.0",
+      "on-headers@<1.1.0": ">=1.1.0"
+    }
   }
 }

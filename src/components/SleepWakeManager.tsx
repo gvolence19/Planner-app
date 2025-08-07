@@ -834,7 +834,7 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
               </Card>
             ))}
           </div>
-        )}
+        )
       </div>
 
       <Separator />
