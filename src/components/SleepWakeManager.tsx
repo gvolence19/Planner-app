@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -44,19 +44,19 @@ const ALARM_SOUNDS = [
     value: 'gentle', 
     label: 'Street Alarm', 
     description: 'Urban emergency alert sound',
-    file: '/sounds/street-alarm.wav' 
+    file: '/sounds/street-alarm.mp3' 
   },
   { 
     value: 'classic', 
     label: 'Warning Buzzer', 
     description: 'Sharp attention-grabbing buzzer',
-    file: '/sounds/warning-buzzer.wav' 
+    file: '/sounds/warning-buzzer.mp3' 
   },
   { 
     value: 'nature', 
     label: 'Vintage Alarm', 
     description: 'Classic old-school alarm clock',
-    file: '/sounds/vintage-alarm.wav' 
+    file: '/sounds/vintage-alarm.mp3' 
   },
 ];
 
@@ -65,6 +65,7 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTimer, setEditingTimer] = useState<SleepWakeTimer | null>(null);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
+  const [audioLoadingStatus, setAudioLoadingStatus] = useState<{[key: string]: 'loading' | 'loaded' | 'error'}>({});
   
   // Form state
   const [formData, setFormData] = useState({
@@ -108,66 +109,204 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
     };
   }, [currentAudio]);
 
-  const playAlarmSound = (soundType: string) => {
+  // Enhanced audio creation and testing
+  const createAndTestAudio = async (soundFile: string): Promise<HTMLAudioElement | null> => {
+    return new Promise((resolve) => {
+      const audio = new Audio();
+      
+      // Set up event listeners before setting src
+      audio.addEventListener('loadeddata', () => {
+        console.log(`Audio loaded successfully: ${soundFile}`);
+        resolve(audio);
+      });
+      
+      audio.addEventListener('error', (e) => {
+        console.error(`Audio load error for ${soundFile}:`, e);
+        resolve(null);
+      });
+      
+      // Set timeout for loading
+      setTimeout(() => {
+        console.warn(`Audio loading timeout for ${soundFile}`);
+        resolve(null);
+      }, 5000);
+      
+      // Set the source - this triggers loading
+      audio.src = soundFile;
+      audio.preload = 'auto';
+      audio.load();
+    });
+  };
+
+  const playAlarmSound = async (soundType: string) => {
+    console.log(`Attempting to play alarm sound: ${soundType}`);
+    
     // Stop any currently playing audio
     if (currentAudio) {
       currentAudio.pause();
       currentAudio.currentTime = 0;
+      setCurrentAudio(null);
     }
 
     const sound = ALARM_SOUNDS.find(s => s.value === soundType);
-    if (sound) {
-      try {
-        const audio = new Audio(sound.file);
-        audio.loop = true; // Loop the alarm
-        setCurrentAudio(audio);
-        
-        audio.play().catch(() => {
-          console.log('Audio playback failed');
-          toast.error('Could not play alarm sound. Please check if sound files are available.');
-        });
-        
-        // Stop after 30 seconds to prevent infinite looping
-        setTimeout(() => {
-          audio.pause();
-          audio.currentTime = 0;
-          setCurrentAudio(null);
-        }, 30000);
-      } catch (error) {
-        console.error('Error playing alarm sound:', error);
+    if (!sound) {
+      console.error('Sound not found:', soundType);
+      toast.error('Selected sound not available');
+      return;
+    }
+
+    try {
+      // Create and test audio
+      const audio = await createAndTestAudio(sound.file);
+      
+      if (!audio) {
+        console.error('Failed to create audio element');
+        toast.error(`Could not load audio file: ${sound.label}`);
+        return;
       }
+
+      // Configure audio
+      audio.loop = true;
+      audio.volume = 0.8; // Start at 80% volume
+      
+      setCurrentAudio(audio);
+      
+      // Attempt to play
+      try {
+        const playPromise = audio.play();
+        
+        if (playPromise !== undefined) {
+          await playPromise;
+          console.log('Audio playback started successfully');
+          
+          // Stop after 30 seconds to prevent infinite looping
+          setTimeout(() => {
+            if (audio) {
+              audio.pause();
+              audio.currentTime = 0;
+              setCurrentAudio(null);
+              console.log('Alarm auto-stopped after 30 seconds');
+            }
+          }, 30000);
+          
+        }
+      } catch (playError) {
+        console.error('Audio playback failed:', playError);
+        
+        // Show more specific error messages
+        if (playError.name === 'NotAllowedError') {
+          toast.error('Audio blocked by browser. Please interact with the page first, then try again.');
+        } else if (playError.name === 'NotSupportedError') {
+          toast.error('Audio format not supported by your browser.');
+        } else {
+          toast.error(`Audio playback failed: ${playError.message}`);
+        }
+      }
+      
+    } catch (error) {
+      console.error('Error in playAlarmSound:', error);
+      toast.error('Failed to initialize audio playback');
     }
   };
 
-  const playPreviewSound = (soundType: string) => {
+  const playPreviewSound = async (soundType: string) => {
+    console.log(`Attempting to preview sound: ${soundType}`);
+    
     // Stop any currently playing audio
     if (currentAudio) {
       currentAudio.pause();
       currentAudio.currentTime = 0;
+      setCurrentAudio(null);
     }
 
     const sound = ALARM_SOUNDS.find(s => s.value === soundType);
-    if (sound) {
+    if (!sound) {
+      console.error('Sound not found for preview:', soundType);
+      return;
+    }
+
+    try {
+      const audio = await createAndTestAudio(sound.file);
+      
+      if (!audio) {
+        toast.error(`Could not load preview for: ${sound.label}. Check if the file exists at ${sound.file}`);
+        return;
+      }
+
+      audio.volume = 0.6; // Lower volume for preview
+      setCurrentAudio(audio);
+      
       try {
-        const audio = new Audio(sound.file);
-        setCurrentAudio(audio);
-        
-        audio.play().catch(() => {
-          toast.error('Could not play preview. Sound file may not be loaded yet.');
-        });
+        await audio.play();
+        console.log('Preview started successfully');
         
         // Stop preview after 3 seconds
         setTimeout(() => {
-          audio.pause();
-          audio.currentTime = 0;
-          setCurrentAudio(null);
+          if (audio) {
+            audio.pause();
+            audio.currentTime = 0;
+            setCurrentAudio(null);
+            console.log('Preview stopped after 3 seconds');
+          }
         }, 3000);
-      } catch (error) {
-        console.error('Error playing preview sound:', error);
-        toast.error('Error playing sound preview.');
+        
+      } catch (playError) {
+        console.error('Preview playback failed:', playError);
+        
+        if (playError.name === 'NotAllowedError') {
+          toast.error('Please click somewhere on the page first to enable audio preview');
+        } else {
+          toast.error(`Preview failed: ${playError.message}`);
+        }
       }
+      
+    } catch (error) {
+      console.error('Error in playPreviewSound:', error);
+      toast.error('Failed to load audio for preview');
     }
   };
+
+  // Test audio files on component mount
+  const testAudioFiles = async () => {
+    console.log('Testing MP3 audio file availability...');
+    const results: {[key: string]: boolean} = {};
+    
+    for (const sound of ALARM_SOUNDS) {
+      setAudioLoadingStatus(prev => ({ ...prev, [sound.value]: 'loading' }));
+      
+      const audio = await createAndTestAudio(sound.file);
+      const isAvailable = audio !== null;
+      
+      results[sound.value] = isAvailable;
+      setAudioLoadingStatus(prev => ({ 
+        ...prev, 
+        [sound.value]: isAvailable ? 'loaded' : 'error' 
+      }));
+      
+      console.log(`${sound.label}: ${isAvailable ? 'Available' : 'Not Available'}`);
+    }
+    
+    const availableCount = Object.values(results).filter(Boolean).length;
+    console.log(`Audio test complete: ${availableCount}/${ALARM_SOUNDS.length} files available`);
+    
+    if (availableCount === 0) {
+      toast.error('No alarm sounds could be loaded. Please check that MP3 files are in the /public/sounds/ folder.');
+    } else if (availableCount < ALARM_SOUNDS.length) {
+      toast.warning(`Only ${availableCount} of ${ALARM_SOUNDS.length} alarm sounds are available.`);
+    } else {
+      toast.success('All alarm sounds loaded successfully!');
+    }
+  };
+
+  // Test audio files after component mount
+  useEffect(() => {
+    // Test audio files after a brief delay to ensure component is mounted
+    const timer = setTimeout(() => {
+      testAudioFiles();
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   // Check for active timers and trigger notifications
   useEffect(() => {
@@ -357,11 +496,14 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
               Add Timer
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-md" aria-describedby="sleep-timer-description">
             <DialogHeader>
               <DialogTitle>
                 {editingTimer ? 'Edit Timer' : 'Create New Timer'}
               </DialogTitle>
+              <DialogDescription id="sleep-timer-description">
+                Configure your sleep and wake timer settings
+              </DialogDescription>
             </DialogHeader>
             
             <div className="space-y-4">
@@ -454,9 +596,22 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
                     <SelectContent>
                       {ALARM_SOUNDS.map(sound => (
                         <SelectItem key={sound.value} value={sound.value}>
-                          <div className="flex flex-col">
-                            <span className="font-medium">{sound.label}</span>
-                            <span className="text-xs text-muted-foreground">{sound.description}</span>
+                          <div className="flex items-center justify-between w-full">
+                            <div className="flex flex-col">
+                              <span className="font-medium">{sound.label}</span>
+                              <span className="text-xs text-muted-foreground">{sound.description}</span>
+                            </div>
+                            <div className="ml-2">
+                              {audioLoadingStatus[sound.value] === 'loading' && (
+                                <span className="text-xs text-yellow-600">Loading...</span>
+                              )}
+                              {audioLoadingStatus[sound.value] === 'loaded' && (
+                                <span className="text-xs text-green-600">✓</span>
+                              )}
+                              {audioLoadingStatus[sound.value] === 'error' && (
+                                <span className="text-xs text-red-600">✗</span>
+                              )}
+                            </div>
                           </div>
                         </SelectItem>
                       ))}
@@ -470,10 +625,19 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
                     size="sm"
                     onClick={() => playPreviewSound(formData.soundType)}
                     className="w-full gap-2"
+                    disabled={audioLoadingStatus[formData.soundType] !== 'loaded'}
                   >
                     <Volume2 className="h-4 w-4" />
-                    Preview Sound (3s)
+                    {audioLoadingStatus[formData.soundType] === 'loading' ? 'Loading...' :
+                     audioLoadingStatus[formData.soundType] === 'error' ? 'File Not Available' :
+                     'Preview Sound (3s)'}
                   </Button>
+                  
+                  {audioLoadingStatus[formData.soundType] === 'error' && (
+                    <p className="text-xs text-red-600">
+                      Audio file not found: {ALARM_SOUNDS.find(s => s.value === formData.soundType)?.file}
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -523,6 +687,90 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
             </CardContent>
           </Card>
         ) : (
+          <div className="grid gap-3">
+            {wakeTimers.map(timer => (
+              <Card key={timer.id}>
+                <CardContent className="pt-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-2xl font-bold">{formatTime12Hour(timer.time)}</span>
+                        <Badge variant={timer.isAlarm ? 'default' : 'secondary'}>
+                          {timer.isAlarm ? 'Alarm' : 'Reminder'}
+                        </Badge>
+                        {!timer.enabled && (
+                          <Badge variant="outline">Disabled</Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        {timer.label}
+                        {timer.isAlarm && (
+                          <span className="ml-2 text-xs">
+                            ({ALARM_SOUNDS.find(s => s.value === timer.soundType)?.label})
+                          </span>
+                        )}
+                      </p>
+                      <div className="flex gap-1 flex-wrap">
+                        {timer.days.map(day => (
+                          <Badge key={day} variant="outline" className="text-xs">
+                            {DAYS_OF_WEEK.find(d => d.value === day)?.label}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleTimer(timer.id)}
+                        className="touch-target"
+                      >
+                        {timer.enabled ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => openDialog(timer)}
+                        className="touch-target"
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deleteTimer(timer.id)}
+                        className="text-destructive hover:text-destructive touch-target"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Tips */}
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle className="text-sm">💡 Tips</CardTitle>
+        </CardHeader>
+        <CardContent className="text-sm text-muted-foreground space-y-2">
+          <p>• <strong>Alarms</strong> will play sound and show persistent notifications</p>
+          <p>• <strong>Reminders</strong> show silent toast notifications</p>
+          <p>• Enable browser notifications for the best experience</p>
+          <p>• Wake timers can automatically add morning routine tasks</p>
+          <p>• Use the preview button to test alarm sounds before saving</p>
+          <p>• <strong>Required files:</strong> street-alarm.mp3, warning-buzzer.mp3, vintage-alarm.mp3 in /public/sounds/</p>
+          <p>• MP3 format provides better browser compatibility than WAV</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+} (
           <div className="grid gap-3">
             {sleepTimers.map(timer => (
               <Card key={timer.id}>
@@ -605,87 +853,4 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
               <p>No wake timers set</p>
             </CardContent>
           </Card>
-        ) : (
-          <div className="grid gap-3">
-            {wakeTimers.map(timer => (
-              <Card key={timer.id}>
-                <CardContent className="pt-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-2xl font-bold">{formatTime12Hour(timer.time)}</span>
-                        <Badge variant={timer.isAlarm ? 'default' : 'secondary'}>
-                          {timer.isAlarm ? 'Alarm' : 'Reminder'}
-                        </Badge>
-                        {!timer.enabled && (
-                          <Badge variant="outline">Disabled</Badge>
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-2">
-                        {timer.label}
-                        {timer.isAlarm && (
-                          <span className="ml-2 text-xs">
-                            ({ALARM_SOUNDS.find(s => s.value === timer.soundType)?.label})
-                          </span>
-                        )}
-                      </p>
-                      <div className="flex gap-1 flex-wrap">
-                        {timer.days.map(day => (
-                          <Badge key={day} variant="outline" className="text-xs">
-                            {DAYS_OF_WEEK.find(d => d.value === day)?.label}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => toggleTimer(timer.id)}
-                        className="touch-target"
-                      >
-                        {timer.enabled ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => openDialog(timer)}
-                        className="touch-target"
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deleteTimer(timer.id)}
-                        className="text-destructive hover:text-destructive touch-target"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Tips */}
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle className="text-sm">💡 Tips</CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground space-y-2">
-          <p>• <strong>Alarms</strong> will play sound and show persistent notifications</p>
-          <p>• <strong>Reminders</strong> show silent toast notifications</p>
-          <p>• Enable browser notifications for the best experience</p>
-          <p>• Wake timers can automatically add morning routine tasks</p>
-          <p>• Use the preview button to test alarm sounds before saving</p>
-          <p>• Download sound files: street-alarm.wav, warning-buzzer.wav, vintage-alarm.wav</p>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+        ) :
