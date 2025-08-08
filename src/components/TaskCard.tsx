@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import LocationDisplay from './LocationDisplay'
 
 interface TaskCardProps {
   task: Task
@@ -18,6 +17,50 @@ interface TaskCardProps {
   categories: TaskCategory[]
   className?: string
 }
+
+// Safe component to handle location display without causing React Error #31
+const SafeLocationDisplay = ({ location, showMap = false }: { location: any; showMap?: boolean }) => {
+  // Handle different location object structures safely
+  const displayText = React.useMemo(() => {
+    if (!location) return '';
+    
+    // If location is already a string
+    if (typeof location === 'string') return location;
+    
+    // If location is an object, extract the display text safely
+    if (typeof location === 'object' && location !== null) {
+      return location.displayName || 
+             location.name || 
+             location.address || 
+             location.title || 
+             location.description ||
+             'Unknown location';
+    }
+    
+    return String(location);
+  }, [location]);
+
+  if (!displayText) return null;
+
+  return (
+    <div className="flex items-center gap-1">
+      <MapPin className="h-3 w-3 text-muted-foreground" />
+      <span className="text-xs text-muted-foreground truncate">
+        {displayText}
+      </span>
+      {showMap && location?.placeId && (
+        <a 
+          href={`https://www.google.com/maps/place/?q=place_id:${location.placeId}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ml-1"
+        >
+          <ArrowUpRight className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+        </a>
+      )}
+    </div>
+  );
+};
 
 export default function TaskCard({ 
   task, 
@@ -112,7 +155,8 @@ export default function TaskCard({
                     category?.color && `bg-opacity-10 bg-[${category.color}] border-[${category.color}] text-[${category.color}]`
                   )}
                 >
-                  {task.category}
+                  {/* Ensure we're rendering the category name as string, not object */}
+                  {typeof task.category === 'string' ? task.category : task.category?.name || 'Unknown'}
                 </Badge>
               )}
               
@@ -125,7 +169,8 @@ export default function TaskCard({
             
             {task.location && (
               <div className="mt-2 sm:mt-3 text-xs">
-                <LocationDisplay location={task.location} showMap={false} />
+                {/* Use our safe location display instead of LocationDisplay component */}
+                <SafeLocationDisplay location={task.location} showMap={false} />
               </div>
             )}
           </div>
