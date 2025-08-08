@@ -110,7 +110,7 @@ export default function MealReminderManager({ onAddTask }: MealReminderManagerPr
               description: message,
               completed: false,
               priority: 'medium' as const,
-              category: { name: 'Health', color: 'bg-red-500' },
+              category: 'Health',
               createdAt: new Date(),
               dueDate: new Date(),
               recurring: 'daily' as const

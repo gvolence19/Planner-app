@@ -334,7 +334,7 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
             title: timer.label || 'Good morning routine',
             description: 'Start your day right!',
             completed: false,
-            category: { name: 'Personal', color: 'bg-blue-500' },
+            category: 'Personal',
             priority: 'medium' as const,
             createdAt: new Date(),
             dueDate: now,
