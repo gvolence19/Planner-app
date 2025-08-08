@@ -69,7 +69,7 @@ export default function TaskList({
         ? task.description.toLowerCase().includes(query)
         : false;
       const locationMatch = task.location?.displayName
-        ? task.location.displayName.toLowerCase().includes(query)
+        ? task.location.toLowerCase().includes(query)
         : false;
       
       if (!titleMatch && !descMatch && !locationMatch) return false;
