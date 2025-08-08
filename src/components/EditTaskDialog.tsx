@@ -29,7 +29,7 @@ export default function EditTaskDialog({ task, open, onOpenChange, onUpdateTask,
   
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description || '');
-  const [category, setCategory] = useState<string | undefined>(task.category?.name);
+  const [category, setCategory] = useState<string | undefined>(task.category); // Fixed: removed .name
   const [priority, setPriority] = useState<Task['priority']>(task.priority);
   const [dueDate, setDueDate] = useState<Date | undefined>(task.dueDate);
   const [completed, setCompleted] = useState(task.completed);
@@ -46,7 +46,7 @@ export default function EditTaskDialog({ task, open, onOpenChange, onUpdateTask,
     if (open) {
       setTitle(task.title);
       setDescription(task.description || '');
-      setCategory(task.category);
+      setCategory(task.category); // Fixed: removed .name
       setPriority(task.priority);
       setDueDate(task.dueDate);
       setCompleted(task.completed);
