@@ -753,53 +753,6 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
         )}
       </div>
 
-      {/* Tips */}
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle className="text-sm">💡 Tips</CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground space-y-2">
-          <p>• <strong>Alarms</strong> will play sound and show persistent notifications</p>
-          <p>• <strong>Reminders</strong> show silent toast notifications</p>
-          <p>• Enable browser notifications for the best experience</p>
-          <p>• Wake timers can automatically add morning routine tasks</p>
-          <p>• Use the preview button to test alarm sounds before saving</p>
-          <p>• <strong>Required files:</strong> street-alarm.mp3, warning-buzzer.mp3, vintage-alarm.mp3 in /public/sounds/</p>
-          <p>• MP3 format provides better browser compatibility than WAV</p>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}.id)}
-                        className="touch-target"
-                      >
-                        {timer.enabled ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => openDialog(timer)}
-                        className="touch-target"
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deleteTimer(timer.id)}
-                        className="text-destructive hover:text-destructive touch-target"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
-
       <Separator />
 
       {/* Wake Timers */}
@@ -853,4 +806,12 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => toggleTimer(timer
+                        onClick={() => toggleTimer(timer.id)}
+                        className="touch-target"
+                      >
+                        {timer.enabled ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => openDialog(timer)}
