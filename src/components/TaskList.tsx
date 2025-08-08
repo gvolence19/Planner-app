@@ -19,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import EditTaskDialog from "./EditTaskDialog";
 import TaskCard from "./TaskCard";
+import MissedTasksReschedule from "./MissedTasksReschedule"; // Add this import
 
 interface TaskListProps {
   tasks: Task[];
@@ -62,18 +63,18 @@ export default function TaskList({
     if (priorityFilter && task.priority !== priorityFilter) return false;
 
     // Filter by search query
-if (searchQuery) {
-  const query = searchQuery.toLowerCase();
-  const titleMatch = task.title.toLowerCase().includes(query);
-  const descMatch = task.description
-    ? task.description.toLowerCase().includes(query)
-    : false;
-  const locationMatch = task.location?.displayName
-    ? task.location.displayName.toLowerCase().includes(query)  // ✅ FIXED: Access .displayName property
-    : false;
-  
-  if (!titleMatch && !descMatch && !locationMatch) return false;
-}
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const titleMatch = task.title.toLowerCase().includes(query);
+      const descMatch = task.description
+        ? task.description.toLowerCase().includes(query)
+        : false;
+      const locationMatch = task.location?.displayName
+        ? task.location.displayName.toLowerCase().includes(query) // ✅ FIXED
+        : false;
+      
+      if (!titleMatch && !descMatch && !locationMatch) return false;
+    }
 
     return true;
   });
@@ -126,6 +127,16 @@ if (searchQuery) {
 
   return (
     <div className="space-y-6">
+      {/* Missed Tasks Reschedule Banner */}
+      <MissedTasksReschedule 
+        tasks={tasks}
+        onUpdateTask={onUpdateTask}
+        onDismissMissed={(taskIds) => {
+          // Optional: Handle dismissed tasks (you might want to store this in localStorage)
+          console.log('Dismissed missed tasks:', taskIds);
+        }}
+      />
+
       {/* Filter Controls */}
       <div className="flex flex-col sm:flex-row gap-3 justify-between">
         <div className="flex-1">
