@@ -1,9 +1,11 @@
+// src/components/CalendarView.tsx - Enhanced version with event details modal
 import { useState } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, addDays, isSameDay, addMonths, subMonths } from 'date-fns';
-import { ChevronLeft, ChevronRight, RepeatIcon, MapPin, CalendarClock } from 'lucide-react';
+import { ChevronLeft, ChevronRight, RepeatIcon, MapPin, CalendarClock, RefreshCw, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Task, TaskCategory, CalendarEvent } from '@/types';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import EditTaskDialog from './EditTaskDialog';
 import NewTaskDialog from './NewTaskDialog';
@@ -21,94 +23,51 @@ interface CalendarViewProps {
   categories: TaskCategory[];
 }
 
-export default function CalendarView({ tasks, onUpdateTask, onDeleteTask, onAddTask, categories }: CalendarViewProps) {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [isNewTaskDialogOpen, setIsNewTaskDialogOpen] = useState(false);
-  const [isCalendarSettingsOpen, setIsCalendarSettingsOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
-  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
-  
-  // Hook for calendar sync functionality
-  const {
-    calendarAccounts,
-    calendarEvents,
-    loading,
-    addCalendarAccount,
-    removeCalendarAccount,
-    toggleCalendarVisibility,
-    syncCalendar
-  } = useCalendarSync();
-  
-  const monthStart = startOfMonth(currentMonth);
-  const monthEnd = endOfMonth(currentMonth);
-  const monthDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
-  
-  // Adjust the start day of the week (0 = Sunday, 1 = Monday, etc.)
-  const startDay = getDay(monthStart);
-  const blankDays = Array.from({ length: startDay }, (_, i) => i);
-  
-  const nextMonth = () => {
-    setCurrentMonth(addMonths(currentMonth, 1));
-  };
-  
-  const prevMonth = () => {
-    setCurrentMonth(subMonths(currentMonth, 1));
-  };
+// Calendar Event Detail Modal Component
+const CalendarEventDetailModal = ({ event, open, onOpenChange }: {
+  event: CalendarEvent | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) => {
+  if (!event) return null;
 
-  const getTasksForDay = (day: Date) => {
-    return tasks.filter(task => {
-      if (!task.dueDate) return false;
-      const taskDate = new Date(task.dueDate);
-      return isSameDay(taskDate, day);
-    });
-  };
-
-  const getEventsForDay = (day: Date) => {
-    return calendarEvents.filter(event => {
-      // Handle all-day events
-      if (event.allDay) {
-        return event.startTime && isSameDay(new Date(event.startTime), day);
-      }
-      // Handle timed events
-      return event.startTime && isSameDay(new Date(event.startTime), day);
-    });
-  };
-
-  const getCategoryColor = (category?: string) => {
-    if (!category) return 'bg-gray-500'; // Default color for tasks with no category
-    const categoryInfo = categories.find(c => c.name === category);
-    return categoryInfo ? categoryInfo.color : 'bg-gray-500';
-  };
-
-  const handleDayClick = (day: Date) => {
-    setSelectedDate(day);
-  };
-  
-  const handleDayDoubleClick = (day: Date) => {
-    setSelectedDate(day);
-    setIsNewTaskDialogOpen(true);
+  const formatEventTime = () => {
+    if (!event.startTime) return null;
+    
+    const start = new Date(event.startTime);
+    const end = event.endTime ? new Date(event.endTime) : null;
+    
+    if (event.allDay) {
+      return format(start, 'EEEE, MMMM d, yyyy');
+    }
+    
+    const startFormat = format(start, 'EEEE, MMMM d, yyyy • h:mm a');
+    if (end) {
+      const endFormat = format(end, 'h:mm a');
+      return `${startFormat} - ${endFormat}`;
+    }
+    
+    return startFormat;
   };
 
   return (
-    <div>
-      {/* Calendar header */}
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">
-          {format(currentMonth, 'MMMM yyyy')}
-        </h2>
-        <div className="flex gap-1">
-          <Button variant="outline" size="icon" onClick={prevMonth}>
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setCurrentMonth(new Date())}
-          >
-            Today
-          </Button>
-          <Button variant="outline" size="icon" onClick={nextMonth}>
+    <div className={`fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 ${open ? 'block' : 'hidden'}`}>
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-y-auto">
+        <div className="p-6">
+          <div className="flex items-start gap-3 mb-4">
+            <div 
+              className="w-1 h-6 rounded-full flex-shrink-0 mt-0.5" 
+              style={{ backgroundColor: event.color || '#3b82f6' }}
+            />
+            <div className="flex-1">
+              <h2 className="text-lg font-semibold">{event.title}</h2>
+              {event.source && (
+                <Badge variant="secondary" className="text-xs mt-1">
+                  {event.source === 'google' ? 'Google Calendar' : event.source}
+                </Badge>
+              )}
+            </div>
+            <Button variant="outline" size="icon" onClick={nextMonth}>
             <ChevronRight className="h-4 w-4" />
           </Button>
           <Button
@@ -121,6 +80,32 @@ export default function CalendarView({ tasks, onUpdateTask, onDeleteTask, onAddT
           </Button>
         </div>
       </div>
+
+      {/* Sync errors display */}
+      {hasErrors && (
+        <div className="mb-4 space-y-2">
+          {syncErrors.map((error) => {
+            const account = calendarAccounts.find(acc => acc.id === error.accountId);
+            return (
+              <Alert key={error.accountId} variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription className="flex items-center justify-between">
+                  <span>
+                    {account?.email}: {error.message}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => clearSyncError(error.accountId)}
+                  >
+                    ✕
+                  </Button>
+                </AlertDescription>
+              </Alert>
+            );
+          })}
+        </div>
+      )}
 
       {/* Calendar accounts indicator */}
       {calendarAccounts.length > 0 && (
@@ -135,6 +120,9 @@ export default function CalendarView({ tasks, onUpdateTask, onDeleteTask, onAddT
                 style={{ backgroundColor: account.color }}
               />
               <span>{account.email}</span>
+              {syncErrors.find(e => e.accountId === account.id) && (
+                <AlertCircle className="h-3 w-3 text-red-500" />
+              )}
             </div>
           ))}
         </div>
@@ -158,7 +146,7 @@ export default function CalendarView({ tasks, onUpdateTask, onDeleteTask, onAddT
         {/* Actual days of the month */}
         {monthDays.map(day => {
           const dayTasks = getTasksForDay(day);
-          const dayEvents = getEventsForDay(day);
+          const dayEvents = getEventsForDate(day);
           const isToday = isSameDay(day, new Date());
           const dayOfMonth = format(day, 'd');
           
@@ -195,69 +183,6 @@ export default function CalendarView({ tasks, onUpdateTask, onDeleteTask, onAddT
                   )}
                 </div>
               </div>
-
-              {/* Tasks list - we hide this in iOS style but leave code for future use */}
-              <div className="hidden absolute z-10 bg-card shadow-lg rounded-md p-2 w-48 border">
-                <div className="space-y-1">
-                  {/* External Calendar Events */}
-                  {dayEvents.map((event) => (
-                    <CalendarEventComponent 
-                      key={event.id} 
-                      event={event} 
-                      onClick={() => setSelectedEvent(event)} 
-                    />
-                  ))}
-                  
-                  {/* Tasks */}
-                  {dayTasks.map(task => (
-                    <TooltipProvider key={task.id}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div className="flex items-center w-full gap-1">
-                            <div 
-                              className="cursor-pointer"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                const updatedTask = {...task, completed: !task.completed};
-                                onUpdateTask(updatedTask);
-                              }}
-                            >
-                              <div className={`w-2.5 h-2.5 rounded-full ${task.completed ? 'bg-green-500' : 'border border-gray-400'}`} />
-                            </div>
-                            <div 
-                              className={`
-                                inline-flex items-center rounded-full border font-medium
-                                text-[10px] sm:text-xs flex-1 truncate
-                                justify-start text-left px-1.5 py-0.5 cursor-pointer
-                                ${task.completed ? 'line-through opacity-50' : ''}
-                                ${getCategoryColor(task.category)} text-white
-                              `}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedTask(task);
-                              }}
-                            >
-                              {task.recurring && task.recurring !== 'none' && (
-                                <RepeatIcon className="h-2.5 w-2.5 mr-0.5 inline" />
-                              )}
-                              {task.title}
-                            </div>
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-xs">
-                          <div className="text-sm font-medium">{task.title}</div>
-                          {task.description && (
-                            <p className="text-xs text-muted-foreground mt-1">{task.description}</p>
-                          )}
-                          {task.location && (
-                            <LocationDisplay location={task.location} />
-                          )}
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  ))}
-                </div>
-              </div>
             </div>
           );
         })}
@@ -269,11 +194,11 @@ export default function CalendarView({ tasks, onUpdateTask, onDeleteTask, onAddT
           {selectedDate ? format(selectedDate, 'EEEE, MMMM d') : "Today's Schedule"}
         </h3>
         <div className="space-y-2">
-          {selectedDate && getEventsForDay(selectedDate).map((event) => (
+          {selectedDate && getEventsForDate(selectedDate).map((event) => (
             <div 
               key={event.id} 
-              className="flex items-start gap-3 p-2 rounded-md border hover:bg-muted/20"
-              onClick={() => setSelectedEvent(event)}
+              className="flex items-start gap-3 p-2 rounded-md border hover:bg-muted/20 cursor-pointer"
+              onClick={() => handleEventClick(event)}
             >
               <div 
                 className="w-1 self-stretch rounded-full" 
@@ -282,8 +207,8 @@ export default function CalendarView({ tasks, onUpdateTask, onDeleteTask, onAddT
               <div className="flex-1 min-w-0">
                 <h4 className="font-medium text-sm">{event.title}</h4>
                 <p className="text-xs text-muted-foreground">
-                  {event.startTime ? format(new Date(event.startTime), 'h:mm a') : ''} 
-                  {event.endTime ? ` - ${format(new Date(event.endTime), 'h:mm a')}` : ''}
+                  {event.allDay ? 'All day' : event.startTime ? format(new Date(event.startTime), 'h:mm a') : ''} 
+                  {event.endTime && !event.allDay ? ` - ${format(new Date(event.endTime), 'h:mm a')}` : ''}
                 </p>
                 {event.location && (
                   <p className="text-xs text-muted-foreground flex items-center mt-1">
@@ -298,7 +223,7 @@ export default function CalendarView({ tasks, onUpdateTask, onDeleteTask, onAddT
           {selectedDate && getTasksForDay(selectedDate).map((task) => (
             <div 
               key={task.id} 
-              className="flex items-start gap-3 p-2 rounded-md border hover:bg-muted/20"
+              className="flex items-start gap-3 p-2 rounded-md border hover:bg-muted/20 cursor-pointer"
               onClick={() => setSelectedTask(task)}
             >
               <div 
@@ -330,14 +255,14 @@ export default function CalendarView({ tasks, onUpdateTask, onDeleteTask, onAddT
                 {task.location && (
                   <p className="text-xs text-muted-foreground flex items-center mt-1">
                     <MapPin className="h-3 w-3 mr-1" />
-                    {task.location.description || task.location}
+                    {typeof task.location === 'string' ? task.location : task.location.description}
                   </p>
                 )}
               </div>
             </div>
           ))}
           
-          {selectedDate && getEventsForDay(selectedDate).length === 0 && getTasksForDay(selectedDate).length === 0 && (
+          {selectedDate && getEventsForDate(selectedDate).length === 0 && getTasksForDay(selectedDate).length === 0 && (
             <div className="text-center py-6 text-muted-foreground text-sm">
               No events or tasks scheduled for {isSameDay(selectedDate, new Date()) ? "today" : format(selectedDate, 'MMM d')}
             </div>
@@ -356,6 +281,14 @@ export default function CalendarView({ tasks, onUpdateTask, onDeleteTask, onAddT
         onSyncCalendar={syncCalendar}
       />
 
+      {/* Event Detail Modal */}
+      <CalendarEventDetailModal
+        event={selectedEvent}
+        open={isEventDetailOpen}
+        onOpenChange={setIsEventDetailOpen}
+      />
+
+      {/* Task Dialogs */}
       {selectedTask && (
         <EditTaskDialog 
           task={selectedTask}
@@ -379,3 +312,193 @@ export default function CalendarView({ tasks, onUpdateTask, onDeleteTask, onAddT
     </div>
   );
 }
+              variant="ghost"
+              size="sm"
+              onClick={() => onOpenChange(false)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              ✕
+            </Button>
+          </div>
+
+          <div className="space-y-4">
+            {/* Date and Time */}
+            <div className="flex items-start gap-3">
+              <CalendarClock className="h-5 w-5 text-muted-foreground mt-0.5" />
+              <div className="flex-1">
+                <p className="font-medium">{formatEventTime()}</p>
+                {event.allDay && (
+                  <p className="text-sm text-muted-foreground">All day</p>
+                )}
+              </div>
+            </div>
+
+            {/* Location */}
+            {event.location && (
+              <div className="flex items-start gap-3">
+                <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <div className="flex-1">
+                  <p className="font-medium">Location</p>
+                  <p className="text-sm text-muted-foreground break-words">
+                    {event.location}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Description */}
+            {event.description && (
+              <div className="flex items-start gap-3">
+                <div className="h-5 w-5 text-muted-foreground mt-0.5">📝</div>
+                <div className="flex-1">
+                  <p className="font-medium">Description</p>
+                  <div className="text-sm text-muted-foreground whitespace-pre-wrap break-words">
+                    {event.description}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* External link */}
+            {event.htmlLink && (
+              <div className="pt-2 border-t">
+                <Button 
+                  variant="outline" 
+                  className="w-full" 
+                  onClick={() => window.open(event.htmlLink, '_blank', 'noopener,noreferrer')}
+                >
+                  Open in {event.source === 'google' ? 'Google Calendar' : 'External Calendar'}
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default function CalendarView({ tasks, onUpdateTask, onDeleteTask, onAddTask, categories }: CalendarViewProps) {
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isNewTaskDialogOpen, setIsNewTaskDialogOpen] = useState(false);
+  const [isCalendarSettingsOpen, setIsCalendarSettingsOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+  const [isEventDetailOpen, setIsEventDetailOpen] = useState(false);
+  
+  // Hook for calendar sync functionality
+  const {
+    calendarAccounts,
+    calendarEvents,
+    loading,
+    syncErrors,
+    lastSyncTime,
+    addCalendarAccount,
+    removeCalendarAccount,
+    toggleCalendarVisibility,
+    syncCalendar,
+    forceRefresh,
+    clearSyncError,
+    getEventsForDate,
+    hasErrors,
+    visibleAccountsCount,
+  } = useCalendarSync();
+  
+  const monthStart = startOfMonth(currentMonth);
+  const monthEnd = endOfMonth(currentMonth);
+  const monthDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
+  
+  const startDay = getDay(monthStart);
+  const blankDays = Array.from({ length: startDay }, (_, i) => i);
+  
+  const nextMonth = () => {
+    setCurrentMonth(addMonths(currentMonth, 1));
+  };
+  
+  const prevMonth = () => {
+    setCurrentMonth(subMonths(currentMonth, 1));
+  };
+
+  const getTasksForDay = (day: Date) => {
+    return tasks.filter(task => {
+      if (!task.dueDate) return false;
+      const taskDate = new Date(task.dueDate);
+      return isSameDay(taskDate, day);
+    });
+  };
+
+  const getCategoryColor = (category?: string) => {
+    if (!category) return 'bg-gray-500';
+    const categoryInfo = categories.find(c => c.name === category);
+    return categoryInfo ? categoryInfo.color : 'bg-gray-500';
+  };
+
+  const handleDayClick = (day: Date) => {
+    setSelectedDate(day);
+  };
+  
+  const handleDayDoubleClick = (day: Date) => {
+    setSelectedDate(day);
+    setIsNewTaskDialogOpen(true);
+  };
+
+  const handleEventClick = (event: CalendarEvent) => {
+    setSelectedEvent(event);
+    setIsEventDetailOpen(true);
+  };
+
+  const handleForceRefresh = async () => {
+    try {
+      await forceRefresh();
+    } catch (error) {
+      console.error('Failed to refresh calendars:', error);
+    }
+  };
+
+  return (
+    <div>
+      {/* Calendar header */}
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold">
+          {format(currentMonth, 'MMMM yyyy')}
+        </h2>
+        <div className="flex gap-1 items-center">
+          {/* Sync status and refresh button */}
+          {visibleAccountsCount > 0 && (
+            <div className="flex items-center gap-2 mr-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleForceRefresh}
+                disabled={loading}
+                className="h-8 px-2"
+              >
+                <RefreshCw className={`h-3 w-3 ${loading ? 'animate-spin' : ''}`} />
+              </Button>
+              {lastSyncTime && (
+                <Tooltip>
+                  <TooltipTrigger>
+                    <span className="text-xs text-muted-foreground">
+                      {format(lastSyncTime, 'HH:mm')}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Last synced: {format(lastSyncTime, 'MMM d, HH:mm')}
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </div>
+          )}
+          
+          <Button variant="outline" size="icon" onClick={prevMonth}>
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentMonth(new Date())}
+          >
+            Today
+          </Button>
+          <Button
