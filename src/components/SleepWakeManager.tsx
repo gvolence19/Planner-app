@@ -16,13 +16,13 @@ import { Task } from '@/types';
 interface SleepWakeTimer {
   id: string;
   type: 'sleep' | 'wake';
-  time: string; // HH:MM format
+  time: string;
   label: string;
   enabled: boolean;
-  isAlarm: boolean; // true for alarm, false for reminder
-  days: string[]; // ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
+  isAlarm: boolean;
+  days: string[];
   createdAt: Date;
-  soundType: 'gentle' | 'classic' | 'nature'; // Add sound type
+  soundType: 'gentle' | 'classic' | 'nature';
 }
 
 interface SleepWakeManagerProps {
@@ -67,7 +67,6 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
   const [audioLoadingStatus, setAudioLoadingStatus] = useState<{[key: string]: 'loading' | 'loaded' | 'error'}>({});
   
-  // Form state
   const [formData, setFormData] = useState({
     type: 'sleep' as 'sleep' | 'wake',
     time: '22:00',
@@ -77,7 +76,6 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
     soundType: 'gentle' as 'gentle' | 'classic' | 'nature',
   });
 
-  // Load timers from localStorage
   useEffect(() => {
     const savedTimers = localStorage.getItem('sleep-wake-timers');
     if (savedTimers) {
@@ -85,7 +83,7 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
         const parsed = JSON.parse(savedTimers).map((timer: any) => ({
           ...timer,
           createdAt: new Date(timer.createdAt),
-          soundType: timer.soundType || 'gentle' // Default to gentle for backward compatibility
+          soundType: timer.soundType || 'gentle'
         }));
         setTimers(parsed);
       } catch (error) {
@@ -94,12 +92,10 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
     }
   }, []);
 
-  // Save timers to localStorage
   useEffect(() => {
     localStorage.setItem('sleep-wake-timers', JSON.stringify(timers));
   }, [timers]);
 
-  // Cleanup audio on component unmount
   useEffect(() => {
     return () => {
       if (currentAudio) {
@@ -109,12 +105,10 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
     };
   }, [currentAudio]);
 
-  // Enhanced audio creation and testing
   const createAndTestAudio = async (soundFile: string): Promise<HTMLAudioElement | null> => {
     return new Promise((resolve) => {
       const audio = new Audio();
       
-      // Set up event listeners before setting src
       audio.addEventListener('loadeddata', () => {
         console.log(`Audio loaded successfully: ${soundFile}`);
         resolve(audio);
@@ -125,13 +119,11 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
         resolve(null);
       });
       
-      // Set timeout for loading
       setTimeout(() => {
         console.warn(`Audio loading timeout for ${soundFile}`);
         resolve(null);
       }, 5000);
       
-      // Set the source - this triggers loading
       audio.src = soundFile;
       audio.preload = 'auto';
       audio.load();
@@ -141,7 +133,6 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
   const playAlarmSound = async (soundType: string) => {
     console.log(`Attempting to play alarm sound: ${soundType}`);
     
-    // Stop any currently playing audio
     if (currentAudio) {
       currentAudio.pause();
       currentAudio.currentTime = 0;
@@ -156,7 +147,6 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
     }
 
     try {
-      // Create and test audio
       const audio = await createAndTestAudio(sound.file);
       
       if (!audio) {
@@ -165,13 +155,11 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
         return;
       }
 
-      // Configure audio
       audio.loop = true;
-      audio.volume = 0.8; // Start at 80% volume
+      audio.volume = 0.8;
       
       setCurrentAudio(audio);
       
-      // Attempt to play
       try {
         const playPromise = audio.play();
         
@@ -179,7 +167,6 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
           await playPromise;
           console.log('Audio playback started successfully');
           
-          // Stop after 30 seconds to prevent infinite looping
           setTimeout(() => {
             if (audio) {
               audio.pause();
@@ -188,12 +175,10 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
               console.log('Alarm auto-stopped after 30 seconds');
             }
           }, 30000);
-          
         }
       } catch (playError) {
         console.error('Audio playback failed:', playError);
         
-        // Show more specific error messages
         if (playError.name === 'NotAllowedError') {
           toast.error('Audio blocked by browser. Please interact with the page first, then try again.');
         } else if (playError.name === 'NotSupportedError') {
@@ -212,7 +197,6 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
   const playPreviewSound = async (soundType: string) => {
     console.log(`Attempting to preview sound: ${soundType}`);
     
-    // Stop any currently playing audio
     if (currentAudio) {
       currentAudio.pause();
       currentAudio.currentTime = 0;
@@ -233,14 +217,13 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
         return;
       }
 
-      audio.volume = 0.6; // Lower volume for preview
+      audio.volume = 0.6;
       setCurrentAudio(audio);
       
       try {
         await audio.play();
         console.log('Preview started successfully');
         
-        // Stop preview after 3 seconds
         setTimeout(() => {
           if (audio) {
             audio.pause();
@@ -266,7 +249,6 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
     }
   };
 
-  // Test audio files on component mount
   const testAudioFiles = async () => {
     console.log('Testing MP3 audio file availability...');
     const results: {[key: string]: boolean} = {};
@@ -298,9 +280,7 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
     }
   };
 
-  // Test audio files after component mount
   useEffect(() => {
-    // Test audio files after a brief delay to ensure component is mounted
     const timer = setTimeout(() => {
       testAudioFiles();
     }, 1000);
@@ -308,11 +288,10 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
     return () => clearTimeout(timer);
   }, []);
 
-  // Check for active timers and trigger notifications
   useEffect(() => {
     const checkTimers = () => {
       const now = new Date();
-      const currentTime = now.toTimeString().slice(0, 5); // HH:MM
+      const currentTime = now.toTimeString().slice(0, 5);
       const currentDay = DAYS_OF_WEEK[now.getDay()].value;
 
       timers.forEach(timer => {
@@ -320,13 +299,11 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
         if (!timer.days.includes(currentDay)) return;
         if (timer.time !== currentTime) return;
 
-        // Timer should trigger
         const message = timer.type === 'sleep' 
           ? `💤 ${timer.label || 'Time to sleep!'}`
           : `☀️ ${timer.label || 'Time to wake up!'}`;
 
         if (timer.isAlarm) {
-          // For actual alarms, integrate with browser notifications and play sound
           if ('Notification' in window && Notification.permission === 'granted') {
             new Notification(message, {
               icon: timer.type === 'sleep' ? '🌙' : '☀️',
@@ -334,17 +311,14 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
             });
           }
           
-          // Play the selected alarm sound
           playAlarmSound(timer.soundType);
         }
 
-        // Show toast notification
         toast(message, {
-          duration: timer.isAlarm ? 0 : 5000, // Persistent for alarms
+          duration: timer.isAlarm ? 0 : 5000,
           action: timer.isAlarm ? {
             label: 'Dismiss',
             onClick: () => {
-              // Stop alarm sound when dismissed
               if (currentAudio) {
                 currentAudio.pause();
                 currentAudio.currentTime = 0;
@@ -354,7 +328,6 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
           } : undefined,
         });
 
-        // Optionally add as a task
         if (onAddTask && timer.type === 'wake') {
           onAddTask({
             id: crypto.randomUUID(),
@@ -370,16 +343,12 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
       });
     };
 
-    // Check every minute
     const interval = setInterval(checkTimers, 60000);
-    
-    // Check immediately
     checkTimers();
 
     return () => clearInterval(interval);
   }, [timers, onAddTask, currentAudio]);
 
-  // Request notification permission
   useEffect(() => {
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
@@ -418,7 +387,6 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
   const closeDialog = () => {
     setIsDialogOpen(false);
     resetForm();
-    // Stop any preview sounds when dialog closes
     if (currentAudio) {
       currentAudio.pause();
       currentAudio.currentTime = 0;
@@ -483,7 +451,6 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Sleep & Wake Timers</h2>
@@ -507,7 +474,6 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
             </DialogHeader>
             
             <div className="space-y-4">
-              {/* Timer Type */}
               <div className="space-y-2">
                 <Label>Timer Type</Label>
                 <Select 
@@ -538,7 +504,6 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
                 </Select>
               </div>
 
-              {/* Time */}
               <div className="space-y-2">
                 <Label htmlFor="time">Time</Label>
                 <Input
@@ -550,7 +515,6 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
                 />
               </div>
 
-              {/* Label */}
               <div className="space-y-2">
                 <Label htmlFor="label">Label (optional)</Label>
                 <Input
@@ -562,7 +526,6 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
                 />
               </div>
 
-              {/* Alarm vs Reminder */}
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <Label>Type</Label>
@@ -580,7 +543,6 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
                 </div>
               </div>
 
-              {/* Sound Selection - Only show when Alarm is enabled */}
               {formData.isAlarm && (
                 <div className="space-y-2">
                   <Label>Alarm Sound</Label>
@@ -618,7 +580,6 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
                     </SelectContent>
                   </Select>
                   
-                  {/* Preview button */}
                   <Button
                     type="button"
                     variant="outline"
@@ -641,7 +602,6 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
                 </div>
               )}
 
-              {/* Days of Week */}
               <div className="space-y-2">
                 <Label>Days of Week</Label>
                 <div className="grid grid-cols-7 gap-1">
@@ -672,7 +632,6 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
         </Dialog>
       </div>
 
-      {/* Sleep Timers */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <Moon className="h-5 w-5 text-blue-500" />
@@ -755,7 +714,6 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
 
       <Separator />
 
-      {/* Wake Timers */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <Sun className="h-5 w-5 text-yellow-500" />
@@ -815,4 +773,41 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
                         variant="ghost"
                         size="sm"
                         onClick={() => openDialog(timer)}
-		      >
+                        className="touch-target"
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deleteTimer(timer.id)}
+                        className="text-destructive hover:text-destructive touch-target"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle className="text-sm">💡 Tips</CardTitle>
+        </CardHeader>
+        <CardContent className="text-sm text-muted-foreground space-y-2">
+          <p>• <strong>Alarms</strong> will play sound and show persistent notifications</p>
+          <p>• <strong>Reminders</strong> show silent toast notifications</p>
+          <p>• Enable browser notifications for the best experience</p>
+          <p>• Wake timers can automatically add morning routine tasks</p>
+          <p>• Use the preview button to test alarm sounds before saving</p>
+          <p>• <strong>Required files:</strong> street-alarm.mp3, warning-buzzer.mp3, vintage-alarm.mp3 in /public/sounds/</p>
+          <p>• MP3 format provides better browser compatibility than WAV</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
