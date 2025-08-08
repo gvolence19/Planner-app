@@ -770,7 +770,8 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
       </Card>
     </div>
   );
-}"
+}.id)}
+                        className="touch-target"
                       >
                         {timer.enabled ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                       </Button>
@@ -852,5 +853,4 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => toggleTimer(timer.id)}
-                        className="touch-target
+                        onClick={() => toggleTimer(timer
