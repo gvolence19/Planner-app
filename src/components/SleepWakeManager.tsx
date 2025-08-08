@@ -815,3 +815,4 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
                         variant="ghost"
                         size="sm"
                         onClick={() => openDialog(timer)}
+		      >
