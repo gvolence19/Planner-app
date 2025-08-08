@@ -200,7 +200,7 @@ export default function PlannerApp() {
 
   // Check if a category is in use by any tasks
   const isCategoryInUse = (categoryName: string) => {
-    return tasks.some(task => task.category?.name === categoryName);
+    return tasks.some(task => task.category === categoryName); // Fixed: removed .name
   };
 
   // Handle category deletion - reassign tasks to "Other" if their category is deleted
@@ -228,10 +228,10 @@ export default function PlannerApp() {
         
         if (premiumCategoryNames.length > 0) {
           const updatedTasks = tasks.map(task => {
-            if (task.category && premiumCategoryNames.includes(task.category.name)) {
+            if (task.category && premiumCategoryNames.includes(task.category)) { // Fixed: removed .name
               return {
                 ...task,
-                category: otherCategory
+                category: otherCategory?.name // Fixed: assign category name, not object
               };
             }
             return task;
@@ -248,12 +248,12 @@ export default function PlannerApp() {
     // Update tasks if needed for deleted categories
     if (removedCategories.length > 0) {
       const updatedTasks = tasks.map(task => {
-        if (task.category && removedCategories.includes(task.category.name)) {
+        if (task.category && removedCategories.includes(task.category)) { // Fixed: removed .name
           // Assign to "Other" category or undefined if "Other" doesn't exist
           const otherCategory = newCategories.find(c => c.name === "Other");
           return {
             ...task,
-            category: otherCategory || undefined
+            category: otherCategory?.name || undefined // Fixed: assign category name, not object
           };
         }
         return task;
