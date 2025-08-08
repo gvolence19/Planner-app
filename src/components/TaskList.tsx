@@ -62,18 +62,18 @@ export default function TaskList({
     if (priorityFilter && task.priority !== priorityFilter) return false;
 
     // Filter by search query
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      const titleMatch = task.title.toLowerCase().includes(query);
-      const descMatch = task.description
-        ? task.description.toLowerCase().includes(query)
-        : false;
-      const locationMatch = task.location?.displayName
-        ? task.location.toLowerCase().includes(query)
-        : false;
-      
-      if (!titleMatch && !descMatch && !locationMatch) return false;
-    }
+if (searchQuery) {
+  const query = searchQuery.toLowerCase();
+  const titleMatch = task.title.toLowerCase().includes(query);
+  const descMatch = task.description
+    ? task.description.toLowerCase().includes(query)
+    : false;
+  const locationMatch = task.location?.displayName
+    ? task.location.displayName.toLowerCase().includes(query)  // ✅ FIXED: Access .displayName property
+    : false;
+  
+  if (!titleMatch && !descMatch && !locationMatch) return false;
+}
 
     return true;
   });
