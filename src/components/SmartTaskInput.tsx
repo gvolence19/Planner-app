@@ -164,8 +164,11 @@ export const SmartTaskInput: React.FC<SmartTaskInputProps> = ({
       location: predictions.location || parsed.location
     };
 
+    console.log('Applying predictions:', taskData); // Debug log
     onTaskCreate(taskData);
-    setInput('');
+    
+    // Don't clear the input immediately, let the parent handle it
+    // setInput('');
     setPredictions({});
     setShowPredictions(false);
   };

@@ -84,15 +84,23 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
             <Label htmlFor="title">Task *</Label>
             <SmartTaskInput
               onTaskCreate={(taskData) => {
-                setTitle(taskData.title || '');
-                setCategory(taskData.category);
-                setPriority(taskData.priority || 'medium');
-                setLocation(taskData.location || '');
+                console.log('Task data received:', taskData); // Debug log
+                if (taskData.title) setTitle(taskData.title);
+                if (taskData.category) setCategory(taskData.category);
+                if (taskData.priority) setPriority(taskData.priority);
+                if (taskData.location) setLocation(taskData.location);
               }}
               tasks={tasks}
               categories={categories}
               placeholder="What do you need to do?"
             />
+            {/* Show current form values for debugging */}
+            <div className="text-xs text-muted-foreground">
+              {title && <div>Title: {title}</div>}
+              {category && <div>Category: {category}</div>}
+              {priority && <div>Priority: {priority}</div>}
+              {location && <div>Location: {location}</div>}
+            </div>
           </div>
           
           <div className="space-y-2">
