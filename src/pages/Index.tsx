@@ -17,6 +17,7 @@ import { useSubscription } from '@/contexts/SubscriptionContext';
 import { FREE_CATEGORIES } from '@/types/subscription';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { addDays, addWeeks, addMonths, isSameDay } from 'date-fns';
+import { PatternLearningSystem } from '@/lib/pattern-learning';
 
 export default function PlannerApp() {
   const [tasks, setTasks] = useLocalStorage<Task[]>('planner-tasks', []);
@@ -133,6 +134,8 @@ export default function PlannerApp() {
 
   const addTask = (task: Task) => {
     setTasks([...tasks, task]);
+    // Learn from the new task
+    PatternLearningSystem.learnFromTask(task);
   };
 
   const updateTask = (updatedTask: Task) => {
@@ -382,6 +385,7 @@ export default function PlannerApp() {
         onOpenChange={setIsNewTaskDialogOpen} 
         onAddTask={addTask}
         categories={categories}
+        tasks={tasks}
       />
 
       {/* Category Manager Dialog */}

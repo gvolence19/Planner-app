@@ -14,6 +14,7 @@ import { Task, PRIORITIES, RECURRING_OPTIONS, TaskCategory } from '@/types';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { FREE_CATEGORIES } from '@/types/subscription';
 import LocationInput from './LocationInput';
+import { SmartTaskInput } from './SmartTaskInput';
 
 interface NewTaskDialogProps {
   open: boolean;
@@ -21,9 +22,10 @@ interface NewTaskDialogProps {
   onAddTask: (task: Task) => void;
   initialDate?: Date;
   categories: TaskCategory[];
+  tasks: Task[]; // Added tasks prop for SmartTaskInput
 }
 
-export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDate, categories }: NewTaskDialogProps) {
+export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDate, categories, tasks }: NewTaskDialogProps) {
   const { isPremium } = useSubscription();
   
   const [title, setTitle] = useState('');
@@ -79,13 +81,17 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
           <div className="space-y-2">
-            <Label htmlFor="title">Title *</Label>
-            <Input 
-              id="title" 
-              value={title} 
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter task title" 
-              required
+            <Label htmlFor="title">Task *</Label>
+            <SmartTaskInput
+              onTaskCreate={(taskData) => {
+                setTitle(taskData.title || '');
+                setCategory(taskData.category);
+                setPriority(taskData.priority || 'medium');
+                setLocation(taskData.location || '');
+              }}
+              tasks={tasks}
+              categories={categories}
+              placeholder="What do you need to do?"
             />
           </div>
           
