@@ -42,11 +42,13 @@ export const SmartTaskInput: React.FC<SmartTaskInputProps> = ({
     location?: string;
   }>({});
   const [showPredictions, setShowPredictions] = useState(false);
+  const [hasAppliedPredictions, setHasAppliedPredictions] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Sync internal state with external value prop
   useEffect(() => {
     setInput(value);
+    setHasAppliedPredictions(false);
   }, [value]);
 
   const parseNaturalLanguage = (text: string): ParsedTaskData => {
@@ -139,16 +141,20 @@ export const SmartTaskInput: React.FC<SmartTaskInputProps> = ({
   };
 
   useEffect(() => {
+    if (hasAppliedPredictions) return;
+    
     const timeoutId = setTimeout(() => {
       generatePredictions(input);
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [input]);
+  }, [input, hasAppliedPredictions]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setInput(newValue);
+    setHasAppliedPredictions(false);
+    
     // Call the onChange prop if provided
     if (onChange) {
       onChange(newValue);
@@ -156,13 +162,14 @@ export const SmartTaskInput: React.FC<SmartTaskInputProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && input.trim()) {
+    if (e.key === 'Enter' && input.trim() && showPredictions && !hasAppliedPredictions) {
+      e.preventDefault();
       handleApplyPredictions();
     }
   };
 
   const handleFocus = () => {
-    if (input.length >= 3) {
+    if (input.length >= 3 && !hasAppliedPredictions) {
       generatePredictions(input);
     }
   };
@@ -180,6 +187,7 @@ export const SmartTaskInput: React.FC<SmartTaskInputProps> = ({
     console.log('Applying predictions:', taskData);
     onTaskCreate(taskData);
     
+    setHasAppliedPredictions(true);
     setPredictions({});
     setShowPredictions(false);
   };
@@ -189,7 +197,22 @@ export const SmartTaskInput: React.FC<SmartTaskInputProps> = ({
       ...prev,
       [type]: undefined
     }));
+    
+    // Hide predictions if no predictions remain
+    const updatedPredictions = { ...predictions, [type]: undefined };
+    setShowPredictions(Object.values(updatedPredictions).some(Boolean));
   };
+
+  // Auto-apply predictions when user stops typing and there are predictions
+  useEffect(() => {
+    if (showPredictions && input.trim() && !hasAppliedPredictions) {
+      const autoApplyTimeout = setTimeout(() => {
+        handleApplyPredictions();
+      }, 2000); // Auto-apply after 2 seconds of no typing
+
+      return () => clearTimeout(autoApplyTimeout);
+    }
+  }, [showPredictions, input, hasAppliedPredictions]);
 
   return (
     <div className="space-y-2">
@@ -203,7 +226,7 @@ export const SmartTaskInput: React.FC<SmartTaskInputProps> = ({
           placeholder={placeholder}
           className="pr-10"
         />
-        {showPredictions && (
+        {showPredictions && !hasAppliedPredictions && (
           <Button
             type="button"
             size="sm"
@@ -217,7 +240,7 @@ export const SmartTaskInput: React.FC<SmartTaskInputProps> = ({
         )}
       </div>
 
-      {showPredictions && (
+      {showPredictions && !hasAppliedPredictions && (
         <div className="flex flex-wrap gap-2 p-2 bg-muted/50 rounded-md">
           <div className="text-xs text-muted-foreground flex items-center gap-1">
             <Sparkles className="h-3 w-3" />

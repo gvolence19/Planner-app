@@ -35,7 +35,6 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
   const [dueDate, setDueDate] = useState<Date | undefined>(initialDate);
   const [recurring, setRecurring] = useState<Task['recurring']>('none');
   const [location, setLocation] = useState('');
-  const [useSmartInput, setUseSmartInput] = useState(false);
   
   // Filter categories for free users
   const availableCategories = isPremium 
@@ -72,7 +71,6 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
     setDueDate(initialDate);
     setRecurring('none');
     setLocation('');
-    setUseSmartInput(false);
   };
 
   const handleSmartTaskCreate = (taskData: {
@@ -96,37 +94,15 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="title">Task *</Label>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => setUseSmartInput(!useSmartInput)}
-                className="text-xs h-6 px-2"
-              >
-                {useSmartInput ? 'Simple' : 'Smart'} Input
-              </Button>
-            </div>
-            
-            {useSmartInput ? (
-              <SmartTaskInput
-                onTaskCreate={handleSmartTaskCreate}
-                tasks={tasks}
-                categories={categories}
-                placeholder="What do you need to do?"
-                value={title}
-                onChange={setTitle}
-              />
-            ) : (
-              <Input
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="What do you need to do?"
-                required
-              />
-            )}
+            <Label htmlFor="title">Task *</Label>
+            <SmartTaskInput
+              onTaskCreate={handleSmartTaskCreate}
+              tasks={tasks}
+              categories={categories}
+              placeholder="What do you need to do?"
+              value={title}
+              onChange={setTitle}
+            />
           </div>
           
           <div className="space-y-2">
