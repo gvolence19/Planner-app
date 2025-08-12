@@ -22,7 +22,7 @@ interface NewTaskDialogProps {
   onAddTask: (task: Task) => void;
   initialDate?: Date;
   categories: TaskCategory[];
-  tasks: Task[]; // Added tasks prop for SmartTaskInput
+  tasks: Task[];
 }
 
 export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDate, categories, tasks }: NewTaskDialogProps) {
@@ -35,6 +35,7 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
   const [dueDate, setDueDate] = useState<Date | undefined>(initialDate);
   const [recurring, setRecurring] = useState<Task['recurring']>('none');
   const [location, setLocation] = useState('');
+  const [useSmartInput, setUseSmartInput] = useState(false);
   
   // Filter categories for free users
   const availableCategories = isPremium 
@@ -71,6 +72,20 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
     setDueDate(initialDate);
     setRecurring('none');
     setLocation('');
+    setUseSmartInput(false);
+  };
+
+  const handleSmartTaskCreate = (taskData: {
+    title?: string;
+    category?: string;
+    priority?: Task['priority'];
+    location?: string;
+  }) => {
+    console.log('Smart task data received:', taskData);
+    if (taskData.title) setTitle(taskData.title);
+    if (taskData.category) setCategory(taskData.category);
+    if (taskData.priority) setPriority(taskData.priority);
+    if (taskData.location) setLocation(taskData.location);
   };
 
   return (
@@ -81,26 +96,37 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
           <div className="space-y-2">
-            <Label htmlFor="title">Task *</Label>
-            <SmartTaskInput
-              onTaskCreate={(taskData) => {
-                console.log('Task data received:', taskData); // Debug log
-                if (taskData.title) setTitle(taskData.title);
-                if (taskData.category) setCategory(taskData.category);
-                if (taskData.priority) setPriority(taskData.priority);
-                if (taskData.location) setLocation(taskData.location);
-              }}
-              tasks={tasks}
-              categories={categories}
-              placeholder="What do you need to do?"
-            />
-            {/* Show current form values for debugging */}
-            <div className="text-xs text-muted-foreground">
-              {title && <div>Title: {title}</div>}
-              {category && <div>Category: {category}</div>}
-              {priority && <div>Priority: {priority}</div>}
-              {location && <div>Location: {location}</div>}
+            <div className="flex items-center justify-between">
+              <Label htmlFor="title">Task *</Label>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setUseSmartInput(!useSmartInput)}
+                className="text-xs h-6 px-2"
+              >
+                {useSmartInput ? 'Simple' : 'Smart'} Input
+              </Button>
             </div>
+            
+            {useSmartInput ? (
+              <SmartTaskInput
+                onTaskCreate={handleSmartTaskCreate}
+                tasks={tasks}
+                categories={categories}
+                placeholder="What do you need to do?"
+                value={title}
+                onChange={setTitle}
+              />
+            ) : (
+              <Input
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="What do you need to do?"
+                required
+              />
+            )}
           </div>
           
           <div className="space-y-2">

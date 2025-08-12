@@ -16,6 +16,8 @@ interface SmartTaskInputProps {
   tasks: Task[];
   categories: TaskCategory[];
   placeholder?: string;
+  value?: string;
+  onChange?: (value: string) => void;
 }
 
 interface ParsedTaskData {
@@ -29,9 +31,11 @@ export const SmartTaskInput: React.FC<SmartTaskInputProps> = ({
   onTaskCreate,
   tasks,
   categories,
-  placeholder = "What do you need to do?"
+  placeholder = "What do you need to do?",
+  value = '',
+  onChange
 }) => {
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState(value);
   const [predictions, setPredictions] = useState<{
     category?: string;
     priority?: Task['priority'];
@@ -39,6 +43,11 @@ export const SmartTaskInput: React.FC<SmartTaskInputProps> = ({
   }>({});
   const [showPredictions, setShowPredictions] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Sync internal state with external value prop
+  useEffect(() => {
+    setInput(value);
+  }, [value]);
 
   const parseNaturalLanguage = (text: string): ParsedTaskData => {
     const cleanText = text.trim();
@@ -138,8 +147,12 @@ export const SmartTaskInput: React.FC<SmartTaskInputProps> = ({
   }, [input]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setInput(value);
+    const newValue = e.target.value;
+    setInput(newValue);
+    // Call the onChange prop if provided
+    if (onChange) {
+      onChange(newValue);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -164,11 +177,9 @@ export const SmartTaskInput: React.FC<SmartTaskInputProps> = ({
       location: predictions.location || parsed.location
     };
 
-    console.log('Applying predictions:', taskData); // Debug log
+    console.log('Applying predictions:', taskData);
     onTaskCreate(taskData);
     
-    // Don't clear the input immediately, let the parent handle it
-    // setInput('');
     setPredictions({});
     setShowPredictions(false);
   };
