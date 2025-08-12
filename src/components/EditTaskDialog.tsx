@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, RepeatIcon, Trash, Lock } from 'lucide-react';
+import { CalendarIcon, RepeatIcon, Trash, Lock, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Task, TaskCategory, PRIORITIES, RECURRING_OPTIONS } from '@/types';
@@ -29,9 +29,12 @@ export default function EditTaskDialog({ task, open, onOpenChange, onUpdateTask,
   
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description || '');
-  const [category, setCategory] = useState<string | undefined>(task.category); // Fixed: removed .name
+  const [category, setCategory] = useState<string | undefined>(task.category);
   const [priority, setPriority] = useState<Task['priority']>(task.priority);
   const [dueDate, setDueDate] = useState<Date | undefined>(task.dueDate);
+  const [startTime, setStartTime] = useState(task.startTime || '');
+  const [duration, setDuration] = useState(task.duration || '');
+  const [customDuration, setCustomDuration] = useState('');
   const [completed, setCompleted] = useState(task.completed);
   const [recurring, setRecurring] = useState<Task['recurring']>(task.recurring || 'none');
   const [recurringUpdateOption, setRecurringUpdateOption] = useState<'this' | 'all'>('this');
@@ -42,13 +45,30 @@ export default function EditTaskDialog({ task, open, onOpenChange, onUpdateTask,
     ? categories 
     : categories.filter(cat => FREE_CATEGORIES.includes(cat.name));
 
+  // Check if the current duration is a predefined value or custom
+  const isCustomDuration = (duration: string) => {
+    const predefinedValues = ['15', '30', '45', '60', '90', '120', '180', '240', '480'];
+    return duration && !predefinedValues.includes(duration);
+  };
+
   useEffect(() => {
     if (open) {
       setTitle(task.title);
       setDescription(task.description || '');
-      setCategory(task.category); // Fixed: removed .name
+      setCategory(task.category);
       setPriority(task.priority);
       setDueDate(task.dueDate);
+      setStartTime(task.startTime || '');
+      
+      // Handle duration - check if it's custom or predefined
+      if (task.duration && isCustomDuration(task.duration)) {
+        setDuration('custom');
+        setCustomDuration(task.duration);
+      } else {
+        setDuration(task.duration || '');
+        setCustomDuration('');
+      }
+      
       setCompleted(task.completed);
       setRecurring(task.recurring || 'none');
       setLocation(task.location || '');
@@ -60,8 +80,8 @@ export default function EditTaskDialog({ task, open, onOpenChange, onUpdateTask,
     e.preventDefault();
     if (!title.trim()) return;
 
+    const finalDuration = duration === 'custom' ? customDuration : duration;
     const isRecurringInstance = task.recurringParentId;
-    const isRecurringParent = task.recurring && task.recurring !== 'none' && !task.recurringParentId;
     
     // Default: update just this task
     const updatedTask: Task = {
@@ -72,6 +92,8 @@ export default function EditTaskDialog({ task, open, onOpenChange, onUpdateTask,
       category,
       priority,
       dueDate,
+      startTime: startTime.trim() || undefined,
+      duration: finalDuration.trim() || undefined,
       recurring: isRecurringInstance ? 'none' : recurring,
       location: location.trim() || undefined,
     };
@@ -117,7 +139,7 @@ export default function EditTaskDialog({ task, open, onOpenChange, onUpdateTask,
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories.map((cat) => (
+                  {availableCategories.map((cat) => (
                     <SelectItem key={cat.name} value={cat.name}>
                       <div className="flex items-center">
                         <div className={`w-3 h-3 rounded-full ${cat.color} mr-2`} />
@@ -125,6 +147,14 @@ export default function EditTaskDialog({ task, open, onOpenChange, onUpdateTask,
                       </div>
                     </SelectItem>
                   ))}
+                  {!isPremium && categories.some(cat => !FREE_CATEGORIES.includes(cat.name)) && (
+                    <div className="px-2 py-1.5 text-xs text-muted-foreground border-t mt-1">
+                      <div className="flex items-center">
+                        <Lock className="h-3 w-3 mr-1" />
+                        <span>Premium categories available with subscription</span>
+                      </div>
+                    </div>
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -176,28 +206,101 @@ export default function EditTaskDialog({ task, open, onOpenChange, onUpdateTask,
             </Popover>
           </div>
 
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="startTime">Start Time</Label>
+              <div className="relative">
+                <Input
+                  id="startTime"
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                  className="pl-8"
+                />
+                <Clock className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="duration">Duration</Label>
+              <Select value={duration} onValueChange={setDuration}>
+                <SelectTrigger id="duration">
+                  <SelectValue placeholder="Select duration" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="15">15 minutes</SelectItem>
+                  <SelectItem value="30">30 minutes</SelectItem>
+                  <SelectItem value="45">45 minutes</SelectItem>
+                  <SelectItem value="60">1 hour</SelectItem>
+                  <SelectItem value="90">1.5 hours</SelectItem>
+                  <SelectItem value="120">2 hours</SelectItem>
+                  <SelectItem value="180">3 hours</SelectItem>
+                  <SelectItem value="240">4 hours</SelectItem>
+                  <SelectItem value="480">8 hours</SelectItem>
+                  <SelectItem value="custom">Custom</SelectItem>
+                </SelectContent>
+              </Select>
+              {duration === 'custom' && (
+                <Input
+                  placeholder="Enter minutes"
+                  type="number"
+                  min="1"
+                  value={customDuration}
+                  onChange={(e) => setCustomDuration(e.target.value)}
+                  className="mt-2"
+                />
+              )}
+            </div>
+          </div>
+
           {!task.recurringParentId && (
             <div className="space-y-2">
-              <Label htmlFor="recurring">Recurring</Label>
+              <div className="flex items-center gap-1.5">
+                <Label htmlFor="recurring">Recurring</Label>
+                {!isPremium && (
+                  <div className="flex items-center text-xs text-amber-500 dark:text-amber-400">
+                    <Lock className="h-3 w-3 mr-0.5" />
+                    Premium Feature
+                  </div>
+                )}
+              </div>
               <Select 
                 value={recurring || 'none'} 
-                onValueChange={(val) => setRecurring(val as Task['recurring'])}
+                onValueChange={(val) => {
+                  // Only allow recurring tasks for premium users
+                  if (!isPremium && val !== 'none') {
+                    return;
+                  }
+                  setRecurring(val as Task['recurring']);
+                }}
               >
-                <SelectTrigger id="recurring">
+                <SelectTrigger id="recurring" disabled={!isPremium}>
                   <SelectValue placeholder="Not recurring" />
                 </SelectTrigger>
                 <SelectContent>
-                  {RECURRING_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
+                  <SelectItem value="none">
+                    <span>Not recurring</span>
+                  </SelectItem>
+                  {isPremium ? (
+                    RECURRING_OPTIONS.filter(option => option.value !== 'none').map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        <div className="flex items-center">
+                          <RepeatIcon className="mr-2 h-4 w-4" />
+                          <span>{option.label}</span>
+                        </div>
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <div className="px-2 py-1.5 text-xs text-muted-foreground border-t mt-1">
                       <div className="flex items-center">
-                        {option.value !== 'none' && <RepeatIcon className="mr-2 h-4 w-4" />}
-                        <span>{option.label}</span>
+                        <Lock className="h-3 w-3 mr-1" />
+                        <span>Recurring tasks available with premium</span>
                       </div>
-                    </SelectItem>
-                  ))}
+                    </div>
+                  )}
                 </SelectContent>
               </Select>
-              {recurring !== 'none' && (
+              {recurring !== 'none' && isPremium && (
                 <p className="text-xs text-muted-foreground">
                   This task will automatically repeat based on the selected frequency.
                 </p>
@@ -205,10 +308,23 @@ export default function EditTaskDialog({ task, open, onOpenChange, onUpdateTask,
             </div>
           )}
           
-          <LocationInput
-            value={location}
-            onChange={setLocation}
-          />
+          <div className="space-y-2">
+            <div className="flex items-center gap-1.5">
+              <Label htmlFor="location">Location</Label>
+              {!isPremium && (
+                <div className="flex items-center text-xs text-amber-500 dark:text-amber-400">
+                  <Lock className="h-3 w-3 mr-0.5" />
+                  Premium Feature
+                </div>
+              )}
+            </div>
+            <LocationInput
+              value={location}
+              onChange={setLocation}
+              disabled={!isPremium}
+              placeholder={isPremium ? "Enter location" : "Upgrade to premium to add locations"}
+            />
+          </div>
           
           <div className="flex justify-between pt-2">
             {onDeleteTask && (

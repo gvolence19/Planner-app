@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, RepeatIcon, Lock } from 'lucide-react';
+import { CalendarIcon, RepeatIcon, Lock, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Task, PRIORITIES, RECURRING_OPTIONS, TaskCategory } from '@/types';
@@ -33,6 +33,9 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
   const [category, setCategory] = useState<string | undefined>(undefined);
   const [priority, setPriority] = useState<Task['priority']>('medium');
   const [dueDate, setDueDate] = useState<Date | undefined>(initialDate);
+  const [startTime, setStartTime] = useState('');
+  const [duration, setDuration] = useState('');
+  const [customDuration, setCustomDuration] = useState('');
   const [recurring, setRecurring] = useState<Task['recurring']>('none');
   const [location, setLocation] = useState('');
   
@@ -45,6 +48,8 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
     e.preventDefault();
     if (!title.trim()) return;
 
+    const finalDuration = duration === 'custom' ? customDuration : duration;
+
     const newTask: Task = {
       id: crypto.randomUUID(),
       title: title.trim(),
@@ -53,6 +58,8 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
       category,
       priority,
       dueDate,
+      startTime: startTime.trim() || undefined,
+      duration: finalDuration.trim() || undefined,
       createdAt: new Date(),
       recurring,
       location: location.trim() || undefined
@@ -69,6 +76,9 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
     setCategory(undefined);
     setPriority('medium');
     setDueDate(initialDate);
+    setStartTime('');
+    setDuration('');
+    setCustomDuration('');
     setRecurring('none');
     setLocation('');
   };
@@ -189,6 +199,53 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
                 />
               </PopoverContent>
             </Popover>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="startTime">Start Time</Label>
+              <div className="relative">
+                <Input
+                  id="startTime"
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                  className="pl-8"
+                />
+                <Clock className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="duration">Duration</Label>
+              <Select value={duration} onValueChange={setDuration}>
+                <SelectTrigger id="duration">
+                  <SelectValue placeholder="Select duration" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="15">15 minutes</SelectItem>
+                  <SelectItem value="30">30 minutes</SelectItem>
+                  <SelectItem value="45">45 minutes</SelectItem>
+                  <SelectItem value="60">1 hour</SelectItem>
+                  <SelectItem value="90">1.5 hours</SelectItem>
+                  <SelectItem value="120">2 hours</SelectItem>
+                  <SelectItem value="180">3 hours</SelectItem>
+                  <SelectItem value="240">4 hours</SelectItem>
+                  <SelectItem value="480">8 hours</SelectItem>
+                  <SelectItem value="custom">Custom</SelectItem>
+                </SelectContent>
+              </Select>
+              {duration === 'custom' && (
+                <Input
+                  placeholder="Enter minutes"
+                  type="number"
+                  min="1"
+                  value={customDuration}
+                  onChange={(e) => setCustomDuration(e.target.value)}
+                  className="mt-2"
+                />
+              )}
+            </div>
           </div>
 
           <div className="space-y-2">
