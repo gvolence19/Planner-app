@@ -70,14 +70,20 @@ interface AISuggestion {
 const AIGroceryService = {
   // Common grocery categories and items
   categories: {
-    'produce': ['apples', 'bananas', 'carrots', 'spinach', 'tomatoes', 'onions', 'potatoes', 'broccoli', 'lettuce', 'oranges'],
-    'dairy': ['milk', 'eggs', 'cheese', 'yogurt', 'butter', 'cream cheese', 'sour cream'],
-    'meat': ['chicken breast', 'ground beef', 'salmon', 'bacon', 'turkey', 'pork chops'],
-    'pantry': ['bread', 'rice', 'pasta', 'flour', 'sugar', 'salt', 'pepper', 'olive oil'],
-    'snacks': ['chips', 'crackers', 'nuts', 'granola bars', 'cookies'],
-    'beverages': ['water', 'juice', 'coffee', 'tea', 'soda'],
-    'frozen': ['ice cream', 'frozen vegetables', 'frozen fruit', 'frozen meals'],
-    'cleaning': ['dish soap', 'laundry detergent', 'paper towels', 'toilet paper'],
+    'produce': ['apples', 'bananas', 'carrots', 'spinach', 'tomatoes', 'onions', 'potatoes', 'broccoli', 'lettuce', 'oranges', 'cucumbers', 'bell peppers', 'celery', 'grapes', 'strawberries', 'lemons', 'limes', 'avocados', 'garlic', 'sweet potatoes'],
+    'dairy': ['milk', 'eggs', 'cheese', 'yogurt', 'butter', 'cream cheese', 'sour cream', 'heavy cream', 'cottage cheese', 'string cheese', 'greek yogurt', 'almond milk', 'oat milk'],
+    'meat': ['chicken breast', 'ground beef', 'salmon', 'bacon', 'turkey', 'pork chops', 'ground turkey', 'deli turkey', 'deli ham', 'rotisserie chicken', 'chicken thighs', 'beef steak', 'pork ribs', 'shrimp', 'tuna'],
+    'pantry': ['bread', 'rice', 'pasta', 'flour', 'sugar', 'salt', 'pepper', 'olive oil', 'vegetable oil', 'pasta sauce', 'canned tomatoes', 'chicken broth', 'cereal', 'oatmeal', 'peanut butter', 'jelly', 'honey', 'vinegar', 'spices', 'baking soda'],
+    'snacks': ['chips', 'crackers', 'nuts', 'granola bars', 'cookies', 'pretzels', 'popcorn', 'trail mix', 'fruit snacks', 'goldfish crackers', 'animal crackers'],
+    'beverages': ['water', 'juice', 'coffee', 'tea', 'soda', 'sparkling water', 'orange juice', 'apple juice', 'energy drinks', 'sports drinks', 'wine', 'beer'],
+    'frozen': ['ice cream', 'frozen vegetables', 'frozen fruit', 'frozen meals', 'frozen pizza', 'frozen chicken nuggets', 'frozen berries', 'frozen broccoli', 'ice', 'frozen waffles'],
+    'cleaning': ['dish soap', 'laundry detergent', 'paper towels', 'toilet paper', 'tissues', 'disinfecting wipes', 'all-purpose cleaner', 'dishwasher detergent', 'fabric softener', 'trash bags', 'sponges', 'hand soap'],
+    'paper_goods': ['toilet paper', 'paper towels', 'tissues', 'napkins', 'paper plates', 'paper cups', 'aluminum foil', 'plastic wrap', 'parchment paper', 'coffee filters'],
+    'personal_care': ['shampoo', 'conditioner', 'body wash', 'toothpaste', 'toothbrush', 'deodorant', 'lotion', 'sunscreen', 'razors', 'feminine products'],
+    'baby_kids': ['diapers', 'baby food', 'baby formula', 'wipes', 'juice boxes', 'goldfish crackers', 'string cheese', 'applesauce pouches', 'baby cereal'],
+    'household': ['batteries', 'light bulbs', 'extension cords', 'zip lock bags', 'storage containers', 'candles', 'air freshener'],
+    'condiments': ['ketchup', 'mustard', 'mayo', 'ranch dressing', 'italian dressing', 'bbq sauce', 'hot sauce', 'soy sauce', 'worcestershire sauce'],
+    'baking': ['flour', 'sugar', 'brown sugar', 'baking powder', 'baking soda', 'vanilla extract', 'chocolate chips', 'powdered sugar', 'cake mix']
   },
 
   getSuggestions: async (input: string, existingItems: string[]): Promise<AISuggestion[]> => {
@@ -162,32 +168,32 @@ const AIGroceryService = {
     
     // Popular items that start with the input
     const popularByLetter: { [key: string]: string[] } = {
-      'a': ['apples', 'avocados', 'almonds'],
-      'b': ['bananas', 'bread', 'butter', 'broccoli', 'bacon'],
-      'c': ['carrots', 'cheese', 'chicken', 'coffee', 'cookies'],
-      'd': ['deli meat', 'dates', 'detergent'],
-      'e': ['eggs', 'english muffins'],
-      'f': ['flour', 'fish', 'frozen vegetables'],
-      'g': ['grapes', 'garlic', 'greek yogurt'],
-      'h': ['honey', 'ham', 'herbs'],
-      'i': ['ice cream', 'italian dressing'],
-      'j': ['juice', 'jam'],
+      'a': ['apples', 'avocados', 'almonds', 'all-purpose cleaner', 'aluminum foil', 'animal crackers'],
+      'b': ['bananas', 'bread', 'butter', 'broccoli', 'bacon', 'batteries', 'baby food', 'bbq sauce', 'baking soda', 'brown sugar'],
+      'c': ['carrots', 'cheese', 'chicken', 'coffee', 'cookies', 'cereal', 'crackers', 'cottage cheese', 'cream cheese', 'chicken broth'],
+      'd': ['deli meat', 'dates', 'detergent', 'diapers', 'dish soap', 'deodorant', 'dishwasher detergent'],
+      'e': ['eggs', 'english muffins', 'energy drinks', 'extension cords'],
+      'f': ['flour', 'fish', 'frozen vegetables', 'fruit snacks', 'fabric softener', 'frozen pizza', 'feminine products'],
+      'g': ['grapes', 'garlic', 'greek yogurt', 'ground beef', 'goldfish crackers', 'granola bars'],
+      'h': ['honey', 'ham', 'herbs', 'heavy cream', 'hot sauce', 'hand soap'],
+      'i': ['ice cream', 'italian dressing', 'ice'],
+      'j': ['juice', 'jam', 'juice boxes'],
       'k': ['kale', 'ketchup'],
-      'l': ['lettuce', 'lemons', 'laundry detergent'],
-      'm': ['milk', 'mushrooms', 'meat'],
-      'n': ['nuts', 'noodles'],
-      'o': ['onions', 'oranges', 'olive oil'],
-      'p': ['potatoes', 'pasta', 'paper towels'],
+      'l': ['lettuce', 'lemons', 'laundry detergent', 'lotion', 'limes', 'light bulbs'],
+      'm': ['milk', 'mushrooms', 'meat', 'mayo', 'mustard', 'mozzarella cheese'],
+      'n': ['nuts', 'noodles', 'napkins'],
+      'o': ['onions', 'oranges', 'olive oil', 'oatmeal', 'orange juice', 'oat milk'],
+      'p': ['potatoes', 'pasta', 'paper towels', 'peanut butter', 'pasta sauce', 'popcorn', 'pretzels', 'parchment paper', 'paper plates'],
       'q': ['quinoa'],
-      'r': ['rice', 'ranch dressing'],
-      's': ['spinach', 'salmon', 'soap', 'sugar'],
-      't': ['tomatoes', 'turkey', 'tea', 'toilet paper'],
+      'r': ['rice', 'ranch dressing', 'rotisserie chicken', 'razors'],
+      's': ['spinach', 'salmon', 'soap', 'sugar', 'shampoo', 'sour cream', 'string cheese', 'sparkling water', 'sponges', 'sunscreen'],
+      't': ['tomatoes', 'turkey', 'tea', 'toilet paper', 'tissues', 'trash bags', 'toothpaste', 'tuna', 'trail mix'],
       'u': ['unsalted butter'],
-      'v': ['vegetables', 'vanilla'],
-      'w': ['water', 'whole wheat bread'],
+      'v': ['vegetables', 'vanilla', 'vegetable oil', 'vinegar'],
+      'w': ['water', 'whole wheat bread', 'wipes', 'wine', 'worcestershire sauce'],
       'x': ['extra virgin olive oil'],
       'y': ['yogurt', 'yams'],
-      'z': ['zucchini']
+      'z': ['zucchini', 'zip lock bags']
     };
 
     const firstLetter = input.charAt(0);
@@ -213,16 +219,53 @@ const AIGroceryService = {
     const suggestions: AISuggestion[] = [];
     const existingLower = existingItems.map(item => item.toLowerCase());
     
-    // Weekly essentials that might be missing
-    const essentials = [
-      { name: 'milk', category: 'dairy', reason: 'Weekly essential' },
+    // Weekly family essentials that might be missing
+    const weeklyEssentials = [
+      { name: 'milk', category: 'dairy', reason: 'Weekly family essential' },
       { name: 'eggs', category: 'dairy', reason: 'Versatile protein source' },
-      { name: 'bread', category: 'pantry', reason: 'Staple food item' },
-      { name: 'bananas', category: 'produce', reason: 'Healthy snack option' },
+      { name: 'bread', category: 'pantry', reason: 'Daily staple for families' },
+      { name: 'bananas', category: 'produce', reason: 'Kids love these!' },
+      { name: 'toilet paper', category: 'paper_goods', reason: 'Always needed!' },
+      { name: 'paper towels', category: 'paper_goods', reason: 'Essential for cleanup' },
+      { name: 'chicken breast', category: 'meat', reason: 'Family dinner staple' },
+      { name: 'ground beef', category: 'meat', reason: 'Great for quick meals' },
+      { name: 'cheese', category: 'dairy', reason: 'Kids & adults love it' },
+      { name: 'apples', category: 'produce', reason: 'Healthy family snack' },
+      { name: 'carrots', category: 'produce', reason: 'Great for kids & cooking' },
+      { name: 'pasta', category: 'pantry', reason: 'Easy family meal' },
+      { name: 'cereal', category: 'pantry', reason: 'Quick breakfast option' },
+      { name: 'yogurt', category: 'dairy', reason: 'Healthy snack for all' },
+      { name: 'dish soap', category: 'cleaning', reason: 'Daily kitchen essential' },
+      { name: 'laundry detergent', category: 'cleaning', reason: 'Family laundry needs' },
     ];
 
-    essentials.forEach(item => {
-      if (!existingLower.some(existing => existing.includes(item.name))) {
+    // Paper goods and household essentials
+    const householdEssentials = [
+      { name: 'tissues', category: 'paper_goods', reason: 'Cold season essential' },
+      { name: 'trash bags', category: 'cleaning', reason: 'Always running low' },
+      { name: 'disinfecting wipes', category: 'cleaning', reason: 'Keep surfaces clean' },
+      { name: 'hand soap', category: 'personal_care', reason: 'Daily hygiene essential' },
+      { name: 'shampoo', category: 'personal_care', reason: 'Family bathroom staple' },
+      { name: 'toothpaste', category: 'personal_care', reason: 'Daily oral care' },
+    ];
+
+    // Family snacks and convenience items
+    const familyFavorites = [
+      { name: 'goldfish crackers', category: 'snacks', reason: 'Kids favorite snack' },
+      { name: 'string cheese', category: 'dairy', reason: 'Easy kids snack' },
+      { name: 'juice boxes', category: 'beverages', reason: 'Perfect for kids lunches' },
+      { name: 'frozen pizza', category: 'frozen', reason: 'Quick family dinner' },
+      { name: 'ice cream', category: 'frozen', reason: 'Family dessert treat' },
+      { name: 'peanut butter', category: 'pantry', reason: 'Lunch & snack staple' },
+      { name: 'jelly', category: 'pantry', reason: 'Perfect with peanut butter' },
+    ];
+
+    // Combine all essentials
+    const allEssentials = [...weeklyEssentials, ...householdEssentials, ...familyFavorites];
+
+    // Add suggestions for items not already in the list
+    allEssentials.forEach(item => {
+      if (!existingLower.some(existing => existing.includes(item.name.toLowerCase()))) {
         suggestions.push({
           ...item,
           confidence: 0.7
@@ -232,32 +275,217 @@ const AIGroceryService = {
 
     // Complementary items based on what's already there
     const complementaryPairs = [
-      { base: 'chicken', suggest: 'rice', reason: 'Classic combination' },
-      { base: 'pasta', suggest: 'parmesan cheese', reason: 'Perfect pairing' },
-      { base: 'cereal', suggest: 'milk', reason: 'You\'ll need milk for cereal' },
-      { base: 'coffee', suggest: 'cream', reason: 'Great with coffee' },
+      { base: 'chicken', suggest: 'rice', reason: 'Classic dinner combination' },
+      { base: 'pasta', suggest: 'pasta sauce', reason: 'You\'ll need sauce for pasta' },
+      { base: 'cereal', suggest: 'milk', reason: 'Can\'t have cereal without milk' },
+      { base: 'coffee', suggest: 'cream', reason: 'Perfect coffee companion' },
+      { base: 'peanut butter', suggest: 'jelly', reason: 'Classic PB&J combo' },
+      { base: 'chips', suggest: 'dip', reason: 'Great for snacking together' },
+      { base: 'ground beef', suggest: 'taco shells', reason: 'Easy taco night!' },
+      { base: 'ice cream', suggest: 'chocolate sauce', reason: 'Make it extra special' },
+      { base: 'pancake mix', suggest: 'syrup', reason: 'Weekend breakfast essential' },
+      { base: 'toilet paper', suggest: 'tissues', reason: 'Stock up on paper goods' },
+      { base: 'dish soap', suggest: 'sponges', reason: 'You\'ll need both for dishes' },
     ];
 
     complementaryPairs.forEach(pair => {
-      if (existingLower.some(item => item.includes(pair.base)) && 
-          !existingLower.some(item => item.includes(pair.suggest))) {
+      if (existingLower.some(item => item.includes(pair.base.toLowerCase())) && 
+          !existingLower.some(item => item.includes(pair.suggest.toLowerCase()))) {
         suggestions.push({
           name: pair.suggest,
-          category: 'pantry',
+          category: 'complementary',
           confidence: 0.8,
           reason: pair.reason
         });
       }
     });
 
-    return suggestions.slice(0, 4);
+    // Weekly rotation suggestions (different each time)
+    const weeklyRotation = [
+      { name: 'rotisserie chicken', category: 'meat', reason: 'Easy dinner solution' },
+      { name: 'frozen vegetables', category: 'frozen', reason: 'Quick healthy sides' },
+      { name: 'granola bars', category: 'snacks', reason: 'Grab-and-go snacks' },
+      { name: 'sparkling water', category: 'beverages', reason: 'Healthy drink option' },
+      { name: 'aluminum foil', category: 'paper_goods', reason: 'Cooking & storage helper' },
+    ];
+
+    // Add a couple rotation items
+    weeklyRotation.slice(0, 2).forEach(item => {
+      if (!existingLower.some(existing => existing.includes(item.name.toLowerCase()))) {
+        suggestions.push({
+          ...item,
+          confidence: 0.6
+        });
+      }
+    });
+
+    // Sort by confidence and return top suggestions
+    return suggestions
+      .sort((a, b) => b.confidence - a.confidence)
+      .slice(0, 6); // Show more suggestions since we have more variety
   }
 };
 
-// Fun AI icons based on category
-const getAIIcon = (category?: string) => {
-  const icons = {
-    'produce': '🥕',
+// Fun AI icons based on specific product names and categories
+const getAIIcon = (category?: string, productName?: string) => {
+  // First check for specific product matches
+  if (productName) {
+    const productLower = productName.toLowerCase();
+    
+    // Specific product icons
+    const productIcons: { [key: string]: string } = {
+      // Produce
+      'apples': '🍎', 'apple': '🍎',
+      'bananas': '🍌', 'banana': '🍌',
+      'carrots': '🥕', 'carrot': '🥕',
+      'tomatoes': '🍅', 'tomato': '🍅',
+      'onions': '🧅', 'onion': '🧅',
+      'potatoes': '🥔', 'potato': '🥔',
+      'broccoli': '🥦',
+      'lettuce': '🥬',
+      'oranges': '🍊', 'orange': '🍊',
+      'grapes': '🍇',
+      'strawberries': '🍓', 'strawberry': '🍓',
+      'lemons': '🍋', 'lemon': '🍋',
+      'limes': '🍈',
+      'avocados': '🥑', 'avocado': '🥑',
+      'garlic': '🧄',
+      'bell peppers': '🫑', 'bell pepper': '🫑',
+      'cucumbers': '🥒', 'cucumber': '🥒',
+      'spinach': '🥬',
+      'celery': '🥬',
+      'sweet potatoes': '🍠', 'sweet potato': '🍠',
+      
+      // Dairy
+      'milk': '🥛',
+      'eggs': '🥚', 'egg': '🥚',
+      'cheese': '🧀',
+      'butter': '🧈',
+      'yogurt': '🥛',
+      'cream cheese': '🧀',
+      'sour cream': '🥛',
+      'heavy cream': '🥛',
+      'cottage cheese': '🧀',
+      'string cheese': '🧀',
+      'greek yogurt': '🥛',
+      'almond milk': '🥛',
+      'oat milk': '🥛',
+      
+      // Meat & Protein
+      'chicken': '🐔', 'chicken breast': '🐔', 'chicken thighs': '🐔',
+      'ground beef': '🥩', 'beef': '🥩', 'steak': '🥩',
+      'salmon': '🐟', 'fish': '🐟', 'tuna': '🐟', 'shrimp': '🦐',
+      'bacon': '🥓',
+      'turkey': '🦃', 'deli turkey': '🦃', 'ground turkey': '🦃',
+      'pork': '🐷', 'pork chops': '🐷', 'pork ribs': '🐷',
+      'ham': '🍖', 'deli ham': '🍖',
+      'rotisserie chicken': '🐔',
+      
+      // Bread & Pantry
+      'bread': '🍞',
+      'rice': '🍚',
+      'pasta': '🍝',
+      'flour': '🌾',
+      'sugar': '🍯',
+      'honey': '🍯',
+      'cereal': '🥣',
+      'oatmeal': '🥣',
+      'olive oil': '🫒',
+      'pasta sauce': '🍅',
+      'peanut butter': '🥜',
+      'nuts': '🥜', 'almonds': '🥜',
+      'jelly': '🍇',
+      
+      // Beverages
+      'coffee': '☕',
+      'tea': '🍵',
+      'water': '💧',
+      'juice': '🧃', 'orange juice': '🍊', 'apple juice': '🍎',
+      'juice boxes': '🧃',
+      'soda': '🥤',
+      'beer': '🍺',
+      'wine': '🍷',
+      'sparkling water': '💧',
+      
+      // Snacks
+      'chips': '🍟',
+      'crackers': '🍘',
+      'cookies': '🍪',
+      'popcorn': '🍿',
+      'pretzels': '🥨',
+      'goldfish crackers': '🐠',
+      'granola bars': '🍫',
+      'trail mix': '🥜',
+      
+      // Frozen
+      'ice cream': '🍦',
+      'frozen pizza': '🍕',
+      'ice': '🧊',
+      'frozen vegetables': '🥦',
+      'frozen fruit': '🍓',
+      'frozen waffles': '🧇',
+      
+      // Paper goods & cleaning
+      'toilet paper': '🧻',
+      'paper towels': '🧻',
+      'tissues': '🤧',
+      'napkins': '🧻',
+      'trash bags': '🗑️',
+      'dish soap': '🧽',
+      'laundry detergent': '👕',
+      'disinfecting wipes': '🧽',
+      'sponges': '🧽',
+      'aluminum foil': '📄',
+      'plastic wrap': '📦',
+      
+      // Personal care
+      'shampoo': '🧴',
+      'toothpaste': '🦷',
+      'toothbrush': '🪥',
+      'deodorant': '🧴',
+      'soap': '🧼', 'hand soap': '🧼', 'body wash': '🧼',
+      'lotion': '🧴',
+      'razors': '🪒',
+      'sunscreen': '☀️',
+      
+      // Baby/Kids
+      'diapers': '👶',
+      'baby food': '🍼',
+      'baby formula': '🍼',
+      'wipes': '🧽',
+      
+      // Condiments
+      'ketchup': '🍅',
+      'mustard': '🌭',
+      'mayo': '🥪', 'mayonnaise': '🥪',
+      'ranch dressing': '🥗',
+      'bbq sauce': '🍖',
+      'hot sauce': '🌶️',
+      'soy sauce': '🥢',
+      
+      // Household
+      'batteries': '🔋',
+      'light bulbs': '💡',
+      'candles': '🕯️',
+      'air freshener': '🌸',
+    };
+    
+    // Check for exact matches first
+    if (productIcons[productLower]) {
+      return productIcons[productLower];
+    }
+    
+    // Check for partial matches
+    for (const [product, icon] of Object.entries(productIcons)) {
+      if (productLower.includes(product) || product.includes(productLower)) {
+        return icon;
+      }
+    }
+  }
+  
+  // Fallback to category icons
+  const categoryIcons = {
+    'produce': '🥬',
     'dairy': '🥛',
     'meat': '🥩',
     'pantry': '🍞',
@@ -265,9 +493,18 @@ const getAIIcon = (category?: string) => {
     'beverages': '☕',
     'frozen': '🧊',
     'cleaning': '🧽',
+    'paper_goods': '🧻',
+    'personal_care': '🧴',
+    'baby_kids': '👶',
+    'household': '🏠',
+    'condiments': '🍯',
+    'baking': '🧁',
+    'complementary': '🤝',
+    'popular': '⭐',
     'default': '✨'
   };
-  return icons[category as keyof typeof icons] || icons.default;
+  
+  return categoryIcons[category as keyof typeof categoryIcons] || categoryIcons.default;
 };
 
 export default function EnhancedGroceryList() {
@@ -628,10 +865,7 @@ export default function EnhancedGroceryList() {
         className="w-full"
       >
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-purple-500" />
-            AI-Enhanced Grocery List
-          </h2>
+          <h2 className="text-xl font-bold">Grocery List</h2>
           <TabsList>
             {weekTabs.map((tab) => (
               <TabsTrigger key={tab.value} value={tab.value}>
@@ -664,7 +898,7 @@ export default function EnhancedGroceryList() {
                         onClick={() => addSmartSuggestion(suggestion)}
                         className="h-8 text-xs border-purple-200 hover:bg-purple-100"
                       >
-                        <span className="mr-1">{getAIIcon(suggestion.category)}</span>
+                        <span className="mr-1">{getAIIcon(suggestion.category, suggestion.name)}</span>
                         {suggestion.name}
                         <Wand2 className="h-3 w-3 ml-1 text-purple-500" />
                       </Button>
@@ -730,7 +964,7 @@ export default function EnhancedGroceryList() {
                               }`}
                             >
                               <div className="flex items-center gap-3">
-                                <span className="text-xl">{getAIIcon(suggestion.category)}</span>
+                                <span className="text-xl">{getAIIcon(suggestion.category, suggestion.name)}</span>
                                 <div>
                                   <div className="font-medium text-sm text-gray-900">
                                     {suggestion.name}
@@ -799,7 +1033,7 @@ export default function EnhancedGroceryList() {
                             <div className="flex items-center gap-2">
                               {item.isAISuggested && (
                                 <span className="text-lg" title="AI Suggested">
-                                  {getAIIcon(item.aiCategory)}
+                                  {getAIIcon(item.aiCategory, item.name)}
                                 </span>
                               )}
                               <span className={item.completed ? 'line-through text-muted-foreground' : ''}>
