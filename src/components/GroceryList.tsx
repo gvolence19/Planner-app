@@ -82,25 +82,51 @@ const AIGroceryService = {
 
   getSuggestions: async (input: string, existingItems: string[]): Promise<AISuggestion[]> => {
     // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 300));
+    await new Promise(resolve => setTimeout(resolve, 100));
     
     const suggestions: AISuggestion[] = [];
-    const inputLower = input.toLowerCase();
+    const inputLower = input.toLowerCase().trim();
+    
+    if (inputLower.length === 0) return [];
     
     // Search through all categories for matches
     Object.entries(AIGroceryService.categories).forEach(([category, items]) => {
       items.forEach(item => {
-        if (item.includes(inputLower) && !existingItems.includes(item) && inputLower.length > 1) {
-          const confidence = item.startsWith(inputLower) ? 0.9 : 0.6;
-          suggestions.push({
-            name: item,
-            category,
-            confidence,
-            reason: item.startsWith(inputLower) ? 'Exact match' : 'Contains your search'
-          });
+        if (!existingItems.includes(item)) {
+          let confidence = 0;
+          let reason = '';
+          
+          // Exact match at start
+          if (item.toLowerCase().startsWith(inputLower)) {
+            confidence = 0.95;
+            reason = 'Starts with your input';
+          }
+          // Contains the input
+          else if (item.toLowerCase().includes(inputLower)) {
+            confidence = 0.7;
+            reason = 'Contains your input';
+          }
+          // Similar items (for single character inputs)
+          else if (inputLower.length === 1 && item.toLowerCase().charAt(0) === inputLower) {
+            confidence = 0.5;
+            reason = 'Starts with same letter';
+          }
+          
+          if (confidence > 0) {
+            suggestions.push({
+              name: item,
+              category,
+              confidence,
+              reason
+            });
+          }
         }
       });
     });
+
+    // Add some dynamic suggestions based on input patterns
+    const dynamicSuggestions = AIGroceryService.getDynamicSuggestions(inputLower, existingItems);
+    suggestions.push(...dynamicSuggestions);
 
     // Smart suggestions based on what's already in the list
     if (existingItems.some(item => item.toLowerCase().includes('chicken'))) {
@@ -109,26 +135,76 @@ const AIGroceryService = {
           name: 'rice',
           category: 'pantry',
           confidence: 0.8,
-          reason: 'Goes well with chicken'
+          reason: 'Perfect with chicken!'
         });
       }
     }
 
     if (existingItems.some(item => item.toLowerCase().includes('pasta'))) {
-      if (!existingItems.some(item => item.toLowerCase().includes('tomato')) && inputLower.includes('t')) {
+      if (!existingItems.some(item => item.toLowerCase().includes('sauce')) && (inputLower.includes('s') || inputLower.includes('t'))) {
         suggestions.push({
           name: 'tomato sauce',
           category: 'pantry',
           confidence: 0.8,
-          reason: 'Perfect for pasta dishes'
+          reason: 'Great for pasta dishes!'
         });
       }
     }
 
-    // Sort by confidence and return top 5
+    // Sort by confidence and return top 6
     return suggestions
       .sort((a, b) => b.confidence - a.confidence)
-      .slice(0, 5);
+      .slice(0, 6);
+  },
+
+  getDynamicSuggestions: (input: string, existingItems: string[]): AISuggestion[] => {
+    const suggestions: AISuggestion[] = [];
+    
+    // Popular items that start with the input
+    const popularByLetter: { [key: string]: string[] } = {
+      'a': ['apples', 'avocados', 'almonds'],
+      'b': ['bananas', 'bread', 'butter', 'broccoli', 'bacon'],
+      'c': ['carrots', 'cheese', 'chicken', 'coffee', 'cookies'],
+      'd': ['deli meat', 'dates', 'detergent'],
+      'e': ['eggs', 'english muffins'],
+      'f': ['flour', 'fish', 'frozen vegetables'],
+      'g': ['grapes', 'garlic', 'greek yogurt'],
+      'h': ['honey', 'ham', 'herbs'],
+      'i': ['ice cream', 'italian dressing'],
+      'j': ['juice', 'jam'],
+      'k': ['kale', 'ketchup'],
+      'l': ['lettuce', 'lemons', 'laundry detergent'],
+      'm': ['milk', 'mushrooms', 'meat'],
+      'n': ['nuts', 'noodles'],
+      'o': ['onions', 'oranges', 'olive oil'],
+      'p': ['potatoes', 'pasta', 'paper towels'],
+      'q': ['quinoa'],
+      'r': ['rice', 'ranch dressing'],
+      's': ['spinach', 'salmon', 'soap', 'sugar'],
+      't': ['tomatoes', 'turkey', 'tea', 'toilet paper'],
+      'u': ['unsalted butter'],
+      'v': ['vegetables', 'vanilla'],
+      'w': ['water', 'whole wheat bread'],
+      'x': ['extra virgin olive oil'],
+      'y': ['yogurt', 'yams'],
+      'z': ['zucchini']
+    };
+
+    const firstLetter = input.charAt(0);
+    if (popularByLetter[firstLetter]) {
+      popularByLetter[firstLetter].forEach(item => {
+        if (!existingItems.includes(item) && item.toLowerCase().includes(input)) {
+          suggestions.push({
+            name: item,
+            category: 'popular',
+            confidence: 0.6,
+            reason: 'Popular choice'
+          });
+        }
+      });
+    }
+
+    return suggestions;
   },
 
   getSmartSuggestions: async (existingItems: string[]): Promise<AISuggestion[]> => {
@@ -242,7 +318,7 @@ export default function EnhancedGroceryList() {
       clearTimeout(suggestionsTimeoutRef.current);
     }
 
-    if (newItemName.trim().length > 1) {
+    if (newItemName.trim().length > 0) {
       setIsLoadingSuggestions(true);
       setShowAISuggestions(true);
       
@@ -260,7 +336,7 @@ export default function EnhancedGroceryList() {
         } finally {
           setIsLoadingSuggestions(false);
         }
-      }, 300);
+      }, 150); // Faster response time
     } else {
       setShowAISuggestions(false);
       setAiSuggestions([]);
@@ -444,14 +520,22 @@ export default function EnhancedGroceryList() {
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
+      e.preventDefault();
       if (aiSuggestions.length > 0 && showAISuggestions) {
-        // Add the first suggestion
+        // Add the first (top) suggestion
         addItemFromSuggestion(aiSuggestions[0]);
-      } else {
+      } else if (newItemName.trim()) {
         addItem();
       }
     } else if (e.key === 'Escape') {
       setShowAISuggestions(false);
+      setAiSuggestions([]);
+    } else if (e.key === 'ArrowDown' && showAISuggestions && aiSuggestions.length > 0) {
+      e.preventDefault();
+      // Could implement keyboard navigation here in the future
+    } else if (e.key === 'ArrowUp' && showAISuggestions && aiSuggestions.length > 0) {
+      e.preventDefault();
+      // Could implement keyboard navigation here in the future
     }
   };
 
@@ -618,29 +702,70 @@ export default function EnhancedGroceryList() {
               </div>
               
               {/* AI Suggestions Dropdown */}
-              {showAISuggestions && aiSuggestions.length > 0 && activeWeek === index && (
-                <Card className="absolute z-10 w-full mt-1 border-purple-200 shadow-lg">
-                  <CardContent className="p-2">
-                    <div className="text-xs text-purple-600 mb-2 flex items-center gap-1">
-                      <Lightbulb className="h-3 w-3" />
-                      AI Suggestions
-                    </div>
-                    {aiSuggestions.map((suggestion, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => addItemFromSuggestion(suggestion)}
-                        className="w-full text-left p-2 rounded hover:bg-purple-50 transition-colors flex items-center justify-between group"
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg">{getAIIcon(suggestion.category)}</span>
-                          <div>
-                            <div className="font-medium text-sm">{suggestion.name}</div>
-                            <div className="text-xs text-gray-500">{suggestion.reason}</div>
+              {showAISuggestions && activeWeek === index && (
+                <Card className="absolute z-50 w-full mt-1 border-purple-200 shadow-xl bg-white">
+                  <CardContent className="p-0">
+                    {isLoadingSuggestions ? (
+                      <div className="p-4 text-center">
+                        <div className="flex items-center justify-center gap-2 text-purple-600">
+                          <Sparkles className="h-4 w-4 animate-spin" />
+                          <span className="text-sm">Getting smart suggestions...</span>
+                        </div>
+                      </div>
+                    ) : aiSuggestions.length > 0 ? (
+                      <div>
+                        <div className="px-3 py-2 bg-purple-50 border-b border-purple-100">
+                          <div className="text-xs text-purple-700 font-medium flex items-center gap-1">
+                            <Brain className="h-3 w-3" />
+                            AI Suggestions • Press Enter for first option
                           </div>
                         </div>
-                        <Sparkles className="h-3 w-3 text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </button>
-                    ))}
+                        <div className="max-h-60 overflow-y-auto">
+                          {aiSuggestions.map((suggestion, idx) => (
+                            <button
+                              key={idx}
+                              onClick={() => addItemFromSuggestion(suggestion)}
+                              className={`w-full text-left p-3 hover:bg-purple-50 transition-colors flex items-center justify-between group border-b border-gray-100 last:border-b-0 ${
+                                idx === 0 ? 'bg-purple-25' : ''
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <span className="text-xl">{getAIIcon(suggestion.category)}</span>
+                                <div>
+                                  <div className="font-medium text-sm text-gray-900">
+                                    {suggestion.name}
+                                  </div>
+                                  <div className="text-xs text-purple-600 flex items-center gap-1">
+                                    <span>{suggestion.reason}</span>
+                                    <span className="text-gray-400">•</span>
+                                    <span className="capitalize">{suggestion.category}</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                {idx === 0 && (
+                                  <Badge variant="outline" className="text-xs bg-purple-100 text-purple-700 border-purple-200">
+                                    Enter ↵
+                                  </Badge>
+                                )}
+                                <Sparkles className="h-3 w-3 text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                        <div className="px-3 py-2 bg-gray-50 border-t border-gray-100">
+                          <div className="text-xs text-gray-500 text-center">
+                            Press ↵ for top suggestion • ↑↓ to navigate • Esc to close
+                          </div>
+                        </div>
+                      </div>
+                    ) : newItemName.trim() && (
+                      <div className="p-4 text-center text-gray-500">
+                        <Lightbulb className="h-4 w-4 mx-auto mb-1 opacity-50" />
+                        <div className="text-sm">No suggestions found</div>
+                        <div className="text-xs">Press Enter to add "{newItemName}"</div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               )}
