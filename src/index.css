@@ -195,3 +195,35 @@
     font-size: 16px; /* Prevent zoom on iOS */
   }
 }
+
+/* Enhanced suggestion dropdown animations and interactions */
+.suggestion-dropdown {
+  animation: slideDown 0.2s ease-out;
+}
+.suggestion-item {
+  transition: all 0.15s ease-in-out;
+}
+.suggestion-item:hover {
+  transform: translateX(2px);
+}
+.suggestion-item.selected {
+  background-color: #dbeafe;
+  border-left: 3px solid #3b82f6;
+}
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.suggestion-badge {
+  animation: fadeIn 0.3s ease-in-out;
+}
