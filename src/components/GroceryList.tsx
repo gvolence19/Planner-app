@@ -524,6 +524,11 @@ export default function EnhancedGroceryList() {
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [showAISuggestions, setShowAISuggestions] = useState(false);
   const suggestionsTimeoutRef = useRef<NodeJS.Timeout>();
+  
+  // AI item dialog state
+  const [isAIItemDialogOpen, setIsAIItemDialogOpen] = useState(false);
+  const [pendingAISuggestion, setPendingAISuggestion] = useState<AISuggestion | null>(null);
+  const [pendingAIFrequency, setPendingAIFrequency] = useState<RecurringFrequency>('none');
 
   useEffect(() => {
     if (groceryItems.length > 0) {
@@ -652,35 +657,43 @@ export default function EnhancedGroceryList() {
   };
 
   const addItemFromSuggestion = (suggestion: AISuggestion) => {
+    setPendingAISuggestion(suggestion);
+    setPendingAIFrequency('none');
+    setIsAIItemDialogOpen(true);
+    setShowAISuggestions(false);
+  };
+
+  const confirmAddAIItem = () => {
+    if (!pendingAISuggestion) return;
+    
     const newItem: GroceryItem = {
       id: crypto.randomUUID(),
-      name: suggestion.name,
+      name: pendingAISuggestion.name,
       completed: false,
       createdAt: new Date(),
       weekIndex: activeWeek,
-      recurring: 'none',
+      recurring: pendingAIFrequency,
       isAISuggested: true,
-      aiCategory: suggestion.category
+      aiCategory: pendingAISuggestion.category
     };
     
     setGroceryItems([...groceryItems, newItem]);
     setNewItemName('');
-    setShowAISuggestions(false);
+    setIsAIItemDialogOpen(false);
+    setPendingAISuggestion(null);
+    
+    // Process recurring items if this is a recurring item
+    if (pendingAIFrequency !== 'none') {
+      setTimeout(() => {
+        processRecurringItems();
+      }, 100);
+    }
   };
 
   const addSmartSuggestion = (suggestion: AISuggestion) => {
-    const newItem: GroceryItem = {
-      id: crypto.randomUUID(),
-      name: suggestion.name,
-      completed: false,
-      createdAt: new Date(),
-      weekIndex: activeWeek,
-      recurring: 'none',
-      isAISuggested: true,
-      aiCategory: suggestion.category
-    };
-    
-    setGroceryItems([...groceryItems, newItem]);
+    setPendingAISuggestion(suggestion);
+    setPendingAIFrequency('none');
+    setIsAIItemDialogOpen(true);
     
     // Remove from smart suggestions
     setSmartSuggestions(prev => prev.filter(s => s.name !== suggestion.name));
@@ -1142,6 +1155,71 @@ export default function EnhancedGroceryList() {
               Cancel
             </Button>
             <Button onClick={confirmAddItem}>
+              Add Item
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* AI Item Dialog */}
+      <Dialog open={isAIItemDialogOpen} onOpenChange={setIsAIItemDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-purple-500" />
+              Add AI Suggested Item
+            </DialogTitle>
+            <DialogDescription>
+              Would you like "{pendingAISuggestion?.name}" to be a recurring item?
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            {pendingAISuggestion && (
+              <div className="mb-4 p-3 bg-purple-50 rounded-lg border border-purple-200">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-lg">{getAIIcon(pendingAISuggestion.category, pendingAISuggestion.name)}</span>
+                  <span className="font-medium">{pendingAISuggestion.name}</span>
+                  <Badge variant="outline" className="bg-purple-100 text-purple-700 border-purple-200">
+                    <Sparkles className="h-3 w-3 mr-1" />
+                    AI
+                  </Badge>
+                </div>
+                <p className="text-sm text-purple-700">{pendingAISuggestion.reason}</p>
+              </div>
+            )}
+            
+            <Label htmlFor="ai-frequency">Frequency</Label>
+            <Select
+              value={pendingAIFrequency}
+              onValueChange={(value) => setPendingAIFrequency(value as RecurringFrequency)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select frequency" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="none">Add once (not recurring)</SelectItem>
+                  <SelectItem value="weekly">Weekly</SelectItem>
+                  <SelectItem value="biweekly">Every 2 weeks</SelectItem>
+                  <SelectItem value="monthly">Monthly</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            
+            {pendingAIFrequency !== 'none' && (
+              <p className="text-sm text-muted-foreground mt-2">
+                This AI-suggested item will automatically appear in future weeks according to the selected schedule.
+              </p>
+            )}
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAIItemDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={confirmAddAIItem} className="bg-purple-600 hover:bg-purple-700">
+              <Sparkles className="h-4 w-4 mr-2" />
               Add Item
             </Button>
           </DialogFooter>
