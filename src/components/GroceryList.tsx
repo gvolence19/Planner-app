@@ -7,12 +7,11 @@ import {
   Plus, 
   ChevronLeft, 
   ChevronRight, 
-  RepeatIcon,
+  Repeat,
   MoreHorizontal 
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useLocalStorage } from '@/hooks/use-local-storage';
 import { format, addWeeks, startOfWeek, endOfWeek, addDays } from 'date-fns';
 import { 
   DropdownMenu,
@@ -55,12 +54,17 @@ export interface GroceryItem {
 }
 
 export default function GroceryList() {
-  const [groceryItems, setGroceryItems] = useLocalStorage<GroceryItem[]>('planner-grocery-items', []);
+  const [groceryItems, setGroceryItems] = useState<GroceryItem[]>([]);
   const [newItemName, setNewItemName] = useState('');
   const [activeWeek, setActiveWeek] = useState<number>(0); // 0 = current week, 1 = next week, etc.
   const [isRecurringDialogOpen, setIsRecurringDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<GroceryItem | null>(null);
   const [selectedRecurringFrequency, setSelectedRecurringFrequency] = useState<RecurringFrequency>('none');
+  
+  // New state for add item dialog
+  const [isAddItemDialogOpen, setIsAddItemDialogOpen] = useState(false);
+  const [pendingItemName, setPendingItemName] = useState('');
+  const [pendingItemFrequency, setPendingItemFrequency] = useState<RecurringFrequency>('none');
 
   // Fix date objects that come from localStorage as strings
   useEffect(() => {
@@ -150,20 +154,39 @@ export default function GroceryList() {
     }
   };
 
-  const addItem = () => {
+  const openAddItemDialog = () => {
     if (!newItemName.trim()) return;
-    
+    setPendingItemName(newItemName.trim());
+    setPendingItemFrequency('none');
+    setIsAddItemDialogOpen(true);
+  };
+
+  const confirmAddItem = () => {
     const newItem: GroceryItem = {
       id: crypto.randomUUID(),
-      name: newItemName.trim(),
+      name: pendingItemName,
       completed: false,
       createdAt: new Date(),
       weekIndex: activeWeek,
-      recurring: 'none'
+      recurring: pendingItemFrequency
     };
     
     setGroceryItems([...groceryItems, newItem]);
     setNewItemName('');
+    setPendingItemName('');
+    setIsAddItemDialogOpen(false);
+    
+    // Process recurring items if this is a recurring item
+    if (pendingItemFrequency !== 'none') {
+      setTimeout(() => {
+        processRecurringItems();
+      }, 100);
+    }
+  };
+
+  const addItem = () => {
+    if (!newItemName.trim()) return;
+    openAddItemDialog();
   };
 
   const toggleItem = (id: string, completed: boolean) => {
@@ -365,7 +388,7 @@ export default function GroceryList() {
                             </span>
                             {(item.recurring !== 'none' || item.recurringParentId) && (
                               <Badge variant="outline" className="ml-2 bg-blue-50">
-                                <RepeatIcon className="h-3 w-3 mr-1" />
+                                <Repeat className="h-3 w-3 mr-1" />
                                 {item.recurring !== 'none' ? getRecurringLabel(item.recurring) : 'Recurring'}
                               </Badge>
                             )}
@@ -383,7 +406,7 @@ export default function GroceryList() {
                               <DropdownMenuContent align="end">
                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                 <DropdownMenuItem onClick={() => openRecurringDialog(item)}>
-                                  <RepeatIcon className="h-4 w-4 mr-2" />
+                                  <Repeat className="h-4 w-4 mr-2" />
                                   {item.recurring === 'none' ? 'Make recurring' : 'Edit recurrence'}
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
@@ -418,7 +441,54 @@ export default function GroceryList() {
         ))}
       </Tabs>
 
-      {/* Recurring Item Dialog */}
+      {/* Add Item Dialog */}
+      <Dialog open={isAddItemDialogOpen} onOpenChange={setIsAddItemDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Grocery Item</DialogTitle>
+            <DialogDescription>
+              Would you like "{pendingItemName}" to be a recurring item?
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <Label htmlFor="frequency">Frequency</Label>
+            <Select
+              value={pendingItemFrequency}
+              onValueChange={(value) => setPendingItemFrequency(value as RecurringFrequency)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select frequency" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="none">Add once (not recurring)</SelectItem>
+                  <SelectItem value="weekly">Weekly</SelectItem>
+                  <SelectItem value="biweekly">Every 2 weeks</SelectItem>
+                  <SelectItem value="monthly">Monthly</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            
+            {pendingItemFrequency !== 'none' && (
+              <p className="text-sm text-muted-foreground mt-2">
+                This item will automatically appear in future weeks according to the selected schedule.
+              </p>
+            )}
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddItemDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={confirmAddItem}>
+              Add Item
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Recurring Item Dialog */}
       <Dialog open={isRecurringDialogOpen} onOpenChange={setIsRecurringDialogOpen}>
         <DialogContent>
           <DialogHeader>
