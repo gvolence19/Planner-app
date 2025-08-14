@@ -302,15 +302,12 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
           </div>
 
           <div className="space-y-2">
-            <div className="flex items-center gap-1.5">
-              <Label htmlFor="location">Location</Label>
-              {!isPremium && (
-                <div className="flex items-center text-xs text-amber-500 dark:text-amber-400">
-                  <Lock className="h-3 w-3 mr-0.5" />
-                  Premium Feature
-                </div>
-              )}
-            </div>
+            {!isPremium && (
+              <div className="flex items-center text-xs text-amber-500 dark:text-amber-400 mb-1">
+                <Lock className="h-3 w-3 mr-0.5" />
+                Premium Feature
+              </div>
+            )}
             <LocationInput
               value={location}
               onChange={setLocation}
