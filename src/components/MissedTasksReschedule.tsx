@@ -17,12 +17,14 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 interface MissedTasksRescheduleProps {
   tasks: Task[];
   onUpdateTask: (task: Task) => void;
+  onUpdateMultipleTasks?: (tasks: Task[]) => void; // New prop for batch updates
   onDismissMissed?: (taskIds: string[]) => void;
 }
 
 export default function MissedTasksReschedule({ 
   tasks, 
   onUpdateTask, 
+  onUpdateMultipleTasks,
   onDismissMissed 
 }: MissedTasksRescheduleProps) {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -50,9 +52,35 @@ export default function MissedTasksReschedule({
   };
 
   const rescheduleAllTasks = (newDate: Date) => {
-    missedTasks.forEach(task => {
-      rescheduleTask(task, newDate);
-    });
+    // Create a snapshot of current missed tasks to avoid state race conditions
+    const tasksToUpdate = [...missedTasks];
+    
+    if (onUpdateMultipleTasks) {
+      // Preferred method: batch update all tasks at once
+      const updatedTasks = tasksToUpdate.map(task => ({
+        ...task,
+        dueDate: newDate,
+      }));
+      onUpdateMultipleTasks(updatedTasks);
+    } else {
+      // Fallback: use setTimeout to batch individual updates
+      const updateTasks = async () => {
+        for (let i = 0; i < tasksToUpdate.length; i++) {
+          const task = tasksToUpdate[i];
+          const updatedTask = {
+            ...task,
+            dueDate: newDate,
+          };
+          
+          // Use setTimeout to prevent blocking and allow for proper state updates
+          setTimeout(() => {
+            onUpdateTask(updatedTask);
+          }, i * 10); // Small delay between updates
+        }
+      };
+      
+      updateTasks();
+    }
   };
 
   const dismissTask = (taskId: string) => {

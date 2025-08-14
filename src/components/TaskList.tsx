@@ -19,11 +19,12 @@ import {
 import { Input } from "@/components/ui/input";
 import EditTaskDialog from "./EditTaskDialog";
 import TaskCard from "./TaskCard";
-import MissedTasksReschedule from "./MissedTasksReschedule"; // Add this import
+import MissedTasksReschedule from "./MissedTasksReschedule";
 
 interface TaskListProps {
   tasks: Task[];
   onUpdateTask: (task: Task) => void;
+  onUpdateMultipleTasks?: (tasks: Task[]) => void; // NEW: Add this prop
   onDeleteTask: (taskId: string) => void;
   categories: TaskCategory[];
 }
@@ -31,6 +32,7 @@ interface TaskListProps {
 export default function TaskList({
   tasks,
   onUpdateTask,
+  onUpdateMultipleTasks, // NEW: Destructure the new prop
   onDeleteTask,
   categories,
 }: TaskListProps) {
@@ -70,7 +72,7 @@ export default function TaskList({
         ? task.description.toLowerCase().includes(query)
         : false;
       const locationMatch = task.location?.displayName
-        ? task.location.displayName.toLowerCase().includes(query) // ✅ FIXED
+        ? task.location.displayName.toLowerCase().includes(query)
         : false;
       
       if (!titleMatch && !descMatch && !locationMatch) return false;
@@ -131,6 +133,7 @@ export default function TaskList({
       <MissedTasksReschedule 
         tasks={tasks}
         onUpdateTask={onUpdateTask}
+        onUpdateMultipleTasks={onUpdateMultipleTasks} // NEW: Pass the batch update function
         onDismissMissed={(taskIds) => {
           // Optional: Handle dismissed tasks (you might want to store this in localStorage)
           console.log('Dismissed missed tasks:', taskIds);

@@ -178,6 +178,20 @@ export default function PlannerApp() {
     setTasks(tasks.map(task => task.id === updatedTask.id ? updatedTask : task));
   };
 
+  // NEW: Batch update function for multiple tasks
+  const updateMultipleTasks = (updatedTasks: Task[]) => {
+    // Create a map of updated tasks for quick lookup
+    const updateMap = new Map(updatedTasks.map(task => [task.id, task]));
+    
+    // Update all tasks in one operation
+    setTasks(prevTasks => 
+      prevTasks.map(task => {
+        const updatedTask = updateMap.get(task.id);
+        return updatedTask || task;
+      })
+    );
+  };
+
   const deleteTask = (id: string) => {
     // Check if this is a recurring task
     const taskToDelete = tasks.find(task => task.id === id);
@@ -345,7 +359,13 @@ export default function PlannerApp() {
       <main className="flex-1 container py-3 sm:py-6">
         <div className="rounded-xl border shadow-sm bg-card text-card-foreground p-3 sm:p-4 mb-4 sm:mb-6">
           {view === 'list' ? (
-            <TaskList tasks={tasks} onUpdateTask={updateTask} onDeleteTask={deleteTask} categories={categories} />
+            <TaskList 
+              tasks={tasks} 
+              onUpdateTask={updateTask} 
+              onUpdateMultipleTasks={updateMultipleTasks} // NEW: Pass the batch update function
+              onDeleteTask={deleteTask} 
+              categories={categories} 
+            />
           ) : view === 'calendar' ? (
             <CalendarView 
               tasks={tasks} 
