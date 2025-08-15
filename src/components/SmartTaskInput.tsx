@@ -1,4 +1,4 @@
-// Super Smart Task Input with Advanced AI Auto-Population
+// Super Smart Task Input with Advanced AI Auto-Population and Enhanced Icons
 import React, { useState, useRef, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -7,7 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { Sparkles, X, Brain, Lightbulb, Wand2, Clock, MapPin, Star, Zap } from 'lucide-react';
 import { Task, TaskCategory } from '@/types';
 import { PatternLearningSystem } from '@/lib/pattern-learning';
-import { AdvancedAITaskService, AdvancedAITaskSuggestion, getTaskAIIcon } from './AdvancedAITaskService';
+import { AdvancedAITaskService, AdvancedAITaskSuggestion } from './AdvancedAITaskService';
+import { getFunTaskIcon, getIconSuggestions, PRIORITY_ICONS } from '@/lib/taskIcons';
 
 interface SuperSmartTaskInputProps {
   onTaskCreate: (taskData: {
@@ -64,6 +65,7 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [showAISuggestions, setShowAISuggestions] = useState(false);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0);
+  const [iconSuggestions, setIconSuggestions] = useState<Array<{ icon: string; reason: string }>>([]);
   const suggestionsTimeoutRef = useRef<NodeJS.Timeout>();
   
   const inputRef = useRef<HTMLInputElement>(null);
@@ -83,7 +85,7 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
     getContextualSmartSuggestions(existingTaskTitles, categoryNames);
   }, [tasks, categories]);
 
-  // Enhanced AI suggestions as user types
+  // Enhanced AI suggestions as user types with icon suggestions
   useEffect(() => {
     if (suggestionsTimeoutRef.current) {
       clearTimeout(suggestionsTimeoutRef.current);
@@ -93,6 +95,10 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
       setIsLoadingSuggestions(true);
       setShowAISuggestions(true);
       setSelectedSuggestionIndex(0);
+      
+      // Get icon suggestions for current input
+      const iconSuggs = getIconSuggestions(input, 3);
+      setIconSuggestions(iconSuggs);
       
       suggestionsTimeoutRef.current = setTimeout(async () => {
         try {
@@ -107,10 +113,11 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
         } finally {
           setIsLoadingSuggestions(false);
         }
-      }, 100); // Faster response for better UX
+      }, 100);
     } else {
       setShowAISuggestions(false);
       setAiSuggestions([]);
+      setIconSuggestions([]);
       setIsLoadingSuggestions(false);
     }
 
@@ -123,7 +130,6 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
 
   const getContextualSmartSuggestions = async (existingTaskTitles: string[], categoryNames: string[]) => {
     try {
-      // Get time-aware contextual suggestions
       const hour = new Date().getHours();
       const day = new Date().getDay();
       const suggestions: AdvancedAITaskSuggestion[] = [];
@@ -136,7 +142,7 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
           priority: 'medium',
           duration: '15',
           confidence: 0.8,
-          reason: 'Great way to start the day!',
+          reason: 'Great way to start the day! ☀️',
           autoFillData: {
             recommendedTime: '08:00',
             preparationTasks: ['Review calendar', 'Check emails'],
@@ -154,7 +160,7 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
             priority: 'medium',
             duration: '30',
             confidence: 0.7,
-            reason: 'Good for team coordination',
+            reason: 'Good for team coordination 🤝',
             autoFillData: {
               recommendedTime: '10:00',
               preparationTasks: ['Prepare agenda', 'Check team availability'],
@@ -172,34 +178,11 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
           priority: 'medium',
           duration: '60',
           confidence: 0.75,
-          reason: 'Perfect weekend activity',
+          reason: 'Perfect weekend activity 🛒',
           autoFillData: {
             recommendedTime: '10:00',
             preparationTasks: ['Make shopping list', 'Check store hours'],
             followUpTasks: ['Plan meals for the week']
-          }
-        });
-      }
-
-      // Health-focused suggestions if no recent health tasks
-      const hasHealthTasks = existingTaskTitles.some(task => 
-        task.toLowerCase().includes('doctor') || 
-        task.toLowerCase().includes('dental') ||
-        task.toLowerCase().includes('workout')
-      );
-
-      if (!hasHealthTasks) {
-        suggestions.push({
-          title: 'Schedule annual checkup',
-          category: 'health',
-          priority: 'high',
-          duration: '60',
-          confidence: 0.8,
-          reason: 'Important health maintenance',
-          autoFillData: {
-            recommendedTime: '10:00',
-            preparationTasks: ['Check insurance coverage', 'Gather medical history'],
-            followUpTasks: ['Schedule any recommended follow-ups']
           }
         });
       }
@@ -248,7 +231,7 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
         const targetDay = days.indexOf(dayMatch[1].toLowerCase());
         const currentDay = now.getDay();
         let daysToAdd = targetDay - currentDay;
-        if (daysToAdd <= 0) daysToAdd += 7; // Next occurrence
+        if (daysToAdd <= 0) daysToAdd += 7;
         dueDate.setDate(now.getDate() + daysToAdd);
       }
     }
@@ -390,10 +373,8 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
     if (e.key === 'Enter') {
       e.preventDefault();
       if (showAISuggestions && aiSuggestions.length > 0) {
-        // Populate form with AI suggestion for editing (don't create immediately)
         addTaskFromAISuggestion(aiSuggestions[selectedSuggestionIndex], false);
       } else if (input.trim()) {
-        // Always allow manual task creation when user types and presses Enter
         handleApplyPredictions();
       }
     } else if (e.key === 'ArrowDown' && showAISuggestions && aiSuggestions.length > 0) {
@@ -411,7 +392,6 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
 
   const addTaskFromAISuggestion = (suggestion: AdvancedAITaskSuggestion, shouldCreateImmediately = false) => {
     if (shouldCreateImmediately) {
-      // Direct creation (when clicking on suggestion)
       const taskData = {
         title: suggestion.title,
         category: suggestion.category,
@@ -424,10 +404,8 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
         aiCategory: suggestion.category
       };
 
-      console.log('Creating task from AI suggestion:', taskData);
       onTaskCreate(taskData);
       
-      // Clear states
       setInput('');
       setShowAISuggestions(false);
       setAiSuggestions([]);
@@ -437,10 +415,8 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
         onChange('');
       }
     } else {
-      // Populate form fields for editing (when pressing Enter)
       setInput(suggestion.title);
       
-      // Set predictions from AI suggestion
       setPredictions({
         category: suggestion.category,
         priority: suggestion.priority,
@@ -457,13 +433,11 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
       if (onChange) {
         onChange(suggestion.title);
       }
-      
-      console.log('Populated form from AI suggestion:', suggestion);
     }
   };
 
   const addSmartSuggestion = (suggestion: AdvancedAITaskSuggestion) => {
-    addTaskFromAISuggestion(suggestion, true); // Create immediately for contextual suggestions
+    addTaskFromAISuggestion(suggestion, true);
     setSmartSuggestions(prev => prev.filter(s => s.title !== suggestion.title));
   };
 
@@ -471,7 +445,7 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
     const parsed = parseAdvancedNaturalLanguage(input);
     
     const taskData = {
-      title: parsed.title || input.trim(), // Ensure we always have a title
+      title: parsed.title || input.trim(),
       category: predictions.category || parsed.category,
       priority: predictions.priority || parsed.priority,
       location: predictions.location || parsed.location,
@@ -480,10 +454,8 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
       dueDate: predictions.dueDate || parsed.dueDate
     };
 
-    console.log('Creating manual task:', taskData); // Debug log
     onTaskCreate(taskData);
     
-    // Clear all states
     setInput('');
     setHasAppliedPredictions(true);
     setPredictions({});
@@ -507,6 +479,26 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
 
   return (
     <div className="space-y-2">
+      {/* Icon Suggestions Bar */}
+      {iconSuggestions.length > 0 && input.trim().length > 1 && (
+        <Card className="border-orange-200 bg-gradient-to-r from-orange-50 to-yellow-50">
+          <CardContent className="p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <Sparkles className="h-4 w-4 text-orange-600" />
+              <span className="text-sm font-medium text-orange-800">Suggested Icons</span>
+            </div>
+            <div className="flex items-center gap-3">
+              {iconSuggestions.map((iconSugg, idx) => (
+                <div key={idx} className="flex items-center gap-1 text-sm">
+                  <span className="text-xl">{iconSugg.icon}</span>
+                  <span className="text-xs text-orange-600">{iconSugg.reason}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Contextual Smart Suggestions */}
       {smartSuggestions.length > 0 && !input.trim() && (
         <Card className="border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50">
@@ -524,7 +516,7 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
                   onClick={() => addSmartSuggestion(suggestion)}
                   className="h-8 text-xs border-purple-200 hover:bg-purple-100 flex items-center gap-1"
                 >
-                  <span>{getTaskAIIcon(suggestion.category, suggestion.title)}</span>
+                  <span className="text-base">{getFunTaskIcon(suggestion.title, suggestion.category)}</span>
                   <span>{suggestion.title}</span>
                   {suggestion.autoFillData?.recommendedTime && (
                     <Clock className="h-3 w-3 text-purple-500" />
@@ -586,13 +578,13 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
                     {aiSuggestions.map((suggestion, idx) => (
                       <button
                         key={idx}
-                        onClick={() => addTaskFromAISuggestion(suggestion, false)} // Populate form when clicked, don't create immediately
+                        onClick={() => addTaskFromAISuggestion(suggestion, false)}
                         className={`w-full text-left p-4 hover:bg-purple-50 transition-colors flex items-start justify-between group border-b border-gray-100 last:border-b-0 ${
                           idx === selectedSuggestionIndex ? 'bg-purple-100 border-l-4 border-l-purple-500' : ''
                         }`}
                       >
                         <div className="flex items-start gap-3 flex-1">
-                          <span className="text-2xl mt-1">{getTaskAIIcon(suggestion.category, suggestion.title)}</span>
+                          <span className="text-2xl mt-1">{getFunTaskIcon(suggestion.title, suggestion.category)}</span>
                           <div className="flex-1">
                             <div className="font-medium text-sm text-gray-900 mb-1">
                               {suggestion.title}
@@ -604,6 +596,12 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
                               <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
                                 {suggestion.category}
                               </Badge>
+                              {suggestion.priority && (
+                                <div className="flex items-center gap-1">
+                                  <span>{PRIORITY_ICONS[suggestion.priority as keyof typeof PRIORITY_ICONS]}</span>
+                                  <span>{suggestion.priority}</span>
+                                </div>
+                              )}
                               {suggestion.duration && (
                                 <div className="flex items-center gap-1">
                                   <Clock className="h-3 w-3" />
@@ -670,7 +668,7 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
           
           {predictions.category && (
             <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-blue-100 text-blue-800 border-blue-300">
-              <span className="mr-1">📁</span>
+              <span className="mr-1">📂</span>
               {predictions.category}
               <Button
                 type="button"
@@ -687,8 +685,7 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
           {predictions.priority && (
             <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-blue-100 text-blue-800 border-blue-300">
               <span className="mr-1">
-                {predictions.priority === 'high' ? '🔴' : 
-                 predictions.priority === 'medium' ? '🟡' : '🟢'}
+                {PRIORITY_ICONS[predictions.priority as keyof typeof PRIORITY_ICONS]}
               </span>
               {predictions.priority} priority
               <Button

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { getFunTaskIcon, PRIORITY_ICONS } from '@/lib/taskIcons'
 
 interface TaskCardProps {
   task: Task
@@ -17,48 +18,6 @@ interface TaskCardProps {
   categories: TaskCategory[]
   className?: string
 }
-
-// AI icon helper function - you can expand this based on your needs
-const getTaskAIIcon = (category?: string, taskTitle?: string): string => {
-  if (taskTitle) {
-    const titleLower = taskTitle.toLowerCase();
-    
-    // Medical
-    if (titleLower.includes('doctor') || titleLower.includes('appointment')) return '👨‍⚕️';
-    if (titleLower.includes('dentist')) return '🦷';
-    if (titleLower.includes('gym') || titleLower.includes('workout')) return '💪';
-    if (titleLower.includes('meeting')) return '🤝';
-    if (titleLower.includes('shopping') || titleLower.includes('grocery')) return '🛒';
-    if (titleLower.includes('flight') || titleLower.includes('airport')) return '✈️';
-    if (titleLower.includes('haircut') || titleLower.includes('salon')) return '✂️';
-    if (titleLower.includes('run') || titleLower.includes('jog')) return '🏃';
-    if (titleLower.includes('yoga')) return '🧘';
-    if (titleLower.includes('call') || titleLower.includes('phone')) return '📞';
-    if (titleLower.includes('email')) return '📧';
-    if (titleLower.includes('presentation')) return '📊';
-    if (titleLower.includes('study') || titleLower.includes('exam')) return '📚';
-    if (titleLower.includes('birthday')) return '🎂';
-    if (titleLower.includes('vacation') || titleLower.includes('trip')) return '🏖️';
-    if (titleLower.includes('car') || titleLower.includes('maintenance')) return '🚗';
-    if (titleLower.includes('bank') || titleLower.includes('pay bill')) return '💳';
-  }
-  
-  // Fallback to category icons
-  const categoryIcons = {
-    'work': '💼',
-    'personal': '👤', 
-    'shopping': '🛒',
-    'health': '🏥',
-    'fitness': '💪',
-    'travel': '✈️',
-    'education': '📚',
-    'finance': '💰',
-    'social': '👥',
-    'default': '✨'
-  };
-  
-  return categoryIcons[category?.toLowerCase() as keyof typeof categoryIcons] || categoryIcons.default;
-};
 
 // Safe component to handle location display without causing React Error #31
 const SafeLocationDisplay = ({ location, showMap = false }: { location: any; showMap?: boolean }) => {
@@ -121,9 +80,12 @@ export default function TaskCard({
   // Check if this is an AI-suggested task
   const isAISuggested = task.isAISuggested || task.aiCategory;
   
+  // Get the fun icon for this task
+  const taskIcon = getFunTaskIcon(task.title, task.category, task.priority);
+  
   return (
     <Card className={cn(
-      "group overflow-hidden border-l-4 transition-all duration-300 hover:translate-y-[-2px]",
+      "group overflow-hidden border-l-4 transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg",
       task.completed && "opacity-75 border-l-gray-300 dark:border-l-gray-600",
       !task.completed && category?.color && `border-l-[${category.color}]`,
       // AI task styling
@@ -152,15 +114,28 @@ export default function TaskCard({
           <div className="space-y-0.5 sm:space-y-1 flex-1 min-w-0">
             <div className="flex items-start justify-between gap-1 sm:gap-2">
               <div className="flex items-center gap-2 flex-1 min-w-0">
-                {/* AI Icon */}
-                {isAISuggested && (
-                  <span className="text-lg shrink-0" title="AI Suggested Task">
-                    {getTaskAIIcon(task.aiCategory || task.category, task.title)}
+                {/* Fun Task Icon - Enhanced */}
+                <div className="flex items-center gap-1 shrink-0">
+                  <span 
+                    className="text-xl sm:text-2xl transition-transform hover:scale-110" 
+                    title={`Task: ${task.title}`}
+                  >
+                    {taskIcon}
                   </span>
-                )}
+                  
+                  {/* Priority indicator emoji */}
+                  {task.priority && (
+                    <span 
+                      className="text-sm opacity-75" 
+                      title={`${task.priority} priority`}
+                    >
+                      {PRIORITY_ICONS[task.priority as keyof typeof PRIORITY_ICONS]}
+                    </span>
+                  )}
+                </div>
                 
                 <h3 className={cn(
-                  "font-medium text-sm sm:text-base leading-tight truncate transition-all duration-300",
+                  "font-medium text-sm sm:text-base leading-tight transition-all duration-300",
                   task.completed && "line-through text-muted-foreground"
                 )}>
                   {task.title}
@@ -189,12 +164,12 @@ export default function TaskCard({
             </div>
             
             {task.description && (
-              <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
+              <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 ml-8">
                 {task.description}
               </p>
             )}
             
-            <div className="flex flex-wrap items-center gap-1.5 sm:gap-3 mt-2 sm:mt-3 text-[10px] sm:text-xs text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-3 mt-2 sm:mt-3 text-[10px] sm:text-xs text-muted-foreground ml-8">
               {task.dueDate && (
                 <div className="flex items-center gap-0.5 sm:gap-1 min-w-0">
                   <Calendar className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
@@ -229,13 +204,13 @@ export default function TaskCard({
               
               {task.recurring && task.recurring !== 'none' && (
                 <Badge variant="outline" className="rounded-full text-[10px] sm:text-xs px-1.5 py-0 sm:px-2 sm:py-0.5">
-                  {task.recurring}
+                  🔄 {task.recurring}
                 </Badge>
               )}
             </div>
             
             {task.location && (
-              <div className="mt-2 sm:mt-3 text-xs">
+              <div className="mt-2 sm:mt-3 text-xs ml-8">
                 <SafeLocationDisplay location={task.location} showMap={false} />
               </div>
             )}
@@ -250,7 +225,7 @@ export default function TaskCard({
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="h-6 w-6 sm:h-8 sm:w-8 p-0 sm:p-1"
+                className="h-6 w-6 sm:h-8 sm:w-8 p-0 sm:p-1 hover:bg-blue-100 hover:text-blue-600 transition-colors"
                 onClick={() => onEdit(task)}
               >
                 <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -265,7 +240,7 @@ export default function TaskCard({
               <Button 
                 variant="ghost" 
                 size="sm"
-                className="h-6 w-6 sm:h-8 sm:w-8 p-0 sm:p-1 text-destructive hover:text-destructive"
+                className="h-6 w-6 sm:h-8 sm:w-8 p-0 sm:p-1 text-destructive hover:text-destructive hover:bg-red-50 transition-colors"
                 onClick={() => onDelete(task.id)}
               >
                 <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -282,7 +257,7 @@ export default function TaskCard({
                   variant="ghost"
                   size="sm"
                   asChild
-                  className="h-6 w-6 sm:h-8 sm:w-8 p-0 sm:p-1 text-primary hover:text-primary"
+                  className="h-6 w-6 sm:h-8 sm:w-8 p-0 sm:p-1 text-primary hover:text-primary hover:bg-green-50 transition-colors"
                 >
                   <a 
                     href={`https://www.google.com/maps/place/?q=place_id:${task.location.placeId}`}

@@ -1,4 +1,8 @@
-// Advanced AI Task Service with Smart Auto-Population
+// Advanced AI Task Service with Smart Auto-Population and Enhanced Icons
+// ADD THIS IMPORT at the top
+import { getFunTaskIcon } from '@/lib/taskIcons';
+
+// UPDATE your interface to include icon field
 export interface AdvancedAITaskSuggestion {
   title: string;
   category: string;
@@ -10,6 +14,7 @@ export interface AdvancedAITaskSuggestion {
   reason: string;
   estimatedTime?: string;
   suggestedDate?: Date;
+  icon?: string; // ← ADD THIS LINE
   autoFillData?: {
     commonDuration?: string;
     typicalLocation?: string;
@@ -20,9 +25,9 @@ export interface AdvancedAITaskSuggestion {
 }
 
 export class AdvancedAITaskService {
-  // Comprehensive task intelligence database
+  // Keep your existing taskIntelligence structure but UPDATE the suggestions with emojis
   static taskIntelligence = {
-    // Medical & Health
+    // Medical & Health - UPDATE with enhanced emojis
     medical: {
       patterns: [
         'doctor', 'appointment', 'checkup', 'physical', 'dentist', 'dental', 
@@ -39,25 +44,25 @@ export class AdvancedAITaskService {
           duration: '60',
           location: 'Medical clinic',
           priority: 'high' as const,
-          reason: 'Important for health maintenance',
+          reason: 'Important for health maintenance 👨‍⚕️',
           autoFill: {
             commonDuration: '60',
             typicalLocation: 'Doctor\'s office',
             recommendedTime: '10:00',
             preparationTasks: [
-              'Gather insurance cards and ID',
-              'List current medications and dosages',
-              'Write down symptoms and concerns',
-              'Prepare list of questions for doctor',
-              'Bring previous test results if available',
-              'Arrive 15 minutes early for paperwork'
+              '💳 Gather insurance cards and ID',
+              '💊 List current medications and dosages',
+              '📝 Write down symptoms and concerns',
+              '❓ Prepare list of questions for doctor',
+              '📋 Bring previous test results if available',
+              '⏰ Arrive 15 minutes early for paperwork'
             ],
             followUpTasks: [
-              'Schedule follow-up appointment if needed',
-              'Pick up prescriptions from pharmacy',
-              'Update medical records',
-              'Schedule any recommended tests',
-              'Follow prescribed treatment plan'
+              '📅 Schedule follow-up appointment if needed',
+              '💊 Pick up prescriptions from pharmacy',
+              '📋 Update medical records',
+              '🧪 Schedule any recommended tests',
+              '✅ Follow prescribed treatment plan'
             ]
           }
         },
@@ -67,23 +72,23 @@ export class AdvancedAITaskService {
           duration: '75',
           location: 'Dental office',
           priority: 'medium' as const,
-          reason: 'Dental health maintenance',
+          reason: 'Dental health maintenance 🦷',
           autoFill: {
             commonDuration: '75',
             typicalLocation: 'Dental clinic',
             recommendedTime: '14:00',
             preparationTasks: [
-              'Brush and floss teeth thoroughly',
-              'Bring dental insurance card',
-              'List any dental concerns or pain',
-              'Avoid eating 2 hours before appointment',
-              'Bring headphones for comfort'
+              '🪥 Brush and floss teeth thoroughly',
+              '💳 Bring dental insurance card',
+              '📝 List any dental concerns or pain',
+              '🚫🍽️ Avoid eating 2 hours before appointment',
+              '🎧 Bring headphones for comfort'
             ],
             followUpTasks: [
-              'Schedule next cleaning in 6 months',
-              'Follow post-treatment care instructions',
-              'Purchase recommended dental products',
-              'Schedule any additional treatments needed'
+              '📅 Schedule next cleaning in 6 months',
+              '📋 Follow post-treatment care instructions',
+              '🛒 Purchase recommended dental products',
+              '🗓️ Schedule any additional treatments needed'
             ]
           }
         },
@@ -93,21 +98,21 @@ export class AdvancedAITaskService {
           duration: '45',
           location: 'Eye care center',
           priority: 'medium' as const,
-          reason: 'Vision health checkup',
+          reason: 'Vision health checkup 👁️',
           autoFill: {
             commonDuration: '45',
             typicalLocation: 'Optometry office',
             recommendedTime: '11:00',
             preparationTasks: [
-              'Bring current glasses or contacts',
-              'List vision concerns or changes',
-              'Bring insurance information',
-              'Remove contact lenses before exam'
+              '👓 Bring current glasses or contacts',
+              '📝 List vision concerns or changes',
+              '💳 Bring insurance information',
+              '👁️ Remove contact lenses before exam'
             ],
             followUpTasks: [
-              'Order new glasses if needed',
-              'Schedule follow-up if required',
-              'Update prescription contacts'
+              '👓 Order new glasses if needed',
+              '📅 Schedule follow-up if required',
+              '👁️ Update prescription contacts'
             ]
           }
         },
@@ -117,29 +122,29 @@ export class AdvancedAITaskService {
           duration: '90',
           location: 'Specialist office',
           priority: 'high' as const,
-          reason: 'Specialized medical care',
+          reason: 'Specialized medical care 🏥',
           autoFill: {
             commonDuration: '90',
             typicalLocation: 'Medical specialist office',
             recommendedTime: '09:00',
             preparationTasks: [
-              'Get referral from primary care doctor',
-              'Gather all relevant medical records',
-              'Prepare detailed symptom timeline',
-              'Research specialist and clinic',
-              'Prepare insurance pre-authorization'
+              '📋 Get referral from primary care doctor',
+              '📄 Gather all relevant medical records',
+              '📝 Prepare detailed symptom timeline',
+              '🔍 Research specialist and clinic',
+              '💳 Prepare insurance pre-authorization'
             ],
             followUpTasks: [
-              'Schedule follow-up appointments',
-              'Share results with primary care doctor',
-              'Begin recommended treatment plan'
+              '📅 Schedule follow-up appointments',
+              '📧 Share results with primary care doctor',
+              '✅ Begin recommended treatment plan'
             ]
           }
         }
       ]
     },
 
-    // Sports & Fitness
+    // Sports & Fitness - UPDATE with enhanced emojis
     sports: {
       patterns: [
         'gym', 'workout', 'exercise', 'fitness', 'training', 'run', 'jog',
@@ -155,25 +160,25 @@ export class AdvancedAITaskService {
           duration: '90',
           location: 'Fitness center',
           priority: 'medium' as const,
-          reason: 'Health and fitness goal',
+          reason: 'Health and fitness goal 💪',
           autoFill: {
             commonDuration: '90',
             typicalLocation: 'Local gym',
             recommendedTime: '18:00',
             preparationTasks: [
-              'Pack gym bag with workout clothes',
-              'Bring water bottle and towel',
-              'Check gym class schedule',
-              'Prepare workout playlist',
-              'Eat light snack 1 hour before',
-              'Bring phone charger for tracking'
+              '🎒 Pack gym bag with workout clothes',
+              '💧 Bring water bottle and towel',
+              '📅 Check gym class schedule',
+              '🎵 Prepare workout playlist',
+              '🍌 Eat light snack 1 hour before',
+              '🔋 Bring phone charger for tracking'
             ],
             followUpTasks: [
-              'Log workout progress in app',
-              'Stretch and cool down properly',
-              'Plan next workout session',
-              'Track calories burned',
-              'Schedule rest day if needed'
+              '📱 Log workout progress in app',
+              '🧘 Stretch and cool down properly',
+              '📅 Plan next workout session',
+              '🔥 Track calories burned',
+              '😴 Schedule rest day if needed'
             ]
           }
         },
@@ -183,25 +188,25 @@ export class AdvancedAITaskService {
           duration: '45',
           location: 'Park or neighborhood',
           priority: 'medium' as const,
-          reason: 'Cardiovascular health',
+          reason: 'Cardiovascular health 🏃',
           autoFill: {
             commonDuration: '45',
             typicalLocation: 'Local park',
             recommendedTime: '07:00',
             preparationTasks: [
-              'Check weather conditions',
-              'Prepare running gear and shoes',
-              'Plan running route',
-              'Charge fitness tracker',
-              'Do dynamic warm-up exercises',
-              'Apply sunscreen if sunny'
+              '☀️🌧️ Check weather conditions',
+              '👟 Prepare running gear and shoes',
+              '🗺️ Plan running route',
+              '⌚ Charge fitness tracker',
+              '🤸 Do dynamic warm-up exercises',
+              '☀️ Apply sunscreen if sunny'
             ],
             followUpTasks: [
-              'Track distance and pace',
-              'Stretch and cool down',
-              'Log run in fitness app',
-              'Hydrate and refuel',
-              'Plan next running session'
+              '📊 Track distance and pace',
+              '🧘 Stretch and cool down',
+              '📱 Log run in fitness app',
+              '💧🍌 Hydrate and refuel',
+              '📅 Plan next running session'
             ]
           }
         },
@@ -211,23 +216,23 @@ export class AdvancedAITaskService {
           duration: '75',
           location: 'Yoga studio',
           priority: 'low' as const,
-          reason: 'Mental and physical wellness',
+          reason: 'Mental and physical wellness 🧘',
           autoFill: {
             commonDuration: '75',
             typicalLocation: 'Yoga studio',
             recommendedTime: '19:00',
             preparationTasks: [
-              'Bring yoga mat and towel',
-              'Wear comfortable, stretchy clothes',
-              'Avoid heavy meals 2 hours before',
-              'Bring water bottle',
-              'Arrive 10 minutes early'
+              '🧘‍♀️ Bring yoga mat and towel',
+              '👕 Wear comfortable, stretchy clothes',
+              '🚫🍽️ Avoid heavy meals 2 hours before',
+              '💧 Bring water bottle',
+              '🕘 Arrive 10 minutes early'
             ],
             followUpTasks: [
-              'Practice breathing exercises',
-              'Schedule next yoga session',
-              'Maintain hydration',
-              'Journal about the experience'
+              '🌬️ Practice breathing exercises',
+              '📅 Schedule next yoga session',
+              '💧 Maintain hydration',
+              '📔 Journal about the experience'
             ]
           }
         },
@@ -237,23 +242,23 @@ export class AdvancedAITaskService {
           duration: '120',
           location: 'Tennis court',
           priority: 'medium' as const,
-          reason: 'Sport and exercise',
+          reason: 'Sport and exercise 🎾',
           autoFill: {
             commonDuration: '120',
             typicalLocation: 'Tennis club',
             recommendedTime: '16:00',
             preparationTasks: [
-              'Pack tennis gear and racquet',
-              'Confirm court booking',
-              'Check weather conditions',
-              'Bring extra balls and water',
-              'Warm up before playing'
+              '🎾 Pack tennis gear and racquet',
+              '📞 Confirm court booking',
+              '☀️🌧️ Check weather conditions',
+              '🎾💧 Bring extra balls and water',
+              '🤸 Warm up before playing'
             ],
             followUpTasks: [
-              'Review game performance',
-              'Schedule next match',
-              'Clean and store equipment',
-              'Track fitness progress'
+              '📊 Review game performance',
+              '📅 Schedule next match',
+              '🧹 Clean and store equipment',
+              '💪 Track fitness progress'
             ]
           }
         },
@@ -263,30 +268,30 @@ export class AdvancedAITaskService {
           duration: '60',
           location: 'Swimming pool',
           priority: 'medium' as const,
-          reason: 'Full-body exercise',
+          reason: 'Full-body exercise 🏊',
           autoFill: {
             commonDuration: '60',
             typicalLocation: 'Community pool',
             recommendedTime: '08:00',
             preparationTasks: [
-              'Pack swimwear and goggles',
-              'Bring towel and shower essentials',
-              'Check pool schedule and hours',
-              'Apply waterproof sunscreen',
-              'Plan swimming routine'
+              '🩱 Pack swimwear and goggles',
+              '🧴 Bring towel and shower essentials',
+              '📅 Check pool schedule and hours',
+              '☀️ Apply waterproof sunscreen',
+              '📋 Plan swimming routine'
             ],
             followUpTasks: [
-              'Shower and change clothes',
-              'Log distance swum',
-              'Hydrate thoroughly',
-              'Plan next swimming session'
+              '🚿 Shower and change clothes',
+              '📊 Log distance swum',
+              '💧 Hydrate thoroughly',
+              '📅 Plan next swimming session'
             ]
           }
         }
       ]
     },
 
-    // Business & Professional
+    // Business & Professional - UPDATE with enhanced emojis
     business: {
       patterns: [
         'meeting', 'conference', 'presentation', 'interview', 'networking',
@@ -301,13 +306,13 @@ export class AdvancedAITaskService {
           duration: '60',
           location: 'Conference room',
           priority: 'high' as const,
-          reason: 'Important business engagement',
+          reason: 'Important business engagement 🤝',
           autoFill: {
             commonDuration: '60',
             typicalLocation: 'Office conference room',
             recommendedTime: '10:00',
-            preparationTasks: ['Prepare agenda', 'Review client history', 'Gather materials'],
-            followUpTasks: ['Send meeting notes', 'Schedule follow-up actions']
+            preparationTasks: ['📋 Prepare agenda', '📚 Review client history', '📊 Gather materials'],
+            followUpTasks: ['📧 Send meeting notes', '📅 Schedule follow-up actions']
           }
         },
         {
@@ -316,13 +321,13 @@ export class AdvancedAITaskService {
           duration: '90',
           location: 'Company office',
           priority: 'high' as const,
-          reason: 'Career opportunity',
+          reason: 'Career opportunity 💼',
           autoFill: {
             commonDuration: '90',
             typicalLocation: 'Company headquarters',
             recommendedTime: '14:00',
-            preparationTasks: ['Research company', 'Prepare questions', 'Plan outfit', 'Print resume'],
-            followUpTasks: ['Send thank you email', 'Follow up on timeline']
+            preparationTasks: ['🔍 Research company', '❓ Prepare questions', '👔 Plan outfit', '📄 Print resume'],
+            followUpTasks: ['📧 Send thank you email', '⏰ Follow up on timeline']
           }
         },
         {
@@ -331,19 +336,19 @@ export class AdvancedAITaskService {
           duration: '45',
           location: 'Meeting room',
           priority: 'high' as const,
-          reason: 'Important business deliverable',
+          reason: 'Important business deliverable 📊',
           autoFill: {
             commonDuration: '45',
             typicalLocation: 'Conference room',
             recommendedTime: '15:00',
-            preparationTasks: ['Finalize slides', 'Practice presentation', 'Test equipment'],
-            followUpTasks: ['Gather feedback', 'Share presentation materials']
+            preparationTasks: ['📝 Finalize slides', '🎤 Practice presentation', '🖥️ Test equipment'],
+            followUpTasks: ['📋 Gather feedback', '📤 Share presentation materials']
           }
         }
       ]
     },
 
-    // Transportation & Travel
+    // Transportation & Travel - UPDATE with enhanced emojis
     travel: {
       patterns: [
         'flight', 'airport', 'check-in', 'boarding', 'departure', 'arrival',
@@ -358,13 +363,13 @@ export class AdvancedAITaskService {
           duration: '180',
           location: 'Airport',
           priority: 'high' as const,
-          reason: 'Travel schedule',
+          reason: 'Travel schedule ✈️',
           autoFill: {
             commonDuration: '180',
             typicalLocation: 'Local airport',
             recommendedTime: '06:00',
-            preparationTasks: ['Check-in online', 'Pack carry-on', 'Check traffic to airport'],
-            followUpTasks: ['Confirm ground transportation at destination']
+            preparationTasks: ['📱 Check-in online', '🧳 Pack carry-on', '🚗 Check traffic to airport'],
+            followUpTasks: ['🚕 Confirm ground transportation at destination']
           }
         },
         {
@@ -373,19 +378,19 @@ export class AdvancedAITaskService {
           duration: '30',
           location: 'Hotel',
           priority: 'medium' as const,
-          reason: 'Travel accommodation',
+          reason: 'Travel accommodation 🏨',
           autoFill: {
             commonDuration: '30',
             typicalLocation: 'Hotel lobby',
             recommendedTime: '15:00',
-            preparationTasks: ['Confirm reservation', 'Prepare ID and credit card'],
-            followUpTasks: ['Explore hotel amenities', 'Plan local activities']
+            preparationTasks: ['📞 Confirm reservation', '🆔💳 Prepare ID and credit card'],
+            followUpTasks: ['🏊‍♀️ Explore hotel amenities', '🗺️ Plan local activities']
           }
         }
       ]
     },
 
-    // Personal Care & Lifestyle
+    // Personal Care & Lifestyle - UPDATE with enhanced emojis
     personal: {
       patterns: [
         'haircut', 'salon', 'spa', 'massage', 'manicure', 'pedicure',
@@ -401,25 +406,25 @@ export class AdvancedAITaskService {
           duration: '180',
           location: 'Restaurant',
           priority: 'medium' as const,
-          reason: 'Quality time with partner',
+          reason: 'Quality time with partner 💑',
           autoFill: {
             commonDuration: '180',
             typicalLocation: 'Nice restaurant',
             recommendedTime: '19:00',
             preparationTasks: [
-              'Make restaurant reservation',
-              'Choose outfit and get ready',
-              'Plan conversation topics',
-              'Arrange childcare if needed',
-              'Check restaurant menu and reviews',
-              'Plan transportation or parking'
+              '📞 Make restaurant reservation',
+              '👗 Choose outfit and get ready',
+              '💬 Plan conversation topics',
+              '👶 Arrange childcare if needed',
+              '⭐ Check restaurant menu and reviews',
+              '🚗 Plan transportation or parking'
             ],
             followUpTasks: [
-              'Share photos and memories',
-              'Plan next date night',
-              'Leave restaurant review',
-              'Thank babysitter if applicable',
-              'Reflect on quality time together'
+              '📸 Share photos and memories',
+              '💕 Plan next date night',
+              '⭐ Leave restaurant review',
+              '🙏 Thank babysitter if applicable',
+              '💭 Reflect on quality time together'
             ]
           }
         },
@@ -429,23 +434,23 @@ export class AdvancedAITaskService {
           duration: '90',
           location: 'Hair salon',
           priority: 'low' as const,
-          reason: 'Personal grooming',
+          reason: 'Personal grooming ✂️',
           autoFill: {
             commonDuration: '90',
             typicalLocation: 'Local salon',
             recommendedTime: '14:00',
             preparationTasks: [
-              'Bring reference photos for desired style',
-              'Confirm appointment time',
-              'Wash hair with clarifying shampoo',
-              'Research stylist reviews',
-              'Plan outfit that\'s easy to change'
+              '📱 Bring reference photos for desired style',
+              '⏰ Confirm appointment time',
+              '🧴 Wash hair with clarifying shampoo',
+              '⭐ Research stylist reviews',
+              '👕 Plan outfit that\'s easy to change'
             ],
             followUpTasks: [
-              'Schedule next appointment in 6-8 weeks',
-              'Purchase recommended hair products',
-              'Take photos of new style',
-              'Leave review for stylist'
+              '📅 Schedule next appointment in 6-8 weeks',
+              '🛒 Purchase recommended hair products',
+              '📸 Take photos of new style',
+              '⭐ Leave review for stylist'
             ]
           }
         },
@@ -455,25 +460,25 @@ export class AdvancedAITaskService {
           duration: '60',
           location: 'Grocery store',
           priority: 'medium' as const,
-          reason: 'Weekly essentials',
+          reason: 'Weekly essentials 🛒',
           autoFill: {
             commonDuration: '60',
             typicalLocation: 'Local supermarket',
             recommendedTime: '10:00',
             preparationTasks: [
-              'Make detailed shopping list',
-              'Check store hours and sales',
-              'Bring reusable bags',
-              'Check pantry and fridge inventory',
-              'Plan meals for the week',
-              'Bring coupons and loyalty cards'
+              '📝 Make detailed shopping list',
+              '🕐 Check store hours and sales',
+              '🛍️ Bring reusable bags',
+              '🏠 Check pantry and fridge inventory',
+              '🍽️ Plan meals for the week',
+              '💳 Bring coupons and loyalty cards'
             ],
             followUpTasks: [
-              'Put away groceries properly',
-              'Plan meals for the week',
-              'Update shopping list app',
-              'Check expiration dates',
-              'Store receipts for budgeting'
+              '📋 Put away groceries properly',
+              '🍽️ Plan meals for the week',
+              '📱 Update shopping list app',
+              '📅 Check expiration dates',
+              '💰 Store receipts for budgeting'
             ]
           }
         },
@@ -483,32 +488,32 @@ export class AdvancedAITaskService {
           duration: '240',
           location: 'Party venue',
           priority: 'high' as const,
-          reason: 'Special occasion',
+          reason: 'Special occasion 🎂',
           autoFill: {
             commonDuration: '240',
             typicalLocation: 'Restaurant or home',
             recommendedTime: '18:00',
             preparationTasks: [
-              'Send invitations to guests',
-              'Order birthday cake',
-              'Plan party decorations',
-              'Organize food and drinks',
-              'Prepare playlist or entertainment',
-              'Buy birthday gift if needed'
+              '📧 Send invitations to guests',
+              '🎂 Order birthday cake',
+              '🎈 Plan party decorations',
+              '🍽️ Organize food and drinks',
+              '🎵 Prepare playlist or entertainment',
+              '🎁 Buy birthday gift if needed'
             ],
             followUpTasks: [
-              'Thank guests for attending',
-              'Share photos with everyone',
-              'Clean up party area',
-              'Send thank you notes',
-              'Plan next celebration'
+              '🙏 Thank guests for attending',
+              '📸 Share photos with everyone',
+              '🧹 Clean up party area',
+              '💌 Send thank you notes',
+              '📅 Plan next celebration'
             ]
           }
         }
       ]
     },
 
-    // Automotive & Maintenance
+    // Automotive & Maintenance - UPDATE with enhanced emojis
     automotive: {
       patterns: [
         'car', 'vehicle', 'auto', 'maintenance', 'oil change', 'tire',
@@ -522,25 +527,25 @@ export class AdvancedAITaskService {
           duration: '60',
           location: 'Auto service center',
           priority: 'medium' as const,
-          reason: 'Vehicle maintenance',
+          reason: 'Vehicle maintenance 🚗',
           autoFill: {
             commonDuration: '60',
             typicalLocation: 'Auto shop',
             recommendedTime: '09:00',
             preparationTasks: [
-              'Check current mileage',
-              'Gather car documents and registration',
-              'Research service center reviews',
-              'Check service history records',
-              'Remove personal items from car',
-              'Prepare payment method'
+              '📊 Check current mileage',
+              '📄 Gather car documents and registration',
+              '⭐ Research service center reviews',
+              '📋 Check service history records',
+              '🧹 Remove personal items from car',
+              '💳 Prepare payment method'
             ],
             followUpTasks: [
-              'Schedule next oil change',
-              'Update maintenance log',
-              'Save service receipt',
-              'Check other fluid levels',
-              'Inspect tire condition while there'
+              '📅 Schedule next oil change',
+              '📝 Update maintenance log',
+              '📄 Save service receipt',
+              '🔍 Check other fluid levels',
+              '🛞 Inspect tire condition while there'
             ]
           }
         },
@@ -550,24 +555,24 @@ export class AdvancedAITaskService {
           duration: '45',
           location: 'Inspection station',
           priority: 'high' as const,
-          reason: 'Legal requirement',
+          reason: 'Legal requirement 📋',
           autoFill: {
             commonDuration: '45',
             typicalLocation: 'Inspection station',
             recommendedTime: '11:00',
             preparationTasks: [
-              'Check all lights and signals',
-              'Ensure registration is current',
-              'Verify insurance is up to date',
-              'Clean windshield and mirrors',
-              'Check tire tread depth',
-              'Bring required documents'
+              '💡 Check all lights and signals',
+              '📄 Ensure registration is current',
+              '📋 Verify insurance is up to date',
+              '🧽 Clean windshield and mirrors',
+              '🛞 Check tire tread depth',
+              '📄 Bring required documents'
             ],
             followUpTasks: [
-              'Display new inspection sticker',
-              'Schedule any needed repairs',
-              'Update vehicle records',
-              'Plan next year\'s inspection'
+              '🏷️ Display new inspection sticker',
+              '🔧 Schedule any needed repairs',
+              '📋 Update vehicle records',
+              '📅 Plan next year\'s inspection'
             ]
           }
         },
@@ -577,30 +582,30 @@ export class AdvancedAITaskService {
           duration: '90',
           location: 'Tire shop',
           priority: 'medium' as const,
-          reason: 'Safety and maintenance',
+          reason: 'Safety and maintenance 🛞',
           autoFill: {
             commonDuration: '90',
             typicalLocation: 'Tire service center',
             recommendedTime: '10:00',
             preparationTasks: [
-              'Check tire pressure and tread',
-              'Note any unusual wear patterns',
-              'Research tire prices if replacement needed',
-              'Bring vehicle registration',
-              'Check warranty information'
+              '🔍 Check tire pressure and tread',
+              '📝 Note any unusual wear patterns',
+              '💰 Research tire prices if replacement needed',
+              '📄 Bring vehicle registration',
+              '📋 Check warranty information'
             ],
             followUpTasks: [
-              'Check tire pressure regularly',
-              'Schedule next rotation',
-              'Monitor tire wear patterns',
-              'Update maintenance records'
+              '🔍 Check tire pressure regularly',
+              '📅 Schedule next rotation',
+              '👀 Monitor tire wear patterns',
+              '📝 Update maintenance records'
             ]
           }
         }
       ]
     },
 
-    // Educational & Learning
+    // Educational & Learning - UPDATE with enhanced emojis
     education: {
       patterns: [
         'class', 'lecture', 'course', 'study', 'exam', 'test', 'quiz',
@@ -615,25 +620,25 @@ export class AdvancedAITaskService {
           duration: '90',
           location: 'Classroom',
           priority: 'high' as const,
-          reason: 'Educational commitment',
+          reason: 'Educational commitment 🏫',
           autoFill: {
             commonDuration: '90',
             typicalLocation: 'University campus',
             recommendedTime: '10:00',
             preparationTasks: [
-              'Review previous class notes',
-              'Prepare notebooks and materials',
-              'Check assignment due dates',
-              'Read assigned chapters',
-              'Prepare questions for professor',
-              'Charge laptop and bring charger'
+              '📝 Review previous class notes',
+              '📚 Prepare notebooks and materials',
+              '📅 Check assignment due dates',
+              '📖 Read assigned chapters',
+              '❓ Prepare questions for professor',
+              '🔋 Charge laptop and bring charger'
             ],
             followUpTasks: [
-              'Review and organize class notes',
-              'Complete any new assignments',
-              'Schedule study sessions',
-              'Form study groups with classmates',
-              'Visit professor during office hours if needed'
+              '📝 Review and organize class notes',
+              '✅ Complete any new assignments',
+              '📅 Schedule study sessions',
+              '👥 Form study groups with classmates',
+              '🏫 Visit professor during office hours if needed'
             ]
           }
         },
@@ -643,24 +648,24 @@ export class AdvancedAITaskService {
           duration: '120',
           location: 'Exam room',
           priority: 'high' as const,
-          reason: 'Academic assessment',
+          reason: 'Academic assessment 📝',
           autoFill: {
             commonDuration: '120',
             typicalLocation: 'Testing center',
             recommendedTime: '09:00',
             preparationTasks: [
-              'Complete final review session',
-              'Prepare required exam materials',
-              'Get good night\'s sleep',
-              'Eat healthy breakfast',
-              'Arrive 15 minutes early',
-              'Bring ID and required supplies'
+              '📚 Complete final review session',
+              '📝 Prepare required exam materials',
+              '😴 Get good night\'s sleep',
+              '🥞 Eat healthy breakfast',
+              '⏰ Arrive 15 minutes early',
+              '🆔 Bring ID and required supplies'
             ],
             followUpTasks: [
-              'Decompress and relax after exam',
-              'Wait for results patiently',
-              'Review exam when returned',
-              'Plan improvements for next exam'
+              '😌 Decompress and relax after exam',
+              '⏳ Wait for results patiently',
+              '📋 Review exam when returned',
+              '📈 Plan improvements for next exam'
             ]
           }
         },
@@ -670,25 +675,25 @@ export class AdvancedAITaskService {
           duration: '120',
           location: 'Study area',
           priority: 'high' as const,
-          reason: 'Academic requirement',
+          reason: 'Academic requirement ✏️',
           autoFill: {
             commonDuration: '120',
             typicalLocation: 'Library or home',
             recommendedTime: '16:00',
             preparationTasks: [
-              'Gather all required materials',
-              'Find quiet study space',
-              'Review assignment requirements',
-              'Create outline or plan',
-              'Eliminate distractions',
-              'Set up reference materials'
+              '📚 Gather all required materials',
+              '🤫 Find quiet study space',
+              '📋 Review assignment requirements',
+              '📝 Create outline or plan',
+              '📵 Eliminate distractions',
+              '📖 Set up reference materials'
             ],
             followUpTasks: [
-              'Proofread and edit work',
-              'Submit assignment on time',
-              'Save backup copies',
-              'Update assignment tracker',
-              'Prepare for next assignment'
+              '✍️ Proofread and edit work',
+              '📤 Submit assignment on time',
+              '💾 Save backup copies',
+              '📋 Update assignment tracker',
+              '📅 Prepare for next assignment'
             ]
           }
         },
@@ -698,25 +703,25 @@ export class AdvancedAITaskService {
           duration: '90',
           location: 'Library',
           priority: 'medium' as const,
-          reason: 'Academic preparation',
+          reason: 'Academic preparation 📚',
           autoFill: {
             commonDuration: '90',
             typicalLocation: 'Quiet study area',
             recommendedTime: '15:00',
             preparationTasks: [
-              'Organize notes and materials',
-              'Create study schedule',
-              'Find optimal study environment',
-              'Prepare snacks and water',
-              'Set study goals for session',
-              'Turn off phone notifications'
+              '📚 Organize notes and materials',
+              '📅 Create study schedule',
+              '🤫 Find optimal study environment',
+              '🥜 Prepare snacks and water',
+              '🎯 Set study goals for session',
+              '📵 Turn off phone notifications'
             ],
             followUpTasks: [
-              'Review what was learned',
-              'Plan next study session',
-              'Take practice quizzes',
-              'Form study groups if helpful',
-              'Reward yourself for progress'
+              '📝 Review what was learned',
+              '📅 Plan next study session',
+              '📝 Take practice quizzes',
+              '👥 Form study groups if helpful',
+              '🎉 Reward yourself for progress'
             ]
           }
         }
@@ -724,7 +729,7 @@ export class AdvancedAITaskService {
     }
   };
 
-  // Enhanced suggestion algorithm
+  // UPDATE your getSmartSuggestions method to include icons
   static async getSmartSuggestions(input: string, existingTasks: string[], categories: string[]): Promise<AdvancedAITaskSuggestion[]> {
     await new Promise(resolve => setTimeout(resolve, 100));
     
@@ -765,15 +770,17 @@ export class AdvancedAITaskService {
 
             // Generate smart title based on input
             const smartTitle = this.generateSmartTitle(input, suggestion.title);
+            const category = this.mapDomainToCategory(domain, categories);
 
             suggestions.push({
               title: smartTitle,
-              category: this.mapDomainToCategory(domain, categories),
+              category,
               priority: suggestion.priority,
               location: suggestion.location,
               duration: suggestion.duration,
               confidence,
               reason,
+              icon: getFunTaskIcon(smartTitle, category), // ← ADD THIS LINE
               autoFillData: suggestion.autoFill,
               suggestedDate: this.suggestOptimalDate(domain, suggestion.autoFill?.recommendedTime)
             });
@@ -792,7 +799,7 @@ export class AdvancedAITaskService {
       .slice(0, 6);
   }
 
-  // Generate smart titles based on user input
+  // Keep your existing generateSmartTitle method exactly as is
   static generateSmartTitle(input: string, baseTitle: string): string {
     const inputLower = input.toLowerCase();
     
@@ -815,13 +822,13 @@ export class AdvancedAITaskService {
 
     // Add urgency indicators
     if (inputLower.includes('urgent') || inputLower.includes('asap')) {
-      smartTitle = `URGENT: ${smartTitle}`;
+      smartTitle = `🚨 URGENT: ${smartTitle}`;
     }
 
     return smartTitle;
   }
 
-  // Map AI domains to user categories
+  // Keep your existing mapDomainToCategory method exactly as is
   static mapDomainToCategory(domain: string, categories: string[]): string {
     const domainMapping: { [key: string]: string[] } = {
       'medical': ['health', 'personal'],
@@ -845,7 +852,7 @@ export class AdvancedAITaskService {
     return categories[0] || 'personal';
   }
 
-  // Suggest optimal dates and times
+  // Keep your existing suggestOptimalDate method exactly as is
   static suggestOptimalDate(domain: string, recommendedTime?: string): Date {
     const now = new Date();
     let suggestedDate = new Date(now);
@@ -902,7 +909,7 @@ export class AdvancedAITaskService {
     return suggestedDate;
   }
 
-  // Get contextual suggestions based on user patterns
+  // UPDATE your getContextualSuggestions method to include icons
   static async getContextualSuggestions(input: string, existingTasks: string[], categories: string[]): Promise<AdvancedAITaskSuggestion[]> {
     const suggestions: AdvancedAITaskSuggestion[] = [];
     
@@ -912,51 +919,57 @@ export class AdvancedAITaskService {
 
     // Morning health routine suggestions
     if (hour >= 6 && hour <= 9 && input.includes('workout')) {
+      const category = 'fitness';
       suggestions.push({
         title: 'Morning workout routine',
-        category: 'fitness',
+        category,
         priority: 'medium',
         duration: '45',
         confidence: 0.8,
-        reason: 'Perfect morning activity',
+        reason: 'Perfect morning activity ☀️💪',
+        icon: getFunTaskIcon('Morning workout routine', category), // ← ADD THIS LINE
         autoFillData: {
           recommendedTime: '07:00',
-          preparationTasks: ['Prepare workout clothes', 'Have light breakfast'],
-          followUpTasks: ['Post-workout stretch', 'Healthy breakfast']
+          preparationTasks: ['👕 Prepare workout clothes', '🍌 Have light breakfast'],
+          followUpTasks: ['🧘 Post-workout stretch', '🥗 Healthy breakfast']
         }
       });
     }
 
     // Weekend activity suggestions
     if ((day === 0 || day === 6) && input.includes('fun')) {
+      const category = 'personal';
       suggestions.push({
         title: 'Weekend recreational activity',
-        category: 'personal',
+        category,
         priority: 'low',
         duration: '120',
         confidence: 0.7,
-        reason: 'Weekend leisure time',
+        reason: 'Weekend leisure time 🎪',
+        icon: getFunTaskIcon('Weekend recreational activity', category), // ← ADD THIS LINE
         autoFillData: {
           recommendedTime: '14:00',
-          preparationTasks: ['Check weather', 'Plan activity'],
-          followUpTasks: ['Share experience with friends']
+          preparationTasks: ['☀️🌧️ Check weather', '📅 Plan activity'],
+          followUpTasks: ['📸 Share experience with friends']
         }
       });
     }
 
     // Workday meeting suggestions
     if (day >= 1 && day <= 5 && hour >= 9 && hour <= 17 && input.includes('meet')) {
+      const category = 'work';
       suggestions.push({
         title: 'Schedule team meeting',
-        category: 'work',
+        category,
         priority: 'high',
         duration: '60',
         confidence: 0.85,
-        reason: 'Business hours meeting',
+        reason: 'Business hours meeting 🤝',
+        icon: getFunTaskIcon('Schedule team meeting', category), // ← ADD THIS LINE
         autoFillData: {
           recommendedTime: '10:00',
-          preparationTasks: ['Prepare agenda', 'Book conference room'],
-          followUpTasks: ['Send meeting summary', 'Track action items']
+          preparationTasks: ['📋 Prepare agenda', '🏢 Book conference room'],
+          followUpTasks: ['📧 Send meeting summary', '✅ Track action items']
         }
       });
     }
@@ -964,7 +977,7 @@ export class AdvancedAITaskService {
     return suggestions;
   }
 
-  // Get preparation and follow-up suggestions
+  // Keep your existing getTaskRecommendations method but ADD enhanced version
   static getTaskRecommendations(taskTitle: string): { preparation: string[], followUp: string[] } {
     const titleLower = taskTitle.toLowerCase();
     
@@ -982,86 +995,123 @@ export class AdvancedAITaskService {
 
     return { preparation: [], followUp: [] };
   }
-}
 
-// Fun task icons based on categories and task content
-export const getTaskAIIcon = (category?: string, taskTitle?: string): string => {
-  // First check for specific task content
-  if (taskTitle) {
+  // ADD this new enhanced method for better task recommendations
+  static getEnhancedTaskRecommendations(taskTitle: string): { preparation: string[], followUp: string[], tips: string[] } {
     const titleLower = taskTitle.toLowerCase();
     
-    // Specific task icons
-    const taskIcons: { [key: string]: string } = {
-      // Work tasks
-      'meeting': '🤝', 'call': '📞', 'presentation': '📊', 'report': '📋',
-      'email': '📧', 'project': '💼', 'deadline': '⏰', 'review': '🔍',
-      'planning': '📝', 'strategy': '🎯', 'budget': '💰', 'interview': '👥',
-      
-      // Personal tasks
-      'birthday': '🎂', 'anniversary': '💍', 'family': '👨‍👩‍👧‍👦', 'friend': '👫',
-      'reading': '📚', 'journal': '📖', 'hobby': '🎨', 'vacation': '🏖️',
-      'meditation': '🧘', 'exercise': '💪', 'walk': '🚶', 'run': '🏃',
-      
-      // Shopping tasks
-      'groceries': '🛒', 'shopping': '🛍️', 'buy': '💳', 'order': '📦',
-      'pick up': '🚗', 'store': '🏪', 'mall': '🏬', 'online': '💻',
-      
-      // Health tasks
-      'doctor': '👨‍⚕️', 'dentist': '🦷', 'appointment': '📅', 'medication': '💊',
-      'vitamins': '💊', 'workout': '🏋️', 'gym': '🏃‍♂️', 'checkup': '🩺',
-      
-      // Home tasks
-      'clean': '🧹', 'laundry': '👕', 'dishes': '🍽️', 'organize': '📦',
-      'repair': '🔧', 'fix': '🛠️', 'garden': '🌱', 'plant': '🪴',
-      'trash': '🗑️', 'vacuum': '🧹', 'mop': '🧽', 'dust': '🪶',
-      
-      // Finance tasks
-      'pay': '💳', 'bill': '📄', 'bank': '🏦', 'tax': '📊',
-      'savings': '💰', 'investment': '📈', 'finance': '💹',
-      
-      // Education tasks
-      'study': '📖', 'homework': '✏️', 'course': '🎓', 'learn': '🧠',
-      'class': '🏫', 'exam': '📝', 'assignment': '📋',
-      
-      // Travel tasks
-      'flight': '✈️', 'hotel': '🏨', 'vacation': '🏖️', 'trip': '🧳',
-      'book': '📱', 'pack': '🎒', 'passport': '📘',
-      
-      // Food tasks
-      'cook': '👨‍🍳', 'meal': '🍽️', 'recipe': '📝', 'restaurant': '🍽️',
-      'lunch': '🥪', 'dinner': '🛁', 'breakfast': '🥞',
-      
-      // Tech tasks
-      'backup': '💾', 'update': '🔄', 'install': '⬇️', 'password': '🔒',
-      'computer': '💻', 'phone': '📱', 'software': '💿',
-      
-      // Creative tasks
-      'write': '✏️', 'draw': '🎨', 'design': '🎨', 'photo': '📸',
-      'music': '🎵', 'video': '📹', 'create': '✨',
-    };
-    
-    // Check for exact matches first
-    for (const [keyword, icon] of Object.entries(taskIcons)) {
-      if (titleLower.includes(keyword)) {
-        return icon;
+    // Find matching suggestion in our intelligence database
+    for (const domain of Object.values(this.taskIntelligence)) {
+      for (const suggestion of domain.suggestions) {
+        if (suggestion.triggers.some(trigger => titleLower.includes(trigger))) {
+          return {
+            preparation: suggestion.autoFill?.preparationTasks || [],
+            followUp: suggestion.autoFill?.followUpTasks || [],
+            tips: this.getTaskTips(taskTitle)
+          };
+        }
       }
     }
+
+    // Fallback suggestions based on common task types
+    const fallbackSuggestions = this.getFallbackRecommendations(titleLower);
+    return {
+      ...fallbackSuggestions,
+      tips: this.getTaskTips(taskTitle)
+    };
   }
-  
-  // Fallback to category icons
-  const categoryIcons = {
-    'work': '💼',
-    'personal': '👤',
-    'shopping': '🛒',
-    'health': '🏥',
-    'home': '🏠',
-    'finance': '💰',
-    'education': '🎓',
-    'travel': '✈️',
-    'food': '🍽️',
-    'fitness': '💪',
-    'default': '✨'
-  };
-  
-  return categoryIcons[category as keyof typeof categoryIcons] || categoryIcons.default;
-};
+
+  // ADD this new method for fallback recommendations
+  static getFallbackRecommendations(taskTitle: string): { preparation: string[], followUp: string[] } {
+    const preparation: string[] = [];
+    const followUp: string[] = [];
+
+    // Meeting-related tasks
+    if (taskTitle.includes('meeting') || taskTitle.includes('call')) {
+      preparation.push('📋 Prepare agenda and talking points');
+      preparation.push('💻 Test video conferencing setup');
+      preparation.push('📱 Ensure phone is charged');
+      followUp.push('📧 Send meeting summary');
+      followUp.push('📅 Schedule follow-up actions');
+    }
+
+    // Shopping tasks
+    if (taskTitle.includes('shop') || taskTitle.includes('buy') || taskTitle.includes('grocery')) {
+      preparation.push('📝 Make detailed shopping list');
+      preparation.push('💳 Bring payment method and coupons');
+      preparation.push('🛍️ Bring reusable bags');
+      followUp.push('📋 Put away items properly');
+      followUp.push('💰 Update budget tracker');
+    }
+
+    // Appointment tasks
+    if (taskTitle.includes('appointment')) {
+      preparation.push('🆔 Bring required ID and insurance');
+      preparation.push('📝 Prepare questions to ask');
+      preparation.push('⏰ Plan to arrive 15 minutes early');
+      followUp.push('📅 Schedule next appointment if needed');
+      followUp.push('📋 Follow any given instructions');
+    }
+
+    // Exercise/fitness tasks
+    if (taskTitle.includes('workout') || taskTitle.includes('gym') || taskTitle.includes('exercise')) {
+      preparation.push('👕 Pack workout clothes and shoes');
+      preparation.push('💧 Bring water bottle');
+      preparation.push('🎵 Prepare motivating playlist');
+      followUp.push('🧘 Stretch and cool down');
+      followUp.push('📱 Log workout in fitness app');
+    }
+
+    // Travel tasks
+    if (taskTitle.includes('flight') || taskTitle.includes('trip') || taskTitle.includes('travel')) {
+      preparation.push('📘 Check passport/ID validity');
+      preparation.push('🧳 Pack essentials and check weather');
+      preparation.push('📱 Download offline maps and boarding passes');
+      followUp.push('🏠 Unpack and do laundry');
+      followUp.push('📸 Organize and share photos');
+    }
+
+    return { preparation, followUp };
+  }
+
+  // ADD this new method for task tips
+  static getTaskTips(taskTitle: string): string[] {
+    const titleLower = taskTitle.toLowerCase();
+    const tips: string[] = [];
+
+    if (titleLower.includes('workout') || titleLower.includes('exercise')) {
+      tips.push('💡 Tip: Exercise releases endorphins that boost mood!');
+      tips.push('⏰ Best time: Morning workouts can energize your entire day');
+      tips.push('🎵 Music can increase workout performance by up to 15%');
+    }
+
+    if (titleLower.includes('meeting')) {
+      tips.push('💡 Tip: Stand-up meetings are 34% shorter than sitting meetings');
+      tips.push('🕐 Best time: Tuesday-Thursday, 2:30-3:30 PM for peak attention');
+      tips.push('📱 Turn off notifications for better focus');
+    }
+
+    if (titleLower.includes('doctor') || titleLower.includes('dental')) {
+      tips.push('💡 Tip: Morning appointments often run more on time');
+      tips.push('📝 Writing down symptoms beforehand improves visit quality');
+      tips.push('❓ Prepare 3 key questions to maximize your time');
+    }
+
+    if (titleLower.includes('study') || titleLower.includes('homework')) {
+      tips.push('💡 Tip: Study in 25-minute focused sessions (Pomodoro Technique)');
+      tips.push('🧠 Best time: Your brain is most alert 2-4 hours after waking');
+      tips.push('📵 Remove distractions for better concentration');
+    }
+
+    if (titleLower.includes('grocery') || titleLower.includes('shopping')) {
+      tips.push('💡 Tip: Shop the perimeter of the store for fresh foods first');
+      tips.push('🕐 Best time: Early morning or late evening to avoid crowds');
+      tips.push('📝 Stick to your list to avoid impulse purchases');
+    }
+
+    return tips;
+  }
+}
+
+// UPDATE your existing icon function to use the new enhanced system
+export const getTaskAIIcon = getFunTaskIcon;
