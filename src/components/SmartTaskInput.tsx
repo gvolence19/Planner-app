@@ -737,3 +737,9 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
     </div>
   );
 };
+
+// Export both named and default exports for flexibility
+export default SuperSmartTaskInput;
+
+// Also export with the expected name for compatibility
+export { SuperSmartTaskInput as SmartTaskInput };

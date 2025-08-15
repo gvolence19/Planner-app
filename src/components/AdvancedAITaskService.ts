@@ -624,7 +624,7 @@ export const getTaskAIIcon = (category?: string, taskTitle?: string): string => 
       
       // Finance tasks
       'pay': '💳', 'bill': '📄', 'bank': '🏦', 'tax': '📊',
-      'savings': '💰', 'investment': '📈', 'budget': '💹',
+      'savings': '💰', 'investment': '📈', 'finance': '💹',
       
       // Education tasks
       'study': '📖', 'homework': '✏️', 'course': '🎓', 'learn': '🧠',
