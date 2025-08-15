@@ -590,3 +590,85 @@ export class AdvancedAITaskService {
     return { preparation: [], followUp: [] };
   }
 }
+
+// Fun task icons based on categories and task content
+export const getTaskAIIcon = (category?: string, taskTitle?: string): string => {
+  // First check for specific task content
+  if (taskTitle) {
+    const titleLower = taskTitle.toLowerCase();
+    
+    // Specific task icons
+    const taskIcons: { [key: string]: string } = {
+      // Work tasks
+      'meeting': '🤝', 'call': '📞', 'presentation': '📊', 'report': '📋',
+      'email': '📧', 'project': '💼', 'deadline': '⏰', 'review': '🔍',
+      'planning': '📝', 'strategy': '🎯', 'budget': '💰', 'interview': '👥',
+      
+      // Personal tasks
+      'birthday': '🎂', 'anniversary': '💍', 'family': '👨‍👩‍👧‍👦', 'friend': '👫',
+      'reading': '📚', 'journal': '📖', 'hobby': '🎨', 'vacation': '🏖️',
+      'meditation': '🧘', 'exercise': '💪', 'walk': '🚶', 'run': '🏃',
+      
+      // Shopping tasks
+      'groceries': '🛒', 'shopping': '🛍️', 'buy': '💳', 'order': '📦',
+      'pick up': '🚗', 'store': '🏪', 'mall': '🏬', 'online': '💻',
+      
+      // Health tasks
+      'doctor': '👨‍⚕️', 'dentist': '🦷', 'appointment': '📅', 'medication': '💊',
+      'vitamins': '💊', 'workout': '🏋️', 'gym': '🏃‍♂️', 'checkup': '🩺',
+      
+      // Home tasks
+      'clean': '🧹', 'laundry': '👕', 'dishes': '🍽️', 'organize': '📦',
+      'repair': '🔧', 'fix': '🛠️', 'garden': '🌱', 'plant': '🪴',
+      'trash': '🗑️', 'vacuum': '🧹', 'mop': '🧽', 'dust': '🪶',
+      
+      // Finance tasks
+      'pay': '💳', 'bill': '📄', 'bank': '🏦', 'tax': '📊',
+      'savings': '💰', 'investment': '📈', 'budget': '💹',
+      
+      // Education tasks
+      'study': '📖', 'homework': '✏️', 'course': '🎓', 'learn': '🧠',
+      'class': '🏫', 'exam': '📝', 'assignment': '📋',
+      
+      // Travel tasks
+      'flight': '✈️', 'hotel': '🏨', 'vacation': '🏖️', 'trip': '🧳',
+      'book': '📱', 'pack': '🎒', 'passport': '📘',
+      
+      // Food tasks
+      'cook': '👨‍🍳', 'meal': '🍽️', 'recipe': '📝', 'restaurant': '🍽️',
+      'lunch': '🥪', 'dinner': '🛁', 'breakfast': '🥞',
+      
+      // Tech tasks
+      'backup': '💾', 'update': '🔄', 'install': '⬇️', 'password': '🔒',
+      'computer': '💻', 'phone': '📱', 'software': '💿',
+      
+      // Creative tasks
+      'write': '✏️', 'draw': '🎨', 'design': '🎨', 'photo': '📸',
+      'music': '🎵', 'video': '📹', 'create': '✨',
+    };
+    
+    // Check for exact matches first
+    for (const [keyword, icon] of Object.entries(taskIcons)) {
+      if (titleLower.includes(keyword)) {
+        return icon;
+      }
+    }
+  }
+  
+  // Fallback to category icons
+  const categoryIcons = {
+    'work': '💼',
+    'personal': '👤',
+    'shopping': '🛒',
+    'health': '🏥',
+    'home': '🏠',
+    'finance': '💰',
+    'education': '🎓',
+    'travel': '✈️',
+    'food': '🍽️',
+    'fitness': '💪',
+    'default': '✨'
+  };
+  
+  return categoryIcons[category as keyof typeof categoryIcons] || categoryIcons.default;
+};
