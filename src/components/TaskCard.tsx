@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { getTaskAIIcon } from './AITaskService'
 
 interface TaskCardProps {
   task: Task
@@ -19,16 +18,55 @@ interface TaskCardProps {
   className?: string
 }
 
+// AI icon helper function - you can expand this based on your needs
+const getTaskAIIcon = (category?: string, taskTitle?: string): string => {
+  if (taskTitle) {
+    const titleLower = taskTitle.toLowerCase();
+    
+    // Medical
+    if (titleLower.includes('doctor') || titleLower.includes('appointment')) return '👨‍⚕️';
+    if (titleLower.includes('dentist')) return '🦷';
+    if (titleLower.includes('gym') || titleLower.includes('workout')) return '💪';
+    if (titleLower.includes('meeting')) return '🤝';
+    if (titleLower.includes('shopping') || titleLower.includes('grocery')) return '🛒';
+    if (titleLower.includes('flight') || titleLower.includes('airport')) return '✈️';
+    if (titleLower.includes('haircut') || titleLower.includes('salon')) return '✂️';
+    if (titleLower.includes('run') || titleLower.includes('jog')) return '🏃';
+    if (titleLower.includes('yoga')) return '🧘';
+    if (titleLower.includes('call') || titleLower.includes('phone')) return '📞';
+    if (titleLower.includes('email')) return '📧';
+    if (titleLower.includes('presentation')) return '📊';
+    if (titleLower.includes('study') || titleLower.includes('exam')) return '📚';
+    if (titleLower.includes('birthday')) return '🎂';
+    if (titleLower.includes('vacation') || titleLower.includes('trip')) return '🏖️';
+    if (titleLower.includes('car') || titleLower.includes('maintenance')) return '🚗';
+    if (titleLower.includes('bank') || titleLower.includes('pay bill')) return '💳';
+  }
+  
+  // Fallback to category icons
+  const categoryIcons = {
+    'work': '💼',
+    'personal': '👤', 
+    'shopping': '🛒',
+    'health': '🏥',
+    'fitness': '💪',
+    'travel': '✈️',
+    'education': '📚',
+    'finance': '💰',
+    'social': '👥',
+    'default': '✨'
+  };
+  
+  return categoryIcons[category?.toLowerCase() as keyof typeof categoryIcons] || categoryIcons.default;
+};
+
 // Safe component to handle location display without causing React Error #31
 const SafeLocationDisplay = ({ location, showMap = false }: { location: any; showMap?: boolean }) => {
-  // Handle different location object structures safely
   const displayText = React.useMemo(() => {
     if (!location) return '';
     
-    // If location is already a string
     if (typeof location === 'string') return location;
     
-    // If location is an object, extract the display text safely
     if (typeof location === 'object' && location !== null) {
       return location.displayName || 
              location.name || 
@@ -88,7 +126,7 @@ export default function TaskCard({
       "group overflow-hidden border-l-4 transition-all duration-300 hover:translate-y-[-2px]",
       task.completed && "opacity-75 border-l-gray-300 dark:border-l-gray-600",
       !task.completed && category?.color && `border-l-[${category.color}]`,
-      // AI task styling (similar to grocery list)
+      // AI task styling
       isAISuggested && "border-purple-200 bg-gradient-to-r from-purple-50/50 to-pink-50/50",
       className
     )}>
@@ -114,7 +152,7 @@ export default function TaskCard({
           <div className="space-y-0.5 sm:space-y-1 flex-1 min-w-0">
             <div className="flex items-start justify-between gap-1 sm:gap-2">
               <div className="flex items-center gap-2 flex-1 min-w-0">
-                {/* AI Icon (similar to grocery list) */}
+                {/* AI Icon */}
                 {isAISuggested && (
                   <span className="text-lg shrink-0" title="AI Suggested Task">
                     {getTaskAIIcon(task.aiCategory || task.category, task.title)}
@@ -128,7 +166,7 @@ export default function TaskCard({
                   {task.title}
                 </h3>
                 
-                {/* AI Badge (similar to grocery list) */}
+                {/* AI Badge */}
                 {isAISuggested && (
                   <Badge variant="outline" className="ml-1 bg-purple-50 text-purple-700 border-purple-200 shrink-0">
                     <Sparkles className="h-3 w-3 mr-1" />
@@ -185,7 +223,6 @@ export default function TaskCard({
                     category?.color && `bg-opacity-10 bg-[${category.color}] border-[${category.color}] text-[${category.color}]`
                   )}
                 >
-                  {/* Ensure we're rendering the category name as string, not object */}
                   {typeof task.category === 'string' ? task.category : task.category?.name || 'Unknown'}
                 </Badge>
               )}
@@ -199,7 +236,6 @@ export default function TaskCard({
             
             {task.location && (
               <div className="mt-2 sm:mt-3 text-xs">
-                {/* Use our safe location display instead of LocationDisplay component */}
                 <SafeLocationDisplay location={task.location} showMap={false} />
               </div>
             )}

@@ -39,7 +39,7 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
   const [recurring, setRecurring] = useState<Task['recurring']>('none');
   const [location, setLocation] = useState('');
   
-  // NEW: AI-related state
+  // AI-related state
   const [isAISuggested, setIsAISuggested] = useState(false);
   const [aiCategory, setAiCategory] = useState<string | undefined>(undefined);
   
@@ -67,7 +67,7 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
       createdAt: new Date(),
       recurring,
       location: location.trim() || undefined,
-      // NEW: Include AI fields
+      // AI fields
       isAISuggested,
       aiCategory
     };
@@ -88,7 +88,6 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
     setCustomDuration('');
     setRecurring('none');
     setLocation('');
-    // NEW: Reset AI fields
     setIsAISuggested(false);
     setAiCategory(undefined);
   };
@@ -99,6 +98,8 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
     priority?: Task['priority'];
     location?: string;
     duration?: string;
+    startTime?: string;
+    dueDate?: Date;
     isAISuggested?: boolean;
     aiCategory?: string;
   }) => {
@@ -108,7 +109,8 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
     if (taskData.priority) setPriority(taskData.priority);
     if (taskData.location) setLocation(taskData.location);
     if (taskData.duration) setDuration(taskData.duration);
-    // NEW: Handle AI fields
+    if (taskData.startTime) setStartTime(taskData.startTime);
+    if (taskData.dueDate) setDueDate(taskData.dueDate);
     if (taskData.isAISuggested) setIsAISuggested(taskData.isAISuggested);
     if (taskData.aiCategory) setAiCategory(taskData.aiCategory);
   };
@@ -126,7 +128,7 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
               onTaskCreate={handleSmartTaskCreate}
               tasks={tasks}
               categories={categories}
-              placeholder="What do you need to do?"
+              placeholder="What do you need to do? (e.g., 'doctor appointment tomorrow 2pm')"
               value={title}
               onChange={setTitle}
             />
@@ -278,7 +280,6 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
             <Select 
               value={recurring || 'none'} 
               onValueChange={(val) => {
-                // Only allow recurring tasks for premium users
                 if (!isPremium && val !== 'none') {
                   return;
                 }

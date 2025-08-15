@@ -14,7 +14,23 @@ import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 import OAuthCallback from './pages/OAuthCallback';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      cacheTime: 1000 * 60 * 10, // 10 minutes
+      retry: (failureCount, error) => {
+        // Don't retry on 401/403 errors (auth issues)
+        if (error instanceof Error && error.message.includes('401')) return false;
+        if (error instanceof Error && error.message.includes('403')) return false;
+        return failureCount < 3;
+      },
+    },
+    mutations: {
+      retry: 1,
+    },
+  },
+});
 
 // Replace with your Google OAuth Client ID
 const googleClientId = "246690586453-lhel5i1bk1gmn503u6to8rsl8r3d3hrb.apps.googleusercontent.com"; // Demo ID
@@ -37,7 +53,12 @@ const App = () => (
         <SubscriptionProvider>
           <QueryClientProvider client={queryClient}>
             <TooltipProvider>
-              <Toaster />
+              <Toaster 
+                position="top-right"
+                expand={false}
+                richColors
+                closeButton
+              />
               <BrowserRouter>
                 <Routes>
                   {/* Auth Routes */}
