@@ -414,16 +414,20 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
       priority: suggestion.priority,
       location: suggestion.location,
       duration: suggestion.duration,
-      startTime: suggestion.autoFillData?.recommendedTime,
+      startTime: suggestion.autoFillData?.recommendedTime || suggestion.startTime,
       dueDate: suggestion.suggestedDate,
       isAISuggested: true,
       aiCategory: suggestion.category
     };
 
+    console.log('Creating task from AI suggestion:', taskData); // Debug log
     onTaskCreate(taskData);
+    
+    // Clear states
     setInput('');
     setShowAISuggestions(false);
     setAiSuggestions([]);
+    setHasAppliedPredictions(true);
     
     if (onChange) {
       onChange('');
@@ -439,7 +443,7 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
     const parsed = parseAdvancedNaturalLanguage(input);
     
     const taskData = {
-      title: parsed.title,
+      title: parsed.title || input.trim(), // Ensure we always have a title
       category: predictions.category || parsed.category,
       priority: predictions.priority || parsed.priority,
       location: predictions.location || parsed.location,
@@ -448,8 +452,10 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
       dueDate: predictions.dueDate || parsed.dueDate
     };
 
+    console.log('Creating manual task:', taskData); // Debug log
     onTaskCreate(taskData);
     
+    // Clear all states
     setInput('');
     setHasAppliedPredictions(true);
     setPredictions({});
