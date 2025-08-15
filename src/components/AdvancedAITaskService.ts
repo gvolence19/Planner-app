@@ -1,4 +1,7 @@
-// Advanced AI Task Service with Smart Auto-Population
+// Map AI domains to user categories
+  static mapDomainToCategory(domain: string, categories: string[]): string {
+    const domainMapping: { [key: string]: string[] } = {
+      'medical': ['health// Advanced AI Task Service with Smart Auto-Population
 export interface AdvancedAITaskSuggestion {
   title: string;
   category: string;
@@ -29,37 +32,62 @@ export class AdvancedAITaskService {
         'orthodontist', 'optometrist', 'eye exam', 'blood test', 'lab work',
         'vaccination', 'vaccine', 'shot', 'mri', 'ct scan', 'x-ray', 'ultrasound',
         'dermatologist', 'cardiologist', 'pediatrician', 'psychiatrist',
-        'therapy', 'counseling', 'prescription', 'medication', 'pharmacy'
+        'therapy', 'counseling', 'prescription', 'medication', 'pharmacy',
+        'specialist', 'consultation', 'follow-up', 'surgery', 'procedure'
       ],
       suggestions: [
         {
-          triggers: ['doctor', 'physician', 'medical', 'checkup'],
+          triggers: ['doctor', 'physician', 'medical', 'checkup', 'physical'],
           title: 'Schedule doctor appointment',
           duration: '60',
-          location: 'Doctor\'s office',
+          location: 'Medical clinic',
           priority: 'high' as const,
           reason: 'Important for health maintenance',
           autoFill: {
             commonDuration: '60',
-            typicalLocation: 'Medical clinic',
+            typicalLocation: 'Doctor\'s office',
             recommendedTime: '10:00',
-            preparationTasks: ['Gather insurance cards', 'List current medications', 'Write down symptoms'],
-            followUpTasks: ['Schedule follow-up if needed', 'Pick up prescriptions']
+            preparationTasks: [
+              'Gather insurance cards and ID',
+              'List current medications and dosages',
+              'Write down symptoms and concerns',
+              'Prepare list of questions for doctor',
+              'Bring previous test results if available',
+              'Arrive 15 minutes early for paperwork'
+            ],
+            followUpTasks: [
+              'Schedule follow-up appointment if needed',
+              'Pick up prescriptions from pharmacy',
+              'Update medical records',
+              'Schedule any recommended tests',
+              'Follow prescribed treatment plan'
+            ]
           }
         },
         {
-          triggers: ['dentist', 'dental', 'teeth', 'cleaning'],
+          triggers: ['dentist', 'dental', 'teeth', 'cleaning', 'cavity'],
           title: 'Dental appointment',
-          duration: '90',
+          duration: '75',
           location: 'Dental office',
           priority: 'medium' as const,
           reason: 'Dental health maintenance',
           autoFill: {
-            commonDuration: '90',
+            commonDuration: '75',
             typicalLocation: 'Dental clinic',
             recommendedTime: '14:00',
-            preparationTasks: ['Brush teeth', 'Bring insurance card'],
-            followUpTasks: ['Schedule next cleaning in 6 months']
+            preparationTasks: [
+              'Brush and floss teeth thoroughly',
+              'Bring dental insurance card',
+              'List any dental concerns or pain',
+              'Avoid eating 2 hours before appointment',
+              'Bring headphones for comfort'
+            ],
+            followUpTasks: [
+              'Schedule next cleaning in 6 months',
+              'Follow post-treatment care instructions',
+              'Purchase recommended dental products',
+              'Schedule any additional treatments needed'
+            ]
           }
         },
         {
@@ -72,7 +100,43 @@ export class AdvancedAITaskService {
           autoFill: {
             commonDuration: '45',
             typicalLocation: 'Optometry office',
-            recommendedTime: '11:00'
+            recommendedTime: '11:00',
+            preparationTasks: [
+              'Bring current glasses or contacts',
+              'List vision concerns or changes',
+              'Bring insurance information',
+              'Remove contact lenses before exam'
+            ],
+            followUpTasks: [
+              'Order new glasses if needed',
+              'Schedule follow-up if required',
+              'Update prescription contacts'
+            ]
+          }
+        },
+        {
+          triggers: ['specialist', 'cardiologist', 'dermatologist'],
+          title: 'Specialist consultation',
+          duration: '90',
+          location: 'Specialist office',
+          priority: 'high' as const,
+          reason: 'Specialized medical care',
+          autoFill: {
+            commonDuration: '90',
+            typicalLocation: 'Medical specialist office',
+            recommendedTime: '09:00',
+            preparationTasks: [
+              'Get referral from primary care doctor',
+              'Gather all relevant medical records',
+              'Prepare detailed symptom timeline',
+              'Research specialist and clinic',
+              'Prepare insurance pre-authorization'
+            ],
+            followUpTasks: [
+              'Schedule follow-up appointments',
+              'Share results with primary care doctor',
+              'Begin recommended treatment plan'
+            ]
           }
         }
       ]
@@ -84,11 +148,12 @@ export class AdvancedAITaskService {
         'gym', 'workout', 'exercise', 'fitness', 'training', 'run', 'jog',
         'yoga', 'pilates', 'crossfit', 'basketball', 'tennis', 'soccer',
         'football', 'baseball', 'swimming', 'cycling', 'hiking', 'climbing',
-        'martial arts', 'boxing', 'weightlifting', 'cardio', 'dance class'
+        'martial arts', 'boxing', 'weightlifting', 'cardio', 'dance class',
+        'personal trainer', 'spin class', 'zumba', 'strength training'
       ],
       suggestions: [
         {
-          triggers: ['gym', 'workout', 'fitness', 'training'],
+          triggers: ['gym', 'workout', 'fitness', 'training', 'lift', 'weights'],
           title: 'Gym workout session',
           duration: '90',
           location: 'Fitness center',
@@ -98,12 +163,25 @@ export class AdvancedAITaskService {
             commonDuration: '90',
             typicalLocation: 'Local gym',
             recommendedTime: '18:00',
-            preparationTasks: ['Pack gym bag', 'Bring water bottle', 'Check gym schedule'],
-            followUpTasks: ['Log workout progress', 'Plan next session']
+            preparationTasks: [
+              'Pack gym bag with workout clothes',
+              'Bring water bottle and towel',
+              'Check gym class schedule',
+              'Prepare workout playlist',
+              'Eat light snack 1 hour before',
+              'Bring phone charger for tracking'
+            ],
+            followUpTasks: [
+              'Log workout progress in app',
+              'Stretch and cool down properly',
+              'Plan next workout session',
+              'Track calories burned',
+              'Schedule rest day if needed'
+            ]
           }
         },
         {
-          triggers: ['run', 'running', 'jog', 'jogging'],
+          triggers: ['run', 'running', 'jog', 'jogging', 'cardio'],
           title: 'Running session',
           duration: '45',
           location: 'Park or neighborhood',
@@ -113,12 +191,25 @@ export class AdvancedAITaskService {
             commonDuration: '45',
             typicalLocation: 'Local park',
             recommendedTime: '07:00',
-            preparationTasks: ['Check weather', 'Prepare running gear'],
-            followUpTasks: ['Track distance and time', 'Stretch and cool down']
+            preparationTasks: [
+              'Check weather conditions',
+              'Prepare running gear and shoes',
+              'Plan running route',
+              'Charge fitness tracker',
+              'Do dynamic warm-up exercises',
+              'Apply sunscreen if sunny'
+            ],
+            followUpTasks: [
+              'Track distance and pace',
+              'Stretch and cool down',
+              'Log run in fitness app',
+              'Hydrate and refuel',
+              'Plan next running session'
+            ]
           }
         },
         {
-          triggers: ['yoga', 'meditation', 'mindfulness'],
+          triggers: ['yoga', 'meditation', 'mindfulness', 'zen'],
           title: 'Yoga class',
           duration: '75',
           location: 'Yoga studio',
@@ -128,12 +219,23 @@ export class AdvancedAITaskService {
             commonDuration: '75',
             typicalLocation: 'Yoga studio',
             recommendedTime: '19:00',
-            preparationTasks: ['Bring yoga mat', 'Wear comfortable clothes'],
-            followUpTasks: ['Practice breathing exercises']
+            preparationTasks: [
+              'Bring yoga mat and towel',
+              'Wear comfortable, stretchy clothes',
+              'Avoid heavy meals 2 hours before',
+              'Bring water bottle',
+              'Arrive 10 minutes early'
+            ],
+            followUpTasks: [
+              'Practice breathing exercises',
+              'Schedule next yoga session',
+              'Maintain hydration',
+              'Journal about the experience'
+            ]
           }
         },
         {
-          triggers: ['tennis', 'court', 'match'],
+          triggers: ['tennis', 'court', 'match', 'racquet'],
           title: 'Tennis match',
           duration: '120',
           location: 'Tennis court',
@@ -143,8 +245,45 @@ export class AdvancedAITaskService {
             commonDuration: '120',
             typicalLocation: 'Tennis club',
             recommendedTime: '16:00',
-            preparationTasks: ['Pack tennis gear', 'Confirm court booking'],
-            followUpTasks: ['Review game performance']
+            preparationTasks: [
+              'Pack tennis gear and racquet',
+              'Confirm court booking',
+              'Check weather conditions',
+              'Bring extra balls and water',
+              'Warm up before playing'
+            ],
+            followUpTasks: [
+              'Review game performance',
+              'Schedule next match',
+              'Clean and store equipment',
+              'Track fitness progress'
+            ]
+          }
+        },
+        {
+          triggers: ['swim', 'swimming', 'pool', 'laps'],
+          title: 'Swimming workout',
+          duration: '60',
+          location: 'Swimming pool',
+          priority: 'medium' as const,
+          reason: 'Full-body exercise',
+          autoFill: {
+            commonDuration: '60',
+            typicalLocation: 'Community pool',
+            recommendedTime: '08:00',
+            preparationTasks: [
+              'Pack swimwear and goggles',
+              'Bring towel and shower essentials',
+              'Check pool schedule and hours',
+              'Apply waterproof sunscreen',
+              'Plan swimming routine'
+            ],
+            followUpTasks: [
+              'Shower and change clothes',
+              'Log distance swum',
+              'Hydrate thoroughly',
+              'Plan next swimming session'
+            ]
           }
         }
       ]
@@ -255,11 +394,40 @@ export class AdvancedAITaskService {
         'haircut', 'salon', 'spa', 'massage', 'manicure', 'pedicure',
         'grocery', 'shopping', 'errands', 'bank', 'post office',
         'dry cleaning', 'car wash', 'oil change', 'maintenance',
-        'birthday', 'anniversary', 'date', 'dinner', 'lunch'
+        'birthday', 'anniversary', 'date', 'dinner', 'lunch', 'date night',
+        'romantic', 'celebration', 'special occasion', 'relationship'
       ],
       suggestions: [
         {
-          triggers: ['haircut', 'salon', 'hair appointment'],
+          triggers: ['date night', 'date', 'romantic', 'dinner date', 'evening out'],
+          title: 'Date night',
+          duration: '180',
+          location: 'Restaurant',
+          priority: 'medium' as const,
+          reason: 'Quality time with partner',
+          autoFill: {
+            commonDuration: '180',
+            typicalLocation: 'Nice restaurant',
+            recommendedTime: '19:00',
+            preparationTasks: [
+              'Make restaurant reservation',
+              'Choose outfit and get ready',
+              'Plan conversation topics',
+              'Arrange childcare if needed',
+              'Check restaurant menu and reviews',
+              'Plan transportation or parking'
+            ],
+            followUpTasks: [
+              'Share photos and memories',
+              'Plan next date night',
+              'Leave restaurant review',
+              'Thank babysitter if applicable',
+              'Reflect on quality time together'
+            ]
+          }
+        },
+        {
+          triggers: ['haircut', 'salon', 'hair appointment', 'hair'],
           title: 'Hair appointment',
           duration: '90',
           location: 'Hair salon',
@@ -269,12 +437,23 @@ export class AdvancedAITaskService {
             commonDuration: '90',
             typicalLocation: 'Local salon',
             recommendedTime: '14:00',
-            preparationTasks: ['Bring reference photos', 'Confirm appointment'],
-            followUpTasks: ['Schedule next appointment in 6-8 weeks']
+            preparationTasks: [
+              'Bring reference photos for desired style',
+              'Confirm appointment time',
+              'Wash hair with clarifying shampoo',
+              'Research stylist reviews',
+              'Plan outfit that\'s easy to change'
+            ],
+            followUpTasks: [
+              'Schedule next appointment in 6-8 weeks',
+              'Purchase recommended hair products',
+              'Take photos of new style',
+              'Leave review for stylist'
+            ]
           }
         },
         {
-          triggers: ['grocery', 'groceries', 'food shopping'],
+          triggers: ['grocery', 'groceries', 'food shopping', 'supermarket'],
           title: 'Grocery shopping',
           duration: '60',
           location: 'Grocery store',
@@ -284,23 +463,141 @@ export class AdvancedAITaskService {
             commonDuration: '60',
             typicalLocation: 'Local supermarket',
             recommendedTime: '10:00',
-            preparationTasks: ['Make shopping list', 'Check store hours', 'Bring reusable bags'],
-            followUpTasks: ['Put away groceries', 'Plan meals for the week']
+            preparationTasks: [
+              'Make detailed shopping list',
+              'Check store hours and sales',
+              'Bring reusable bags',
+              'Check pantry and fridge inventory',
+              'Plan meals for the week',
+              'Bring coupons and loyalty cards'
+            ],
+            followUpTasks: [
+              'Put away groceries properly',
+              'Plan meals for the week',
+              'Update shopping list app',
+              'Check expiration dates',
+              'Store receipts for budgeting'
+            ]
           }
         },
         {
-          triggers: ['car', 'oil change', 'maintenance', 'service'],
-          title: 'Car maintenance',
-          duration: '120',
+          triggers: ['birthday', 'anniversary', 'celebration', 'party'],
+          title: 'Birthday celebration',
+          duration: '240',
+          location: 'Party venue',
+          priority: 'high' as const,
+          reason: 'Special occasion',
+          autoFill: {
+            commonDuration: '240',
+            typicalLocation: 'Restaurant or home',
+            recommendedTime: '18:00',
+            preparationTasks: [
+              'Send invitations to guests',
+              'Order birthday cake',
+              'Plan party decorations',
+              'Organize food and drinks',
+              'Prepare playlist or entertainment',
+              'Buy birthday gift if needed'
+            ],
+            followUpTasks: [
+              'Thank guests for attending',
+              'Share photos with everyone',
+              'Clean up party area',
+              'Send thank you notes',
+              'Plan next celebration'
+            ]
+          }
+        }
+      ]
+    },
+
+    // Automotive & Maintenance
+    automotive: {
+      patterns: [
+        'car', 'vehicle', 'auto', 'maintenance', 'oil change', 'tire',
+        'inspection', 'registration', 'insurance', 'repair', 'service',
+        'mechanic', 'garage', 'dealership', 'brake', 'engine', 'battery'
+      ],
+      suggestions: [
+        {
+          triggers: ['oil change', 'car maintenance', 'vehicle service'],
+          title: 'Car oil change',
+          duration: '60',
           location: 'Auto service center',
           priority: 'medium' as const,
           reason: 'Vehicle maintenance',
           autoFill: {
-            commonDuration: '120',
+            commonDuration: '60',
             typicalLocation: 'Auto shop',
             recommendedTime: '09:00',
-            preparationTasks: ['Check service history', 'Gather car documents'],
-            followUpTasks: ['Schedule next service', 'Update maintenance log']
+            preparationTasks: [
+              'Check current mileage',
+              'Gather car documents and registration',
+              'Research service center reviews',
+              'Check service history records',
+              'Remove personal items from car',
+              'Prepare payment method'
+            ],
+            followUpTasks: [
+              'Schedule next oil change',
+              'Update maintenance log',
+              'Save service receipt',
+              'Check other fluid levels',
+              'Inspect tire condition while there'
+            ]
+          }
+        },
+        {
+          triggers: ['car inspection', 'vehicle inspection', 'emissions'],
+          title: 'Vehicle inspection',
+          duration: '45',
+          location: 'Inspection station',
+          priority: 'high' as const,
+          reason: 'Legal requirement',
+          autoFill: {
+            commonDuration: '45',
+            typicalLocation: 'Inspection station',
+            recommendedTime: '11:00',
+            preparationTasks: [
+              'Check all lights and signals',
+              'Ensure registration is current',
+              'Verify insurance is up to date',
+              'Clean windshield and mirrors',
+              'Check tire tread depth',
+              'Bring required documents'
+            ],
+            followUpTasks: [
+              'Display new inspection sticker',
+              'Schedule any needed repairs',
+              'Update vehicle records',
+              'Plan next year\'s inspection'
+            ]
+          }
+        },
+        {
+          triggers: ['tire', 'tires', 'rotation', 'alignment'],
+          title: 'Tire service',
+          duration: '90',
+          location: 'Tire shop',
+          priority: 'medium' as const,
+          reason: 'Safety and maintenance',
+          autoFill: {
+            commonDuration: '90',
+            typicalLocation: 'Tire service center',
+            recommendedTime: '10:00',
+            preparationTasks: [
+              'Check tire pressure and tread',
+              'Note any unusual wear patterns',
+              'Research tire prices if replacement needed',
+              'Bring vehicle registration',
+              'Check warranty information'
+            ],
+            followUpTasks: [
+              'Check tire pressure regularly',
+              'Schedule next rotation',
+              'Monitor tire wear patterns',
+              'Update maintenance records'
+            ]
           }
         }
       ]
@@ -311,37 +608,119 @@ export class AdvancedAITaskService {
       patterns: [
         'class', 'lecture', 'course', 'study', 'exam', 'test', 'quiz',
         'homework', 'assignment', 'project', 'research', 'library',
-        'tutor', 'tutoring', 'lesson', 'workshop', 'seminar', 'webinar'
+        'tutor', 'tutoring', 'lesson', 'workshop', 'seminar', 'webinar',
+        'school', 'university', 'college', 'student', 'academic'
       ],
       suggestions: [
         {
-          triggers: ['class', 'course', 'lecture'],
+          triggers: ['class', 'course', 'lecture', 'school'],
           title: 'Attend class',
-          duration: '120',
+          duration: '90',
           location: 'Classroom',
           priority: 'high' as const,
           reason: 'Educational commitment',
           autoFill: {
-            commonDuration: '120',
+            commonDuration: '90',
             typicalLocation: 'University campus',
             recommendedTime: '10:00',
-            preparationTasks: ['Review previous notes', 'Prepare materials', 'Check assignment due dates'],
-            followUpTasks: ['Review class notes', 'Complete any assignments']
+            preparationTasks: [
+              'Review previous class notes',
+              'Prepare notebooks and materials',
+              'Check assignment due dates',
+              'Read assigned chapters',
+              'Prepare questions for professor',
+              'Charge laptop and bring charger'
+            ],
+            followUpTasks: [
+              'Review and organize class notes',
+              'Complete any new assignments',
+              'Schedule study sessions',
+              'Form study groups with classmates',
+              'Visit professor during office hours if needed'
+            ]
           }
         },
         {
-          triggers: ['exam', 'test', 'quiz'],
+          triggers: ['exam', 'test', 'quiz', 'midterm', 'final'],
           title: 'Take exam',
-          duration: '180',
+          duration: '120',
           location: 'Exam room',
           priority: 'high' as const,
           reason: 'Academic assessment',
           autoFill: {
-            commonDuration: '180',
+            commonDuration: '120',
             typicalLocation: 'Testing center',
             recommendedTime: '09:00',
-            preparationTasks: ['Final review session', 'Prepare exam materials', 'Get good night sleep'],
-            followUpTasks: ['Decompress after exam', 'Wait for results']
+            preparationTasks: [
+              'Complete final review session',
+              'Prepare required exam materials',
+              'Get good night\'s sleep',
+              'Eat healthy breakfast',
+              'Arrive 15 minutes early',
+              'Bring ID and required supplies'
+            ],
+            followUpTasks: [
+              'Decompress and relax after exam',
+              'Wait for results patiently',
+              'Review exam when returned',
+              'Plan improvements for next exam'
+            ]
+          }
+        },
+        {
+          triggers: ['homework', 'assignment', 'project', 'paper'],
+          title: 'Complete homework',
+          duration: '120',
+          location: 'Study area',
+          priority: 'high' as const,
+          reason: 'Academic requirement',
+          autoFill: {
+            commonDuration: '120',
+            typicalLocation: 'Library or home',
+            recommendedTime: '16:00',
+            preparationTasks: [
+              'Gather all required materials',
+              'Find quiet study space',
+              'Review assignment requirements',
+              'Create outline or plan',
+              'Eliminate distractions',
+              'Set up reference materials'
+            ],
+            followUpTasks: [
+              'Proofread and edit work',
+              'Submit assignment on time',
+              'Save backup copies',
+              'Update assignment tracker',
+              'Prepare for next assignment'
+            ]
+          }
+        },
+        {
+          triggers: ['study', 'review', 'prepare', 'cram'],
+          title: 'Study session',
+          duration: '90',
+          location: 'Library',
+          priority: 'medium' as const,
+          reason: 'Academic preparation',
+          autoFill: {
+            commonDuration: '90',
+            typicalLocation: 'Quiet study area',
+            recommendedTime: '15:00',
+            preparationTasks: [
+              'Organize notes and materials',
+              'Create study schedule',
+              'Find optimal study environment',
+              'Prepare snacks and water',
+              'Set study goals for session',
+              'Turn off phone notifications'
+            ],
+            followUpTasks: [
+              'Review what was learned',
+              'Plan next study session',
+              'Take practice quizzes',
+              'Form study groups if helpful',
+              'Reward yourself for progress'
+            ]
           }
         }
       ]
@@ -453,7 +832,8 @@ export class AdvancedAITaskService {
       'business': ['work'],
       'travel': ['travel', 'personal'],
       'personal': ['personal'],
-      'education': ['education', 'personal']
+      'education': ['education', 'personal'],
+      'automotive': ['personal', 'other']
     };
 
     const possibleCategories = domainMapping[domain] || ['personal'];
@@ -494,6 +874,22 @@ export class AdvancedAITaskService {
         } else {
           // Otherwise suggest tomorrow
           suggestedDate.setDate(now.getDate() + 1);
+        }
+        break;
+      case 'automotive':
+        // Car maintenance typically scheduled within a week
+        suggestedDate.setDate(now.getDate() + Math.floor(Math.random() * 5) + 1);
+        // Prefer weekdays for auto services
+        while (suggestedDate.getDay() === 0 || suggestedDate.getDay() === 6) {
+          suggestedDate.setDate(suggestedDate.getDate() + 1);
+        }
+        break;
+      case 'education':
+        // School activities typically next business day
+        suggestedDate.setDate(now.getDate() + 1);
+        // Skip weekends
+        while (suggestedDate.getDay() === 0 || suggestedDate.getDay() === 6) {
+          suggestedDate.setDate(suggestedDate.getDate() + 1);
         }
         break;
       default:
