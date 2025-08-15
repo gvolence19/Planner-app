@@ -1,4 +1,6 @@
-// Map AI domains to user categories
+}
+
+  // Map AI domains to user categories
   static mapDomainToCategory(domain: string, categories: string[]): string {
     const domainMapping: { [key: string]: string[] } = {
       'medical': ['health// Advanced AI Task Service with Smart Auto-Population
