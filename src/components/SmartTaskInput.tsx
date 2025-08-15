@@ -390,8 +390,8 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
     if (e.key === 'Enter') {
       e.preventDefault();
       if (showAISuggestions && aiSuggestions.length > 0) {
-        // Use AI suggestion if available and dropdown is showing
-        addTaskFromAISuggestion(aiSuggestions[selectedSuggestionIndex]);
+        // Populate form with AI suggestion for editing (don't create immediately)
+        addTaskFromAISuggestion(aiSuggestions[selectedSuggestionIndex], false);
       } else if (input.trim()) {
         // Always allow manual task creation when user types and presses Enter
         handleApplyPredictions();
@@ -409,35 +409,61 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
     }
   };
 
-  const addTaskFromAISuggestion = (suggestion: AdvancedAITaskSuggestion) => {
-    const taskData = {
-      title: suggestion.title,
-      category: suggestion.category,
-      priority: suggestion.priority,
-      location: suggestion.location,
-      duration: suggestion.duration,
-      startTime: suggestion.autoFillData?.recommendedTime || suggestion.startTime,
-      dueDate: suggestion.suggestedDate,
-      isAISuggested: true,
-      aiCategory: suggestion.category
-    };
+  const addTaskFromAISuggestion = (suggestion: AdvancedAITaskSuggestion, shouldCreateImmediately = false) => {
+    if (shouldCreateImmediately) {
+      // Direct creation (when clicking on suggestion)
+      const taskData = {
+        title: suggestion.title,
+        category: suggestion.category,
+        priority: suggestion.priority,
+        location: suggestion.location,
+        duration: suggestion.duration,
+        startTime: suggestion.autoFillData?.recommendedTime || suggestion.startTime,
+        dueDate: suggestion.suggestedDate,
+        isAISuggested: true,
+        aiCategory: suggestion.category
+      };
 
-    console.log('Creating task from AI suggestion:', taskData); // Debug log
-    onTaskCreate(taskData);
-    
-    // Clear states
-    setInput('');
-    setShowAISuggestions(false);
-    setAiSuggestions([]);
-    setHasAppliedPredictions(true);
-    
-    if (onChange) {
-      onChange('');
+      console.log('Creating task from AI suggestion:', taskData);
+      onTaskCreate(taskData);
+      
+      // Clear states
+      setInput('');
+      setShowAISuggestions(false);
+      setAiSuggestions([]);
+      setHasAppliedPredictions(true);
+      
+      if (onChange) {
+        onChange('');
+      }
+    } else {
+      // Populate form fields for editing (when pressing Enter)
+      setInput(suggestion.title);
+      
+      // Set predictions from AI suggestion
+      setPredictions({
+        category: suggestion.category,
+        priority: suggestion.priority,
+        location: suggestion.location,
+        duration: suggestion.duration,
+        startTime: suggestion.autoFillData?.recommendedTime || suggestion.startTime,
+        dueDate: suggestion.suggestedDate
+      });
+      
+      setShowPredictions(true);
+      setShowAISuggestions(false);
+      setAiSuggestions([]);
+      
+      if (onChange) {
+        onChange(suggestion.title);
+      }
+      
+      console.log('Populated form from AI suggestion:', suggestion);
     }
   };
 
   const addSmartSuggestion = (suggestion: AdvancedAITaskSuggestion) => {
-    addTaskFromAISuggestion(suggestion);
+    addTaskFromAISuggestion(suggestion, true); // Create immediately for contextual suggestions
     setSmartSuggestions(prev => prev.filter(s => s.title !== suggestion.title));
   };
 
@@ -560,7 +586,7 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
                     {aiSuggestions.map((suggestion, idx) => (
                       <button
                         key={idx}
-                        onClick={() => addTaskFromAISuggestion(suggestion)}
+                        onClick={() => addTaskFromAISuggestion(suggestion, true)} // Create immediately when clicked
                         className={`w-full text-left p-4 hover:bg-purple-50 transition-colors flex items-start justify-between group border-b border-gray-100 last:border-b-0 ${
                           idx === selectedSuggestionIndex ? 'bg-purple-100 border-l-4 border-l-purple-500' : ''
                         }`}
