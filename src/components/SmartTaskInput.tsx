@@ -586,7 +586,7 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
                     {aiSuggestions.map((suggestion, idx) => (
                       <button
                         key={idx}
-                        onClick={() => addTaskFromAISuggestion(suggestion, true)} // Create immediately when clicked
+                        onClick={() => addTaskFromAISuggestion(suggestion, false)} // Populate form when clicked, don't create immediately
                         className={`w-full text-left p-4 hover:bg-purple-50 transition-colors flex items-start justify-between group border-b border-gray-100 last:border-b-0 ${
                           idx === selectedSuggestionIndex ? 'bg-purple-100 border-l-4 border-l-purple-500' : ''
                         }`}
