@@ -39,6 +39,10 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
   const [recurring, setRecurring] = useState<Task['recurring']>('none');
   const [location, setLocation] = useState('');
   
+  // NEW: AI-related state
+  const [isAISuggested, setIsAISuggested] = useState(false);
+  const [aiCategory, setAiCategory] = useState<string | undefined>(undefined);
+  
   // Filter categories for free users
   const availableCategories = isPremium 
     ? categories 
@@ -62,7 +66,10 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
       duration: finalDuration.trim() || undefined,
       createdAt: new Date(),
       recurring,
-      location: location.trim() || undefined
+      location: location.trim() || undefined,
+      // NEW: Include AI fields
+      isAISuggested,
+      aiCategory
     };
 
     onAddTask(newTask);
@@ -81,6 +88,9 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
     setCustomDuration('');
     setRecurring('none');
     setLocation('');
+    // NEW: Reset AI fields
+    setIsAISuggested(false);
+    setAiCategory(undefined);
   };
 
   const handleSmartTaskCreate = (taskData: {
@@ -88,12 +98,19 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
     category?: string;
     priority?: Task['priority'];
     location?: string;
+    duration?: string;
+    isAISuggested?: boolean;
+    aiCategory?: string;
   }) => {
     console.log('Smart task data received:', taskData);
     if (taskData.title) setTitle(taskData.title);
     if (taskData.category) setCategory(taskData.category);
     if (taskData.priority) setPriority(taskData.priority);
     if (taskData.location) setLocation(taskData.location);
+    if (taskData.duration) setDuration(taskData.duration);
+    // NEW: Handle AI fields
+    if (taskData.isAISuggested) setIsAISuggested(taskData.isAISuggested);
+    if (taskData.aiCategory) setAiCategory(taskData.aiCategory);
   };
 
   return (
@@ -302,12 +319,15 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
           </div>
 
           <div className="space-y-2">
-            {!isPremium && (
-              <div className="flex items-center text-xs text-amber-500 dark:text-amber-400 mb-1">
-                <Lock className="h-3 w-3 mr-0.5" />
-                Premium Feature
-              </div>
-            )}
+            <div className="flex items-center gap-1.5">
+              <Label htmlFor="location">Location</Label>
+              {!isPremium && (
+                <div className="flex items-center text-xs text-amber-500 dark:text-amber-400">
+                  <Lock className="h-3 w-3 mr-0.5" />
+                  Premium Feature
+                </div>
+              )}
+            </div>
             <LocationInput
               value={location}
               onChange={setLocation}

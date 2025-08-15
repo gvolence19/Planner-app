@@ -1,4 +1,4 @@
-// types/index.ts - Updated for Google Calendar Integration
+// types/index.ts - Updated for Google Calendar Integration + AI Tasks
 
 export interface Task {
   id: string;
@@ -12,6 +12,14 @@ export interface Task {
   recurring?: 'none' | 'daily' | 'weekly' | 'biweekly' | 'monthly';
   recurringParentId?: string;
   location?: string | Location;
+  
+  // NEW: AI-related fields for enhanced task suggestions
+  isAISuggested?: boolean;  // Indicates if this task was created from an AI suggestion
+  aiCategory?: string;      // The AI-determined category for this task
+  
+  // Additional fields for better task management
+  startTime?: string;       // Start time for tasks (e.g., "09:30")
+  duration?: string;        // Duration in minutes as string (e.g., "60")
 }
 
 export interface Location {
@@ -146,6 +154,18 @@ export interface GoogleUserInfo {
   family_name: string;
   picture: string;
   locale?: string;
+}
+
+// AI-related types for task suggestions
+export interface AITaskSuggestion {
+  title: string;
+  category: string;
+  priority: 'low' | 'medium' | 'high';
+  location?: string;
+  duration?: string;
+  confidence: number;
+  reason: string;
+  estimatedTime?: string;
 }
 
 // Default categories with icons
@@ -287,4 +307,5 @@ export type {
   NotificationPreference,
   OAuthTokens,
   GoogleUserInfo,
+  AITaskSuggestion,
 };
