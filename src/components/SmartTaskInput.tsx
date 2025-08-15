@@ -389,9 +389,11 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      if (aiSuggestions.length > 0 && showAISuggestions) {
+      if (showAISuggestions && aiSuggestions.length > 0) {
+        // Use AI suggestion if available and dropdown is showing
         addTaskFromAISuggestion(aiSuggestions[selectedSuggestionIndex]);
       } else if (input.trim()) {
+        // Always allow manual task creation when user types and presses Enter
         handleApplyPredictions();
       }
     } else if (e.key === 'ArrowDown' && showAISuggestions && aiSuggestions.length > 0) {
