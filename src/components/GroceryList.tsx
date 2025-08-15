@@ -540,8 +540,14 @@ export default function EnhancedGroceryList() {
       }));
       setGroceryItems(fixedItems);
     }
-    processRecurringItems();
   }, []);
+
+  // Process recurring items whenever groceryItems changes
+  useEffect(() => {
+    if (groceryItems.length > 0) {
+      processRecurringItems();
+    }
+  }, [groceryItems.length]);
 
   // Load smart suggestions when items change
   useEffect(() => {
@@ -598,10 +604,10 @@ export default function EnhancedGroceryList() {
     
     if (recurringItems.length === 0) return;
 
-    const today = new Date();
     const newItems: GroceryItem[] = [];
     const existingItemsByParent = new Map<string, GroceryItem[]>();
     
+    // Group existing child items by their parent ID
     groceryItems.forEach(item => {
       if (item.recurringParentId) {
         const items = existingItemsByParent.get(item.recurringParentId) || [];
@@ -614,7 +620,9 @@ export default function EnhancedGroceryList() {
       const childItems = existingItemsByParent.get(parentItem.id) || [];
       const childWeeks = new Set(childItems.map(item => item.weekIndex));
       
+      // Check all future weeks (0-3)
       for (let weekIdx = 0; weekIdx <= 3; weekIdx++) {
+        // Skip if this is the original week or if we already have this item for this week
         if (weekIdx === parentItem.weekIndex || childWeeks.has(weekIdx)) {
           continue;
         }
@@ -623,13 +631,16 @@ export default function EnhancedGroceryList() {
         
         switch (parentItem.recurring) {
           case 'weekly':
+            // Add to every week except the original
             shouldAddToWeek = true;
             break;
           case 'biweekly':
-            shouldAddToWeek = weekIdx % 2 === parentItem.weekIndex % 2;
+            // Add every 2 weeks from the original week
+            shouldAddToWeek = Math.abs(weekIdx - parentItem.weekIndex) % 2 === 0;
             break;
           case 'monthly':
-            shouldAddToWeek = (weekIdx - parentItem.weekIndex) % 4 === 0;
+            // Add every 4 weeks from the original week
+            shouldAddToWeek = Math.abs(weekIdx - parentItem.weekIndex) % 4 === 0;
             break;
         }
         
@@ -652,7 +663,7 @@ export default function EnhancedGroceryList() {
     });
     
     if (newItems.length > 0) {
-      setGroceryItems([...groceryItems, ...newItems]);
+      setGroceryItems(prevItems => [...prevItems, ...newItems]);
     }
   };
 
@@ -677,17 +688,10 @@ export default function EnhancedGroceryList() {
       aiCategory: pendingAISuggestion.category
     };
     
-    setGroceryItems([...groceryItems, newItem]);
+    setGroceryItems(prevItems => [...prevItems, newItem]);
     setNewItemName('');
     setIsAIItemDialogOpen(false);
     setPendingAISuggestion(null);
-    
-    // Process recurring items if this is a recurring item
-    if (pendingAIFrequency !== 'none') {
-      setTimeout(() => {
-        processRecurringItems();
-      }, 100);
-    }
   };
 
   const addSmartSuggestion = (suggestion: AISuggestion) => {
@@ -716,17 +720,11 @@ export default function EnhancedGroceryList() {
       recurring: pendingItemFrequency
     };
     
-    setGroceryItems([...groceryItems, newItem]);
+    setGroceryItems(prevItems => [...prevItems, newItem]);
     setNewItemName('');
     setPendingItemName('');
     setIsAddItemDialogOpen(false);
     setShowAISuggestions(false);
-    
-    if (pendingItemFrequency !== 'none') {
-      setTimeout(() => {
-        processRecurringItems();
-      }, 100);
-    }
   };
 
   const addItem = () => {
@@ -807,10 +805,6 @@ export default function EnhancedGroceryList() {
     
     setGroceryItems(updatedItems);
     setIsRecurringDialogOpen(false);
-    
-    setTimeout(() => {
-      processRecurringItems();
-    }, 100);
   };
 
   const getWeekTabs = () => {
