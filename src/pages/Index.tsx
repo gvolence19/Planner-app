@@ -284,67 +284,83 @@ export default function PlannerApp() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex flex-col sm:flex-row h-auto sm:h-16 items-center justify-between py-2 sm:py-4">
-          <h1 className="text-xl font-bold mb-2 sm:mb-0">
-            <AnimatedGradientText text="Task Planner" className="text-xl sm:text-2xl" />
-          </h1>
-          <div className="flex items-center gap-1 sm:gap-2">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      {/* Modern Header with glassmorphism */}
+      <header className="sticky top-0 z-50 glass-card border-0 border-b border-border/50">
+        <div className="container flex flex-col sm:flex-row h-auto sm:h-20 items-center justify-between py-4 sm:py-6">
+          <div className="flex items-center gap-3 mb-3 sm:mb-0">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg animate-pulse-glow">
+              <span className="text-xl font-bold text-primary-foreground">📋</span>
+            </div>
+            <h1 className="text-2xl font-bold">
+              <AnimatedGradientText text="Task Planner" className="text-2xl sm:text-3xl font-extrabold" />
+            </h1>
+          </div>
+          
+          {/* Modern Navigation */}
+          <div className="flex items-center gap-2 p-1 bg-muted/30 rounded-2xl backdrop-blur-sm">
             <Button
-              variant={view === 'list' ? 'default' : 'outline'}
+              variant="ghost"
               size="sm"
               onClick={() => setView('list')}
               title="List View"
-              className="rounded-full"
+              className={`nav-button rounded-xl px-3 py-2 ${view === 'list' ? 'nav-button-active' : ''}`}
             >
-              <ListChecks className="h-4 w-4 sm:h-5 sm:w-5" />
+              <ListChecks className="h-4 w-4" />
+              <span className="hidden sm:inline ml-2 text-xs font-medium">Tasks</span>
             </Button>
             <Button
-              variant={view === 'calendar' ? 'default' : 'outline'}
+              variant="ghost"
               size="sm"
               onClick={() => setView('calendar')}
               title="Calendar View"
-              className="rounded-full"
+              className={`nav-button rounded-xl px-3 py-2 ${view === 'calendar' ? 'nav-button-active' : ''}`}
             >
-              <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />
+              <Calendar className="h-4 w-4" />
+              <span className="hidden sm:inline ml-2 text-xs font-medium">Calendar</span>
             </Button>
             <Button
-              variant={view === 'grocery' ? 'default' : 'outline'}
+              variant="ghost"
               size="sm"
               onClick={() => setView('grocery')}
               title="Grocery List"
-              className="rounded-full"
+              className={`nav-button rounded-xl px-3 py-2 ${view === 'grocery' ? 'nav-button-active' : ''}`}
             >
-              <ShoppingBasket className="h-4 w-4 sm:h-5 sm:w-5" />
+              <ShoppingBasket className="h-4 w-4" />
+              <span className="hidden sm:inline ml-2 text-xs font-medium">Grocery</span>
             </Button>
             <Button
-              variant={view === 'meals' ? 'default' : 'outline'}
+              variant="ghost"
               size="sm"
               onClick={() => setView('meals')}
               title="Meal Reminders"
-              className="rounded-full"
+              className={`nav-button rounded-xl px-3 py-2 ${view === 'meals' ? 'nav-button-active' : ''}`}
             >
-              <Utensils className="h-4 w-4 sm:h-5 sm:w-5" />
+              <Utensils className="h-4 w-4" />
+              <span className="hidden sm:inline ml-2 text-xs font-medium">Meals</span>
             </Button>
             <Button
-              variant={view === 'sleep' ? 'default' : 'outline'}
+              variant="ghost"
               size="sm"
               onClick={() => setView('sleep')}
               title="Sleep & Wake Timers"
-              className="rounded-full"
+              className={`nav-button rounded-xl px-3 py-2 ${view === 'sleep' ? 'nav-button-active' : ''}`}
             >
-              <Moon className="h-4 w-4 sm:h-5 sm:w-5" />
+              <Moon className="h-4 w-4" />
+              <span className="hidden sm:inline ml-2 text-xs font-medium">Sleep</span>
             </Button>
+          </div>
+          
+          {/* Action Buttons */}
+          <div className="flex items-center gap-2 mt-3 sm:mt-0">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setIsCategoryManagerOpen(true)}
               title="Manage Categories"
-              className="rounded-full ml-1 sm:ml-2"
+              className="btn-modern rounded-xl"
             >
-              <Tags className="h-4 w-4 sm:h-5 sm:w-5" />
+              <Tags className="h-4 w-4" />
             </Button>
             <ThemeToggle />
             <SettingsDialog 
@@ -355,14 +371,14 @@ export default function PlannerApp() {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 container py-3 sm:py-6">
-        <div className="rounded-xl border shadow-sm bg-card text-card-foreground p-3 sm:p-4 mb-4 sm:mb-6">
+      {/* Main Content with enhanced styling */}
+      <main className="flex-1 container py-6 sm:py-8">
+        <div className="glass-card rounded-3xl p-6 sm:p-8 mb-6 animate-slide-up">
           {view === 'list' ? (
             <TaskList 
               tasks={tasks} 
               onUpdateTask={updateTask} 
-              onUpdateMultipleTasks={updateMultipleTasks} // NEW: Pass the batch update function
+              onUpdateMultipleTasks={updateMultipleTasks}
               onDeleteTask={deleteTask} 
               categories={categories} 
             />
@@ -384,22 +400,26 @@ export default function PlannerApp() {
         </div>
       </main>
 
-      {/* Add Task Button */}
-      <div className="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 flex flex-col gap-3 sm:gap-4">
-        {/* Voice Command Button */}
-        <VoiceCommandButton onAddTask={addTask} />
+      {/* Enhanced Floating Action Buttons */}
+      <div className="fixed bottom-6 right-6 flex flex-col gap-4 animate-slide-in-right">
+        {/* Voice Command Button with modern styling */}
+        <div className="relative">
+          <VoiceCommandButton onAddTask={addTask} />
+        </div>
         
-        {/* Add Task Button */}
+        {/* Enhanced Add Task Button */}
         <Button 
           size="lg" 
           onClick={() => setIsNewTaskDialogOpen(true)}
-          className="rounded-full h-12 w-12 sm:h-14 sm:w-14 shadow-lg btn-floating"
+          className="btn-floating h-16 w-16 relative group overflow-hidden"
+          title="Add New Task"
         >
-          <PlusCircle className="h-5 w-5 sm:h-6 sm:w-6" />
+          <PlusCircle className="h-6 w-6 transition-transform group-hover:rotate-90" />
+          <span className="absolute inset-0 rounded-full bg-white/20 transform scale-0 group-hover:scale-100 transition-transform"></span>
         </Button>
       </div>
 
-      {/* New Task Dialog */}
+      {/* Dialogs */}
       <NewTaskDialog 
         open={isNewTaskDialogOpen} 
         onOpenChange={setIsNewTaskDialogOpen} 
@@ -408,7 +428,6 @@ export default function PlannerApp() {
         tasks={tasks}
       />
 
-      {/* Category Manager Dialog */}
       <CategoryManager
         open={isCategoryManagerOpen}
         onOpenChange={setIsCategoryManagerOpen}

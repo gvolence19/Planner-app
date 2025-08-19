@@ -378,85 +378,262 @@ export default function CalendarView({ tasks, onUpdateTask, onDeleteTask, onAddT
         })}
       </div>
       
-      {/* List View of Events and Tasks for Selected Date (iOS Calendar style) */}
+      {/* Timeline View Combining Tasks and Events */}
       <div className="mt-6 border-t pt-4">
-        <h3 className="text-sm font-medium mb-3">
-          {selectedDate ? format(selectedDate, 'EEEE, MMMM d') : "Today's Schedule"}
-        </h3>
-        <div className="space-y-2">
-          {selectedDate && getEventsForDate(selectedDate).map((event) => (
-            <div 
-              key={event.id} 
-              className="flex items-start gap-3 p-2 rounded-md border hover:bg-muted/20 cursor-pointer"
-              onClick={() => handleEventClick(event)}
-            >
-              <div 
-                className="w-1 self-stretch rounded-full" 
-                style={{ backgroundColor: event.color || '#3b82f6' }}
-              ></div>
-              <div className="flex-1 min-w-0">
-                <h4 className="font-medium text-sm">{event.title}</h4>
-                <p className="text-xs text-muted-foreground">
-                  {event.allDay ? 'All day' : event.startTime ? format(new Date(event.startTime), 'h:mm a') : ''} 
-                  {event.endTime && !event.allDay ? ` - ${format(new Date(event.endTime), 'h:mm a')}` : ''}
-                </p>
-                {event.location && (
-                  <p className="text-xs text-muted-foreground flex items-center mt-1">
-                    <MapPin className="h-3 w-3 mr-1" />
-                    {event.location}
-                  </p>
-                )}
-              </div>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-medium">
+            {selectedDate ? format(selectedDate, 'EEEE, MMMM d') : "Today's Schedule"}
+          </h3>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+              <span>Events</span>
             </div>
-          ))}
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 rounded-full bg-green-500"></div>
+              <span>Tasks</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Timeline Container */}
+        <div className="relative">
+          {/* Timeline Line */}
+          <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-200 via-purple-200 to-green-200 rounded-full"></div>
           
-          {selectedDate && getTasksForDay(selectedDate).map((task) => (
-            <div 
-              key={task.id} 
-              className="flex items-start gap-3 p-2 rounded-md border hover:bg-muted/20 cursor-pointer"
-              onClick={() => setSelectedTask(task)}
-            >
-              <div 
-                className="w-1 self-stretch rounded-full" 
-                style={{ backgroundColor: getCategoryColor(task.category).replace('bg-', '') }}
-              ></div>
-              <div 
-                className="cursor-pointer mt-0.5"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const updatedTask = {...task, completed: !task.completed};
-                  onUpdateTask(updatedTask);
-                }}
-              >
-                <div className={`w-4 h-4 rounded-full flex items-center justify-center 
-                  ${task.completed ? 'bg-green-500 text-white' : 'border border-gray-400'}`}>
-                  {task.completed && <span className="text-[8px]">✓</span>}
-                </div>
-              </div>
-              <div className="flex-1 min-w-0">
-                <h4 className={`font-medium text-sm ${task.completed ? 'line-through text-muted-foreground' : ''}`}>
-                  {task.title}
-                </h4>
-                {task.dueDate && (
-                  <p className="text-xs text-muted-foreground">
-                    {format(new Date(task.dueDate), 'h:mm a')}
-                  </p>
-                )}
-                {task.location && (
-                  <p className="text-xs text-muted-foreground flex items-center mt-1">
-                    <MapPin className="h-3 w-3 mr-1" />
-                    {typeof task.location === 'string' ? task.location : task.location.description}
-                  </p>
-                )}
-              </div>
-            </div>
-          ))}
-          
-          {selectedDate && getEventsForDate(selectedDate).length === 0 && getTasksForDay(selectedDate).length === 0 && (
-            <div className="text-center py-6 text-muted-foreground text-sm">
-              No events or tasks scheduled for {isSameDay(selectedDate, new Date()) ? "today" : format(selectedDate, 'MMM d')}
-            </div>
-          )}
+          <div className="space-y-3">
+            {(() => {
+              // Combine and sort events and tasks by time
+              const selectedEvents = selectedDate ? getEventsForDate(selectedDate) : [];
+              const selectedTasks = selectedDate ? getTasksForDay(selectedDate) : [];
+              
+              const timelineItems: Array<{
+                type: 'event' | 'task';
+                time: Date | null;
+                item: CalendarEvent | Task;
+                sortTime: number;
+              }> = [];
+              
+              // Add events to timeline
+              selectedEvents.forEach(event => {
+                const eventTime = event.startTime ? new Date(event.startTime) : null;
+                timelineItems.push({
+                  type: 'event',
+                  time: eventTime,
+                  item: event,
+                  sortTime: eventTime ? eventTime.getTime() : (event.allDay ? 0 : Number.MAX_SAFE_INTEGER)
+                });
+              });
+              
+              // Add tasks to timeline
+              selectedTasks.forEach(task => {
+                const taskTime = task.dueDate ? new Date(task.dueDate) : null;
+                timelineItems.push({
+                  type: 'task',
+                  time: taskTime,
+                  item: task,
+                  sortTime: taskTime ? taskTime.getTime() : Number.MAX_SAFE_INTEGER
+                });
+              });
+              
+              // Sort by time (all-day events first, then by time, then no-time items last)
+              timelineItems.sort((a, b) => {
+                if (a.type === 'event' && (a.item as CalendarEvent).allDay && b.type === 'event' && !(b.item as CalendarEvent).allDay) return -1;
+                if (b.type === 'event' && (b.item as CalendarEvent).allDay && a.type === 'event' && !(a.item as CalendarEvent).allDay) return 1;
+                if (a.type === 'event' && (a.item as CalendarEvent).allDay && b.type === 'event' && (b.item as CalendarEvent).allDay) return 0;
+                return a.sortTime - b.sortTime;
+              });
+              
+              if (timelineItems.length === 0) {
+                return (
+                  <div className="text-center py-8 text-muted-foreground text-sm">
+                    <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-muted/30 flex items-center justify-center">
+                      📅
+                    </div>
+                    No events or tasks scheduled for {selectedDate && isSameDay(selectedDate, new Date()) ? "today" : selectedDate ? format(selectedDate, 'MMM d') : 'this date'}
+                  </div>
+                );
+              }
+              
+              return timelineItems.map((timelineItem, index) => {
+                const { type, time, item } = timelineItem;
+                const isEvent = type === 'event';
+                const event = isEvent ? item as CalendarEvent : null;
+                const task = !isEvent ? item as Task : null;
+                
+                return (
+                  <div key={`${type}-${item.id}`} className="relative flex items-start gap-4 group">
+                    {/* Timeline Node */}
+                    <div className="relative z-10 flex-shrink-0">
+                      <div className={`w-4 h-4 rounded-full border-2 border-white shadow-sm ${
+                        isEvent ? 'bg-blue-500' : task?.completed ? 'bg-green-500' : 'bg-orange-500'
+                      } transition-transform group-hover:scale-110`}>
+                      </div>
+                    </div>
+                    
+                    {/* Time Column */}
+                    <div className="w-16 flex-shrink-0 text-right">
+                      <div className="text-xs font-medium text-muted-foreground">
+                        {time ? (
+                          isEvent && event?.allDay ? (
+                            <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full">
+                              ALL DAY
+                            </span>
+                          ) : (
+                            format(time, 'h:mm a')
+                          )
+                        ) : (
+                          <span className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full">
+                            NO TIME
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Content */}
+                    <div className={`flex-1 min-w-0 p-3 rounded-lg border transition-all cursor-pointer ${
+                      isEvent 
+                        ? 'bg-blue-50/50 border-blue-200/50 hover:bg-blue-100/50' 
+                        : task?.completed 
+                          ? 'bg-green-50/50 border-green-200/50 hover:bg-green-100/50 opacity-75'
+                          : 'bg-orange-50/50 border-orange-200/50 hover:bg-orange-100/50'
+                    }`}
+                    onClick={() => {
+                      if (isEvent && event) {
+                        handleEventClick(event);
+                      } else if (task) {
+                        setSelectedTask(task);
+                      }
+                    }}>
+                      <div className="flex items-start gap-3">
+                        {/* Color indicator */}
+                        <div 
+                          className="w-1 h-12 rounded-full flex-shrink-0" 
+                          style={{ 
+                            backgroundColor: isEvent 
+                              ? event?.color || '#3b82f6' 
+                              : getCategoryColor(task?.category).includes('bg-') 
+                                ? getCategoryColor(task?.category).replace('bg-', '#') 
+                                : '#f59e0b'
+                          }}
+                        />
+                        
+                        {/* Task checkbox (for tasks only) */}
+                        {task && (
+                          <div 
+                            className="cursor-pointer mt-1"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const updatedTask = {...task, completed: !task.completed};
+                              onUpdateTask(updatedTask);
+                            }}
+                          >
+                            <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all ${
+                              task.completed 
+                                ? 'bg-green-500 text-white shadow-sm' 
+                                : 'border-2 border-gray-300 hover:border-green-400'
+                            }`}>
+                              {task.completed && <span className="text-xs">✓</span>}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <h4 className={`font-medium text-sm leading-tight ${
+                              task?.completed ? 'line-through text-muted-foreground' : ''
+                            }`}>
+                              {isEvent ? event?.title : task?.title}
+                              {/* Fun emojis for tasks */}
+                              {task && !task.completed && (
+                                <span className="ml-2">
+                                  {task.priority === 'high' ? '🔥' : task.priority === 'medium' ? '⚡' : '✨'}
+                                </span>
+                              )}
+                              {task?.completed && <span className="ml-2">🎉</span>}
+                            </h4>
+                            
+                            {/* Type badge */}
+                            <div className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                              isEvent 
+                                ? 'bg-blue-100 text-blue-700' 
+                                : 'bg-orange-100 text-orange-700'
+                            }`}>
+                              {isEvent ? 'EVENT' : 'TASK'}
+                            </div>
+                          </div>
+                          
+                          {/* Duration/Time info */}
+                          <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
+                            {isEvent && event && (
+                              <>
+                                {event.allDay ? (
+                                  <span>All day event</span>
+                                ) : event.endTime ? (
+                                  <span>
+                                    {event.startTime && event.endTime && 
+                                      `${format(new Date(event.startTime), 'h:mm a')} - ${format(new Date(event.endTime), 'h:mm a')}`
+                                    }
+                                  </span>
+                                ) : null}
+                                {event.source && (
+                                  <Badge variant="secondary" className="text-[9px] px-1 py-0">
+                                    {event.source === 'google' ? 'Google' : event.source}
+                                  </Badge>
+                                )}
+                              </>
+                            )}
+                            
+                            {task && (
+                              <div className="flex items-center gap-2">
+                                {task.priority && (
+                                  <span className={`px-1.5 py-0.5 rounded text-[9px] font-medium ${
+                                    task.priority === 'high' ? 'bg-red-100 text-red-700' :
+                                    task.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                                    'bg-green-100 text-green-700'
+                                  }`}>
+                                    {task.priority.toUpperCase()}
+                                  </span>
+                                )}
+                                {task.category && (
+                                  <span className="text-[10px] text-muted-foreground">
+                                    {task.category}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Location */}
+                          {((isEvent && event?.location) || (task && task.location)) && (
+                            <div className="flex items-center mt-2 text-xs text-muted-foreground">
+                              <MapPin className="h-3 w-3 mr-1 flex-shrink-0" />
+                              <span className="truncate">
+                                {isEvent 
+                                  ? event?.location 
+                                  : typeof task?.location === 'string' 
+                                    ? task.location 
+                                    : task?.location?.description
+                                }
+                              </span>
+                            </div>
+                          )}
+                          
+                          {/* Description preview */}
+                          {((isEvent && event?.description) || (task && task.description)) && (
+                            <div className="mt-2 text-xs text-muted-foreground line-clamp-2">
+                              {isEvent ? event?.description : task?.description}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              });
+            })()}
+          </div>
         </div>
       </div>
 

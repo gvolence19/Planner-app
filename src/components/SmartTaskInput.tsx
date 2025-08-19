@@ -300,7 +300,7 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
     }
 
     // Clean the title by removing extracted information
-    let title = cleanText
+    const title = cleanText
       .replace(/\b(urgent|asap|emergency|critical|important|high|low|minor|when\s+free|eventually|someday|medium|normal|regular)\b/gi, '')
       .replace(/\b(?:at|in|@)\s+[^,.\n]+/gi, '')
       .replace(/\b\d+\s*(min|minute|minutes|hour|hours|h)\b/gi, '')
