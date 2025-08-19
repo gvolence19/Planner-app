@@ -427,7 +427,26 @@ export default function CalendarView({ tasks, onUpdateTask, onDeleteTask, onAddT
               
               // Add tasks to timeline
               selectedTasks.forEach(task => {
-                const taskTime = task.dueDate ? new Date(task.dueDate) : null;
+                let taskTime = null;
+                if (task.dueDate) {
+                  const taskDate = new Date(task.dueDate);
+                  
+                  // If task has a startTime field (like "14:30"), combine it with the due date
+                  if (task.startTime && task.startTime.trim()) {
+                    const [hours, minutes] = task.startTime.split(':').map(Number);
+                    if (!isNaN(hours) && !isNaN(minutes)) {
+                      const combinedDateTime = new Date(taskDate);
+                      combinedDateTime.setHours(hours, minutes, 0, 0);
+                      taskTime = combinedDateTime;
+                    }
+                  } else {
+                    // Check if the dueDate itself has time information
+                    const dueDateStr = typeof task.dueDate === 'string' ? task.dueDate : task.dueDate.toString();
+                    const hasSpecificTime = dueDateStr.includes('T') || 
+                                           (taskDate.getHours() !== 0 || taskDate.getMinutes() !== 0);
+                    taskTime = hasSpecificTime ? taskDate : null;
+                  }
+                }
                 timelineItems.push({
                   type: 'task',
                   time: taskTime,
@@ -436,11 +455,24 @@ export default function CalendarView({ tasks, onUpdateTask, onDeleteTask, onAddT
                 });
               });
               
-              // Sort by time (all-day events first, then by time, then no-time items last)
+              // Sort by time (all-day events first, then timed items, then no-time items last)
               timelineItems.sort((a, b) => {
-                if (a.type === 'event' && (a.item as CalendarEvent).allDay && b.type === 'event' && !(b.item as CalendarEvent).allDay) return -1;
-                if (b.type === 'event' && (b.item as CalendarEvent).allDay && a.type === 'event' && !(a.item as CalendarEvent).allDay) return 1;
-                if (a.type === 'event' && (a.item as CalendarEvent).allDay && b.type === 'event' && (b.item as CalendarEvent).allDay) return 0;
+                const aIsAllDay = a.type === 'event' && (a.item as CalendarEvent).allDay;
+                const bIsAllDay = b.type === 'event' && (b.item as CalendarEvent).allDay;
+                const aHasNoTime = a.time === null;
+                const bHasNoTime = b.time === null;
+                
+                // All-day events come first
+                if (aIsAllDay && !bIsAllDay) return -1;
+                if (bIsAllDay && !aIsAllDay) return 1;
+                if (aIsAllDay && bIsAllDay) return 0;
+                
+                // Items with no time come last
+                if (aHasNoTime && !bHasNoTime) return 1;
+                if (bHasNoTime && !aHasNoTime) return -1;
+                if (aHasNoTime && bHasNoTime) return 0;
+                
+                // Sort by time for items that have specific times
                 return a.sortTime - b.sortTime;
               });
               
@@ -484,7 +516,7 @@ export default function CalendarView({ tasks, onUpdateTask, onDeleteTask, onAddT
                           )
                         ) : (
                           <span className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full">
-                            NO TIME
+                            {isEvent ? 'ALL DAY' : 'NO TIME'}
                           </span>
                         )}
                       </div>
