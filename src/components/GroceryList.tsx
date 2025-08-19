@@ -944,7 +944,7 @@ export default function EnhancedGroceryList() {
               
               {/* AI Suggestions Dropdown */}
               {showAISuggestions && activeWeek === index && (
-                <Card className="absolute z-50 w-full mt-1 border-purple-200 shadow-xl bg-white">
+                <Card className="absolute z-50 w-full mt-1 border-purple-200 shadow-xl bg-background">
                   <CardContent className="p-0">
                     {isLoadingSuggestions ? (
                       <div className="p-4 text-center">
@@ -973,12 +973,12 @@ export default function EnhancedGroceryList() {
                               <div className="flex items-center gap-3">
                                 <span className="text-xl">{getAIIcon(suggestion.category, suggestion.name)}</span>
                                 <div>
-                                  <div className="font-medium text-sm text-gray-900">
+                                  <div className="font-medium text-sm text-foreground">
                                     {suggestion.name}
                                   </div>
                                   <div className="text-xs text-purple-600 flex items-center gap-1">
                                     <span>{suggestion.reason}</span>
-                                    <span className="text-gray-400">•</span>
+                                    <span className="text-muted-foreground">•</span>
                                     <span className="capitalize">{suggestion.category}</span>
                                   </div>
                                 </div>
@@ -994,14 +994,14 @@ export default function EnhancedGroceryList() {
                             </button>
                           ))}
                         </div>
-                        <div className="px-3 py-2 bg-gray-50 border-t border-gray-100">
-                          <div className="text-xs text-gray-500 text-center">
+                        <div className="px-3 py-2 bg-muted/50 border-t border-border">
+                          <div className="text-xs text-muted-foreground text-center">
                             Press ↵ for top suggestion • ↑↓ to navigate • Esc to close
                           </div>
                         </div>
                       </div>
                     ) : newItemName.trim() && (
-                      <div className="p-4 text-center text-gray-500">
+                      <div className="p-4 text-center text-muted-foreground">
                         <Lightbulb className="h-4 w-4 mx-auto mb-1 opacity-50" />
                         <div className="text-sm">No suggestions found</div>
                         <div className="text-xs">Press Enter to add "{newItemName}"</div>
@@ -1026,7 +1026,7 @@ export default function EnhancedGroceryList() {
                     item.recurring !== 'none' || item.recurringParentId 
                       ? 'border-blue-200' 
                       : item.isAISuggested 
-                        ? 'border-purple-200 bg-gradient-to-r from-purple-50/50 to-pink-50/50' 
+                        ? 'border-purple-200 dark:bg-black dark:text-white' 
                         : ''
                   }>
                     <CardContent className="p-4">
@@ -1054,7 +1054,7 @@ export default function EnhancedGroceryList() {
                               )}
                             </div>
                             {(item.recurring !== 'none' || item.recurringParentId) && (
-                              <Badge variant="outline" className="mt-1 bg-blue-50">
+                              <Badge variant="outline" className="mt-1 bg-blue-50 dark:bg-blue-900/20">
                                 <Repeat className="h-3 w-3 mr-1" />
                                 {item.recurring !== 'none' ? getRecurringLabel(item.recurring) : 'Recurring'}
                               </Badge>

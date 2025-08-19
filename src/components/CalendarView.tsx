@@ -52,7 +52,7 @@ const CalendarEventDetailModal = ({ event, open, onOpenChange }: {
 
   return (
     <div className={`fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 ${open ? 'block' : 'hidden'}`}>
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-y-auto">
+      <div className="bg-background text-foreground rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-y-auto border">
         <div className="p-6">
           <div className="flex items-start gap-3 mb-4">
             <div 
@@ -71,7 +71,7 @@ const CalendarEventDetailModal = ({ event, open, onOpenChange }: {
               variant="ghost"
               size="sm"
               onClick={() => onOpenChange(false)}
-              className="text-gray-500 hover:text-gray-700"
+              className="text-muted-foreground hover:text-foreground"
             >
               ✕
             </Button>
@@ -505,17 +505,17 @@ export default function CalendarView({ tasks, onUpdateTask, onDeleteTask, onAddT
                     
                     {/* Time Column */}
                     <div className="w-16 flex-shrink-0 text-right">
-                      <div className="text-xs font-medium text-muted-foreground">
+                      <div className="text-xs font-medium text-muted-foreground dark:text-white">
                         {time ? (
                           isEvent && event?.allDay ? (
-                            <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full">
+                            <span className="text-[10px] bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 px-1.5 py-0.5 rounded-full">
                               ALL DAY
                             </span>
                           ) : (
                             format(time, 'h:mm a')
                           )
                         ) : (
-                          <span className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full">
+                          <span className="text-[10px] bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 px-1.5 py-0.5 rounded-full">
                             {isEvent ? 'ALL DAY' : 'NO TIME'}
                           </span>
                         )}
@@ -525,10 +525,10 @@ export default function CalendarView({ tasks, onUpdateTask, onDeleteTask, onAddT
                     {/* Content */}
                     <div className={`flex-1 min-w-0 p-3 rounded-lg border transition-all cursor-pointer ${
                       isEvent 
-                        ? 'bg-blue-50/50 border-blue-200/50 hover:bg-blue-100/50' 
+                        ? 'bg-blue-50/50 border-blue-200/50 hover:bg-blue-100/50 dark:bg-blue-900/20 dark:border-blue-800/30 dark:hover:bg-blue-900/30' 
                         : task?.completed 
-                          ? 'bg-green-50/50 border-green-200/50 hover:bg-green-100/50 opacity-75'
-                          : 'bg-orange-50/50 border-orange-200/50 hover:bg-orange-100/50'
+                          ? 'bg-green-50/50 border-green-200/50 hover:bg-green-100/50 opacity-75 dark:bg-green-900/20 dark:border-green-800/30 dark:hover:bg-green-900/30'
+                          : 'bg-orange-50/50 border-orange-200/50 hover:bg-orange-100/50 dark:bg-orange-900/20 dark:border-orange-800/30 dark:hover:bg-orange-900/30'
                     }`}
                     onClick={() => {
                       if (isEvent && event) {
@@ -574,7 +574,7 @@ export default function CalendarView({ tasks, onUpdateTask, onDeleteTask, onAddT
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2">
                             <h4 className={`font-medium text-sm leading-tight ${
-                              task?.completed ? 'line-through text-muted-foreground' : ''
+                              task?.completed ? 'line-through text-muted-foreground dark:text-gray-400' : 'dark:text-white'
                             }`}>
                               {isEvent ? event?.title : task?.title}
                               {/* Fun emojis for tasks */}
@@ -597,7 +597,7 @@ export default function CalendarView({ tasks, onUpdateTask, onDeleteTask, onAddT
                           </div>
                           
                           {/* Duration/Time info */}
-                          <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground dark:text-gray-300">
                             {isEvent && event && (
                               <>
                                 {event.allDay ? (
@@ -654,7 +654,7 @@ export default function CalendarView({ tasks, onUpdateTask, onDeleteTask, onAddT
                           
                           {/* Description preview */}
                           {((isEvent && event?.description) || (task && task.description)) && (
-                            <div className="mt-2 text-xs text-muted-foreground line-clamp-2">
+                            <div className="mt-2 text-xs text-muted-foreground dark:text-gray-300 line-clamp-2">
                               {isEvent ? event?.description : task?.description}
                             </div>
                           )}
