@@ -275,9 +275,8 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
       toast.error('No alarm sounds could be loaded. Please check that MP3 files are in the /public/sounds/ folder.');
     } else if (availableCount < ALARM_SOUNDS.length) {
       toast.warning(`Only ${availableCount} of ${ALARM_SOUNDS.length} alarm sounds are available.`);
-    } else {
-      toast.success('All alarm sounds loaded successfully!');
     }
+    // Removed success toast to avoid popup notification
   };
 
   useEffect(() => {
@@ -794,20 +793,7 @@ export default function SleepWakeManager({ onAddTask }: SleepWakeManagerProps) {
         )}
       </div>
 
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle className="text-sm">💡 Tips</CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground space-y-2">
-          <p>• <strong>Alarms</strong> will play sound and show persistent notifications</p>
-          <p>• <strong>Reminders</strong> show silent toast notifications</p>
-          <p>• Enable browser notifications for the best experience</p>
-          <p>• Wake timers can automatically add morning routine tasks</p>
-          <p>• Use the preview button to test alarm sounds before saving</p>
-          <p>• <strong>Required files:</strong> street-alarm.mp3, warning-buzzer.mp3, vintage-alarm.mp3 in /public/sounds/</p>
-          <p>• MP3 format provides better browser compatibility than WAV</p>
-        </CardContent>
-      </Card>
+
     </div>
   );
 }
