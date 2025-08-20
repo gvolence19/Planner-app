@@ -120,16 +120,7 @@ export default function CategoryManager({
             />
           </div>
           
-          <div className="flex flex-col space-y-2">
-            <Label htmlFor="categoryIcon">Icon (Optional)</Label>
-            <Input
-              id="categoryIcon"
-              value={categoryIcon}
-              onChange={(e) => setCategoryIcon(e.target.value)}
-              placeholder="Enter emoji icon (e.g., 💼, 🏠, 🛒)"
-              className="text-lg"
-            />
-          </div>
+
           
           <div className="space-y-2">
             <Label>Select Color</Label>
