@@ -141,8 +141,9 @@ export default function EditTaskDialog({ task, open, onOpenChange, onUpdateTask,
                 <SelectContent>
                   {availableCategories.map((cat) => (
                     <SelectItem key={cat.name} value={cat.name}>
-                      <div className="flex items-center">
-                        <div className={`w-3 h-3 rounded-full ${cat.color} mr-2`} />
+                      <div className="flex items-center gap-2">
+                        {cat.icon && <span className="text-base">{cat.icon}</span>}
+                        <div className={`w-3 h-3 rounded-full ${cat.color}`} />
                         <span>{cat.name}</span>
                       </div>
                     </SelectItem>

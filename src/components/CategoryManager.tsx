@@ -43,26 +43,34 @@ export default function CategoryManager({
   onCategoriesChange 
 }: CategoryManagerProps) {
   const [categoryName, setCategoryName] = useState('');
+  const [categoryIcon, setCategoryIcon] = useState('');
   const [selectedColor, setSelectedColor] = useState(PRESET_COLORS[0].value);
   const [editIndex, setEditIndex] = useState<number | null>(null);
 
   const handleAddCategory = () => {
     if (!categoryName.trim()) return;
     
-    const newCategory = {
+    const newCategory: TaskCategory = {
       name: categoryName.trim(),
-      color: selectedColor
+      color: selectedColor,
+      icon: categoryIcon.trim() || undefined
     };
+    
+    console.log('Adding category:', newCategory);
+    console.log('Current categories:', categories);
     
     if (editIndex !== null) {
       // Edit existing category
       const updatedCategories = [...categories];
       updatedCategories[editIndex] = newCategory;
+      console.log('Updated categories (edit):', updatedCategories);
       onCategoriesChange(updatedCategories);
       setEditIndex(null);
     } else {
       // Add new category
-      onCategoriesChange([...categories, newCategory]);
+      const newCategories = [...categories, newCategory];
+      console.log('Updated categories (add):', newCategories);
+      onCategoriesChange(newCategories);
     }
     
     resetForm();
@@ -82,12 +90,14 @@ export default function CategoryManager({
   const handleEditCategory = (index: number) => {
     const category = categories[index];
     setCategoryName(category.name);
+    setCategoryIcon(category.icon || '');
     setSelectedColor(category.color);
     setEditIndex(index);
   };
 
   const resetForm = () => {
     setCategoryName('');
+    setCategoryIcon('');
     setSelectedColor(PRESET_COLORS[0].value);
     setEditIndex(null);
   };
@@ -107,6 +117,17 @@ export default function CategoryManager({
               value={categoryName}
               onChange={(e) => setCategoryName(e.target.value)}
               placeholder="Enter category name"
+            />
+          </div>
+          
+          <div className="flex flex-col space-y-2">
+            <Label htmlFor="categoryIcon">Icon (Optional)</Label>
+            <Input
+              id="categoryIcon"
+              value={categoryIcon}
+              onChange={(e) => setCategoryIcon(e.target.value)}
+              placeholder="Enter emoji icon (e.g., 💼, 🏠, 🛒)"
+              className="text-lg"
             />
           </div>
           
@@ -162,6 +183,9 @@ export default function CategoryManager({
                 <div key={index} className="flex items-center justify-between p-3">
                   <div className="flex items-center">
                     <div className={`w-4 h-4 rounded-full ${category.color} mr-2`} />
+                    {category.icon && (
+                      <span className="text-lg mr-2">{category.icon}</span>
+                    )}
                     <span>{category.name}</span>
                   </div>
                   <div className="flex items-center gap-1">

@@ -93,7 +93,7 @@ export default function TaskCard({
       !task.completed && task.priority === 'low' && "border-l-4 border-l-green-400",
       !task.completed && !task.priority && category?.color && `border-l-4 border-l-[${category.color}]`,
       // AI task modern styling
-      isAISuggested && "bg-gradient-to-r from-purple-50/80 via-white to-pink-50/80 border-purple-200",
+      isAISuggested && "bg-gradient-to-r from-purple-50/80 via-white to-pink-50/80 border-purple-200 dark:from-purple-900/30 dark:via-card dark:to-pink-900/30 dark:border-purple-700",
       className
     )}>
       {/* Completion Status Indicator */}
@@ -212,13 +212,16 @@ export default function TaskCard({
                 </div>
               )}
               
-              {/* Category */}
+              {/* Category with Icon */}
               {task.category && (
                 <div className={cn(
-                  "badge-modern",
+                  "badge-modern flex items-center gap-1.5",
                   category?.color && `bg-[${category.color}]/10 text-[${category.color}] border-[${category.color}]/30`
                 )}>
-                  {typeof task.category === 'string' ? task.category : task.category?.name || 'Unknown'}
+                  {category?.icon && (
+                    <span className="text-sm">{category.icon}</span>
+                  )}
+                  <span>{typeof task.category === 'string' ? task.category : task.category?.name || 'Unknown'}</span>
                 </div>
               )}
               

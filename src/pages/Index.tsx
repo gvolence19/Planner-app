@@ -28,7 +28,7 @@ export default function PlannerApp() {
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
   const { isPremium } = useSubscription();
 
-  // Fix date objects that come from localStorage as strings
+  // Fix date objects that come from localStorage as strings and migrate categories
   useEffect(() => {
     if (tasks.length > 0) {
       const fixedTasks = tasks.map(task => ({
@@ -39,6 +39,31 @@ export default function PlannerApp() {
         recurring: task.recurring || 'none'
       }));
       setTasks(fixedTasks);
+    }
+
+    // Migrate categories to ensure icons are present and all default categories exist
+    const existingCategoryNames = categories.map(cat => cat.name);
+    
+    // Start with existing categories, adding icons if missing
+    const migratedCategories = categories.map(existingCat => {
+      const defaultCat = DEFAULT_CATEGORIES.find(cat => cat.name === existingCat.name);
+      if (defaultCat && !existingCat.icon) {
+        return { ...existingCat, icon: defaultCat.icon };
+      }
+      return existingCat;
+    });
+    
+    // Add any missing default categories
+    const finalCategories = [...migratedCategories];
+    DEFAULT_CATEGORIES.forEach(defaultCat => {
+      if (!existingCategoryNames.includes(defaultCat.name)) {
+        finalCategories.push(defaultCat);
+      }
+    });
+
+    // Update categories if migration is needed
+    if (JSON.stringify(finalCategories) !== JSON.stringify(categories)) {
+      setCategories(finalCategories);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -222,43 +247,24 @@ export default function PlannerApp() {
 
   // Handle category deletion - reassign tasks to "Other" if their category is deleted
   const handleCategoriesChange = (newCategories: TaskCategory[]) => {
+    console.log('handleCategoriesChange called with:', newCategories);
+    console.log('Current categories:', categories);
+    console.log('isPremium:', isPremium);
+    
     // Find category names that have been removed
     const oldCategoryNames = categories.map(c => c.name);
     const newCategoryNames = newCategories.map(c => c.name);
     const removedCategories = oldCategoryNames.filter(name => !newCategoryNames.includes(name));
     
-    // For free users, ensure they can't have more than the allowed categories
+    // For free users, enforce the category count limit (not whitelist)
     if (!isPremium) {
-      // Limit to free categories, always keeping the default ones
-      const freeCategoriesToKeep = newCategories.filter(
-        cat => FREE_CATEGORIES.includes(cat.name)
-      ).slice(0, FREE_CATEGORIES.length);
+      const maxCategories = 15; // From SUBSCRIPTION_FEATURES.free.maxCategories
       
-      if (freeCategoriesToKeep.length < newCategories.length) {
-        // Update tasks to reassign those with premium categories
-        const premiumCategoryNames = newCategories
-          .filter(cat => !FREE_CATEGORIES.includes(cat.name))
-          .map(cat => cat.name);
-        
-        // Reassign tasks from premium categories to "Other" or first available free category
-        const otherCategory = freeCategoriesToKeep.find(c => c.name === "Other") || freeCategoriesToKeep[0];
-        
-        if (premiumCategoryNames.length > 0) {
-          const updatedTasks = tasks.map(task => {
-            if (task.category && premiumCategoryNames.includes(task.category)) { // Fixed: removed .name
-              return {
-                ...task,
-                category: otherCategory?.name // Fixed: assign category name, not object
-              };
-            }
-            return task;
-          });
-          
-          setTasks(updatedTasks);
-        }
-        
-        // Only keep the free categories
-        newCategories = freeCategoriesToKeep;
+      if (newCategories.length > maxCategories) {
+        // If exceeding limit, keep only the first maxCategories
+        const limitedCategories = newCategories.slice(0, maxCategories);
+        console.log('Limiting categories to:', limitedCategories);
+        newCategories = limitedCategories;
       }
     }
     
