@@ -117,7 +117,7 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add New Task</DialogTitle>
         </DialogHeader>
@@ -322,7 +322,7 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
 
           <div className="space-y-2">
             <div className="flex items-center gap-1.5">
-              <Label htmlFor="location">Location</Label>
+              <Label>Location</Label>
               {!isPremium && (
                 <div className="flex items-center text-xs text-amber-500 dark:text-amber-400">
                   <Lock className="h-3 w-3 mr-0.5" />
@@ -335,6 +335,7 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
               onChange={setLocation}
               disabled={!isPremium}
               placeholder={isPremium ? "Enter location" : "Upgrade to premium to add locations"}
+              label=""
             />
           </div>
           

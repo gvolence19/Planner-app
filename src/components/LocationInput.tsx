@@ -8,6 +8,8 @@ interface LocationInputProps {
   onChange: (value: string) => void;
   id?: string;
   label?: string;
+  disabled?: boolean;
+  placeholder?: string;
 }
 
 // Use the eslint-disable comment to bypass the no-explicit-any rule for this specific case
@@ -21,7 +23,14 @@ declare global {
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
-export default function LocationInput({ value, onChange, id = "location", label = "Location" }: LocationInputProps) {
+export default function LocationInput({ 
+  value, 
+  onChange, 
+  id = "location", 
+  label = "Location", 
+  disabled = false,
+  placeholder = "Enter location (e.g., 123 Main St, City)"
+}: LocationInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   /* eslint-disable @typescript-eslint/no-explicit-any */
   const autocompleteRef = useRef<any>(null);
@@ -185,8 +194,9 @@ export default function LocationInput({ value, onChange, id = "location", label 
           ref={inputRef}
           type="text"
           value={manualInput}
-          placeholder="Enter location (e.g., 123 Main St, City)"
+          placeholder={placeholder}
           className="pr-8"
+          disabled={disabled}
           onChange={handleInputChange}
           onFocus={() => {
             // Try to initialize on focus in case it wasn't initialized earlier
