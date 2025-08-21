@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Calendar, ListChecks, ShoppingBasket, Tags, Utensils, Moon } from 'lucide-react';
+import { PlusCircle, Calendar, ListChecks, ShoppingBasket, Tags, Utensils, Moon, FolderOpen, FileText, Filter } from 'lucide-react';
 import TaskList from '@/components/TaskList';
 import CalendarView from '@/components/CalendarView';
 import GroceryList from '@/components/GroceryList';
@@ -8,11 +8,15 @@ import VoiceCommandButton from '@/components/VoiceCommandButton';
 import NewTaskDialog from '@/components/NewTaskDialog';
 import CategoryManager from '@/components/CategoryManager';
 import SettingsDialog from '@/components/SettingsDialog';
+import ProjectManager from '@/components/ProjectManager';
+import TaskTemplateManager from '@/components/TaskTemplateManager';
+import AdvancedTaskFilter from '@/components/AdvancedTaskFilter';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import AnimatedGradientText from '@/components/AnimatedGradientText';
 import MealReminderManager from '@/components/MealReminderManager';
 import SleepWakeManager from '@/components/SleepWakeManager';
 import { Task, TaskCategory, DEFAULT_CATEGORIES } from '@/types';
+import { Project, TaskTemplate, TaskFilter } from '@/types/project';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { FREE_CATEGORIES } from '@/types/subscription';
 import { useLocalStorage } from '@/hooks/use-local-storage';
@@ -26,6 +30,14 @@ export default function PlannerApp() {
   const [isNewTaskDialogOpen, setIsNewTaskDialogOpen] = useLocalStorage<boolean>('planner-new-task-dialog', false);
   const [isCategoryManagerOpen, setIsCategoryManagerOpen] = useState(false);
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
+  const [isProjectManagerOpen, setIsProjectManagerOpen] = useState(false);
+  const [isTaskTemplateManagerOpen, setIsTaskTemplateManagerOpen] = useState(false);
+  const [isAdvancedFilterOpen, setIsAdvancedFilterOpen] = useState(false);
+  
+  // Premium feature state
+  const [projects, setProjects] = useLocalStorage<Project[]>('planner-projects', []);
+  const [taskTemplates, setTaskTemplates] = useLocalStorage<TaskTemplate[]>('planner-templates', []);
+  const [currentFilter, setCurrentFilter] = useLocalStorage<TaskFilter>('planner-filter', {});
   const { isPremium } = useSubscription();
 
   // Fix date objects that come from localStorage as strings and migrate categories
@@ -368,6 +380,38 @@ export default function PlannerApp() {
             >
               <Tags className="h-4 w-4" />
             </Button>
+            
+            {/* Premium Feature Buttons */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsProjectManagerOpen(true)}
+              title="Manage Projects"
+              className="btn-modern rounded-xl"
+            >
+              <FolderOpen className="h-4 w-4" />
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsTaskTemplateManagerOpen(true)}
+              title="Task Templates"
+              className="btn-modern rounded-xl"
+            >
+              <FileText className="h-4 w-4" />
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsAdvancedFilterOpen(true)}
+              title="Advanced Filter"
+              className="btn-modern rounded-xl"
+            >
+              <Filter className="h-4 w-4" />
+            </Button>
+            
             <ThemeToggle />
             <SettingsDialog 
               open={isSettingsDialogOpen} 
@@ -439,6 +483,33 @@ export default function PlannerApp() {
         onOpenChange={setIsCategoryManagerOpen}
         categories={categories}
         onCategoriesChange={handleCategoriesChange}
+      />
+
+      <ProjectManager
+        open={isProjectManagerOpen}
+        onOpenChange={setIsProjectManagerOpen}
+        projects={projects}
+        onProjectsChange={setProjects}
+        isPremium={isPremium}
+      />
+
+      <TaskTemplateManager
+        open={isTaskTemplateManagerOpen}
+        onOpenChange={setIsTaskTemplateManagerOpen}
+        templates={taskTemplates}
+        onTemplatesChange={setTaskTemplates}
+        categories={categories}
+        isPremium={isPremium}
+      />
+
+      <AdvancedTaskFilter
+        open={isAdvancedFilterOpen}
+        onOpenChange={setIsAdvancedFilterOpen}
+        filter={currentFilter}
+        onFilterChange={setCurrentFilter}
+        categories={categories}
+        projects={projects}
+        isPremium={isPremium}
       />
     </div>
   );
