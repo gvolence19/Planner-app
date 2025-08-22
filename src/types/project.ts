@@ -1,79 +1,46 @@
-import * as React from "react"
-import { CalendarIcon } from "lucide-react"
-import { addDays, format } from "date-fns"
-import { DateRange } from "react-day-picker"
-
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-
-interface DatePickerWithRangeProps {
-  value?: DateRange
-  onSelect?: (range: DateRange | undefined) => void
-  placeholder?: string
-  className?: string
+export interface Project {
+  id: string;
+  name: string;
+  description?: string;
+  color: string;
+  icon?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  sharedWith?: string[];
+  isArchived: boolean;
 }
 
-export function DatePickerWithRange({
-  value,
-  onSelect,
-  placeholder = "Pick a date range",
-  className,
-}: DatePickerWithRangeProps) {
-  const [date, setDate] = React.useState<DateRange | undefined>(value)
+export interface TaskTemplate {
+  id: string;
+  name: string;
+  title: string;
+  description?: string;
+  priority: 'low' | 'medium' | 'high';
+  category?: string;
+  tags?: string[];
+  estimatedDuration?: number; // in minutes
+  isRecurring?: boolean;
+  recurrencePattern?: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  notificationSettings?: {
+    enabled: boolean;
+    type: 'push' | 'email' | 'sms';
+    smartTiming: boolean;
+    reminderTime?: number;
+  };
+  createdAt: Date;
+}
 
-  React.useEffect(() => {
-    setDate(value)
-  }, [value])
-
-  const handleSelect = (range: DateRange | undefined) => {
-    setDate(range)
-    onSelect?.(range)
-  }
-
-  return (
-    <div className={cn("grid gap-2", className)}>
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            id="date"
-            variant={"outline"}
-            className={cn(
-              "w-[300px] justify-start text-left font-normal",
-              !date && "text-muted-foreground"
-            )}
-          >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {date?.from ? (
-              date.to ? (
-                <>
-                  {format(date.from, "LLL dd, y")} -{" "}
-                  {format(date.to, "LLL dd, y")}
-                </>
-              ) : (
-                format(date.from, "LLL dd, y")
-              )
-            ) : (
-              <span>{placeholder}</span>
-            )}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
-          <Calendar
-            initialFocus
-            mode="range"
-            defaultMonth={date?.from}
-            selected={date}
-            onSelect={handleSelect}
-            numberOfMonths={2}
-          />
-        </PopoverContent>
-      </Popover>
-    </div>
-  )
+export interface TaskFilter {
+  categories?: string[];
+  priorities?: ('low' | 'medium' | 'high')[];
+  projects?: string[];
+  tags?: string[];
+  dateRange?: {
+    start: Date;
+    end: Date;
+  };
+  completed?: boolean;
+  overdue?: boolean;
+  hasLocation?: boolean;
+  sharedWith?: string[];
 }

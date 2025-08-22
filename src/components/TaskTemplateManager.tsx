@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, X, Edit2, Trash2, FileTemplate, Clock } from 'lucide-react';
+import { Plus, X, Edit2, Trash2, FileText, Clock } from 'lucide-react';
 import { TaskTemplate } from '@/types/project';
 import { TaskCategory } from '@/types';
 
@@ -43,7 +43,7 @@ export default function TaskTemplateManager({
             <DialogTitle>Task Templates (Premium Feature)</DialogTitle>
           </DialogHeader>
           <div className="text-center py-8">
-            <FileTemplate className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+            <FileText className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
             <p className="text-muted-foreground mb-4">
               Save frequently used task setups as templates for quick task creation.
             </p>
@@ -249,7 +249,7 @@ export default function TaskTemplateManager({
               templates.map((template, index) => (
                 <div key={template.id} className="flex items-center justify-between p-3">
                   <div className="flex items-center">
-                    <FileTemplate className="h-4 w-4 text-muted-foreground mr-3" />
+                    <FileText className="h-4 w-4 text-muted-foreground mr-3" />
                     <div>
                       <div className="font-medium">{template.name}</div>
                       <div className="text-sm text-muted-foreground">

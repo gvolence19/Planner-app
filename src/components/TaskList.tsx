@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronDown, ChevronUp, ListFilter } from "lucide-react";
 import { Task, TaskCategory } from "@/types";
+import { TaskFilter } from "@/types/project";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import EditTaskDialog from "./EditTaskDialog";
 import TaskCard from "./TaskCard";
 import MissedTasksReschedule from "./MissedTasksReschedule";
+import { isAfter, isBefore, isWithinInterval } from "date-fns";
 
 interface TaskListProps {
   tasks: Task[];
@@ -27,6 +29,7 @@ interface TaskListProps {
   onUpdateMultipleTasks?: (tasks: Task[]) => void; // NEW: Add this prop
   onDeleteTask: (taskId: string) => void;
   categories: TaskCategory[];
+  advancedFilter?: TaskFilter; // Add advanced filter prop
 }
 
 export default function TaskList({
@@ -35,6 +38,7 @@ export default function TaskList({
   onUpdateMultipleTasks, // NEW: Destructure the new prop
   onDeleteTask,
   categories,
+  advancedFilter,
 }: TaskListProps) {
   const [filter, setFilter] = useState<"all" | "completed" | "pending">("all");
   const [categoryFilter, setCategoryFilter] = useState<string | undefined>(
@@ -52,16 +56,79 @@ export default function TaskList({
   // Task to be edited
   const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
 
+  // Apply advanced filter to tasks
+  const applyAdvancedFilter = (tasks: Task[], advancedFilter?: TaskFilter) => {
+    if (!advancedFilter) return tasks;
+
+    return tasks.filter((task) => {
+      // Filter by categories
+      if (advancedFilter.categories && advancedFilter.categories.length > 0) {
+        if (!task.category || !advancedFilter.categories.includes(task.category)) {
+          return false;
+        }
+      }
+
+      // Filter by priorities
+      if (advancedFilter.priorities && advancedFilter.priorities.length > 0) {
+        if (!advancedFilter.priorities.includes(task.priority)) {
+          return false;
+        }
+      }
+
+      // Filter by completion status
+      if (advancedFilter.completed !== undefined) {
+        if (task.completed !== advancedFilter.completed) {
+          return false;
+        }
+      }
+
+      // Filter by overdue status
+      if (advancedFilter.overdue === true) {
+        if (!task.dueDate || !isAfter(new Date(), task.dueDate) || task.completed) {
+          return false;
+        }
+      }
+
+      // Filter by location presence
+      if (advancedFilter.hasLocation === true) {
+        if (!task.location) {
+          return false;
+        }
+      }
+
+      // Filter by date range
+      if (advancedFilter.dateRange && task.dueDate) {
+        const { start, end } = advancedFilter.dateRange;
+        if (!isWithinInterval(task.dueDate, { start, end })) {
+          return false;
+        }
+      }
+
+      // Filter by tags (search in title and description)
+      if (advancedFilter.tags && advancedFilter.tags.length > 0) {
+        const taskText = `${task.title} ${task.description || ''}`.toLowerCase();
+        const hasMatchingTag = advancedFilter.tags.some(tag => 
+          taskText.includes(tag.toLowerCase())
+        );
+        if (!hasMatchingTag) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  };
+
   // Filter tasks
-  const filteredTasks = tasks.filter((task) => {
-    // Filter by completion status
+  const filteredTasks = applyAdvancedFilter(tasks, advancedFilter).filter((task) => {
+    // Filter by completion status (basic filter)
     if (filter === "completed" && !task.completed) return false;
     if (filter === "pending" && task.completed) return false;
 
-    // Filter by category
+    // Filter by category (basic filter)
     if (categoryFilter && task.category !== categoryFilter) return false;
 
-    // Filter by priority
+    // Filter by priority (basic filter)
     if (priorityFilter && task.priority !== priorityFilter) return false;
 
     // Filter by search query
