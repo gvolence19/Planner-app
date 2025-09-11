@@ -30,7 +30,7 @@ export default function TaskTemplateManager({
   const [taskTitle, setTaskTitle] = useState('');
   const [taskDescription, setTaskDescription] = useState('');
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
-  const [category, setCategory] = useState('');
+  const [category, setCategory] = useState('none'); // ✅ Changed from '' to 'none'
   const [tags, setTags] = useState('');
   const [estimatedDuration, setEstimatedDuration] = useState('');
   const [editIndex, setEditIndex] = useState<number | null>(null);
@@ -65,7 +65,7 @@ export default function TaskTemplateManager({
       title: taskTitle.trim(),
       description: taskDescription.trim() || undefined,
       priority,
-      category: category || undefined,
+      category: category === 'none' ? undefined : category, // ✅ Handle 'none' value
       tags: tags.trim() ? tags.split(',').map(tag => tag.trim()) : undefined,
       estimatedDuration: estimatedDuration ? parseInt(estimatedDuration) : undefined,
       createdAt: new Date()
@@ -99,7 +99,7 @@ export default function TaskTemplateManager({
     setTaskTitle(template.title);
     setTaskDescription(template.description || '');
     setPriority(template.priority);
-    setCategory(template.category || '');
+    setCategory(template.category || 'none'); // ✅ Use 'none' instead of ''
     setTags(template.tags?.join(', ') || '');
     setEstimatedDuration(template.estimatedDuration?.toString() || '');
     setEditIndex(index);
@@ -110,7 +110,7 @@ export default function TaskTemplateManager({
     setTaskTitle('');
     setTaskDescription('');
     setPriority('medium');
-    setCategory('');
+    setCategory('none'); // ✅ Use 'none' instead of ''
     setTags('');
     setEstimatedDuration('');
     setEditIndex(null);
@@ -177,7 +177,7 @@ export default function TaskTemplateManager({
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No category</SelectItem>
+                  <SelectItem value="none">No category</SelectItem> {/* ✅ Changed from "" to "none" */}
                   {categories.map((cat) => (
                     <SelectItem key={cat.name} value={cat.name}>
                       <div className="flex items-center">
