@@ -1,5 +1,4 @@
 // Advanced AI Task Service with Smart Auto-Population and Enhanced Icons
-// ADD THIS IMPORT at the top
 import { getFunTaskIcon } from '@/lib/taskIcons';
 
 // UPDATE your interface to include icon field
@@ -14,7 +13,7 @@ export interface AdvancedAITaskSuggestion {
   reason: string;
   estimatedTime?: string;
   suggestedDate?: Date;
-  icon?: string; // ← ADD THIS LINE
+  icon?: string;
   autoFillData?: {
     commonDuration?: string;
     typicalLocation?: string;
@@ -171,7 +170,7 @@ export class AdvancedAITaskService {
               '📅 Check gym class schedule',
               '🎵 Prepare workout playlist',
               '🍌 Eat light snack 1 hour before',
-              '🔋 Bring phone charger for tracking'
+              '📋 Bring phone charger for tracking'
             ],
             followUpTasks: [
               '📱 Log workout progress in app',
@@ -232,7 +231,7 @@ export class AdvancedAITaskService {
               '🌬️ Practice breathing exercises',
               '📅 Schedule next yoga session',
               '💧 Maintain hydration',
-              '📔 Journal about the experience'
+              '📓 Journal about the experience'
             ]
           }
         },
@@ -631,7 +630,7 @@ export class AdvancedAITaskService {
               '📅 Check assignment due dates',
               '📖 Read assigned chapters',
               '❓ Prepare questions for professor',
-              '🔋 Charge laptop and bring charger'
+              '📋 Charge laptop and bring charger'
             ],
             followUpTasks: [
               '📝 Review and organize class notes',
@@ -689,7 +688,7 @@ export class AdvancedAITaskService {
               '📖 Set up reference materials'
             ],
             followUpTasks: [
-              '✍️ Proofread and edit work',
+              '✏️ Proofread and edit work',
               '📤 Submit assignment on time',
               '💾 Save backup copies',
               '📋 Update assignment tracker',
@@ -780,7 +779,7 @@ export class AdvancedAITaskService {
               duration: suggestion.duration,
               confidence,
               reason,
-              icon: getFunTaskIcon(smartTitle, category), // ← ADD THIS LINE
+              icon: getFunTaskIcon(smartTitle, category),
               autoFillData: suggestion.autoFill,
               suggestedDate: this.suggestOptimalDate(domain, suggestion.autoFill?.recommendedTime)
             });
@@ -927,7 +926,7 @@ export class AdvancedAITaskService {
         duration: '45',
         confidence: 0.8,
         reason: 'Perfect morning activity ☀️💪',
-        icon: getFunTaskIcon('Morning workout routine', category), // ← ADD THIS LINE
+        icon: getFunTaskIcon('Morning workout routine', category),
         autoFillData: {
           recommendedTime: '07:00',
           preparationTasks: ['👕 Prepare workout clothes', '🍌 Have light breakfast'],
@@ -946,7 +945,7 @@ export class AdvancedAITaskService {
         duration: '120',
         confidence: 0.7,
         reason: 'Weekend leisure time 🎪',
-        icon: getFunTaskIcon('Weekend recreational activity', category), // ← ADD THIS LINE
+        icon: getFunTaskIcon('Weekend recreational activity', category),
         autoFillData: {
           recommendedTime: '14:00',
           preparationTasks: ['☀️🌧️ Check weather', '📅 Plan activity'],
@@ -965,7 +964,7 @@ export class AdvancedAITaskService {
         duration: '60',
         confidence: 0.85,
         reason: 'Business hours meeting 🤝',
-        icon: getFunTaskIcon('Schedule team meeting', category), // ← ADD THIS LINE
+        icon: getFunTaskIcon('Schedule team meeting', category),
         autoFillData: {
           recommendedTime: '10:00',
           preparationTasks: ['📋 Prepare agenda', '🏢 Book conference room'],

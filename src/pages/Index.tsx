@@ -15,6 +15,7 @@ import SleepWakeManager from '@/components/SleepWakeManager';
 import { Task, TaskCategory, DEFAULT_CATEGORIES } from '@/types';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { addDays, addWeeks, addMonths, isSameDay } from 'date-fns';
+import { PatternLearningSystem } from '@/lib/pattern-learning';
 
 export default function PlannerApp() {
   const [tasks, setTasks] = useLocalStorage<Task[]>('planner-tasks', []);
@@ -24,7 +25,7 @@ export default function PlannerApp() {
   const [isCategoryManagerOpen, setIsCategoryManagerOpen] = useState(false);
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
 
-  // Fix date objects that come from localStorage as strings
+  // Fix date objects that come from localStorage as strings and migrate categories
   useEffect(() => {
     if (tasks.length > 0) {
       const fixedTasks = tasks.map(task => ({
@@ -51,6 +52,9 @@ export default function PlannerApp() {
     }
   }, []);
 
+  // Initialize pattern learning system
+  const patternLearning = new PatternLearningSystem(tasks);
+
   const addTask = (newTask: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => {
     const task: Task = {
       ...newTask,
@@ -61,6 +65,9 @@ export default function PlannerApp() {
     
     const updatedTasks = [...tasks, task];
     setTasks(updatedTasks);
+    
+    // Learn from the new task
+    patternLearning.learnFromTask(task);
     
     // Handle recurring tasks
     if (task.recurring && task.recurring !== 'none' && task.dueDate) {
