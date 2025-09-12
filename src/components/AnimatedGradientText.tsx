@@ -1,13 +1,16 @@
 import { cn } from "@/lib/utils"
+import React from "react"
 
 interface AnimatedGradientTextProps {
-  text: string
+  text?: string
   className?: string
+  children?: React.ReactNode
 }
 
 export default function AnimatedGradientText({ 
   text, 
-  className 
+  className,
+  children 
 }: AnimatedGradientTextProps) {
   return (
     <span 
@@ -16,7 +19,7 @@ export default function AnimatedGradientText({
         className
       )}
     >
-      {text}
+      {children || text}
     </span>
   )
 }
