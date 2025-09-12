@@ -15,7 +15,6 @@ import SleepWakeManager from '@/components/SleepWakeManager';
 import { Task, TaskCategory, DEFAULT_CATEGORIES } from '@/types';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { addDays, addWeeks, addMonths, isSameDay } from 'date-fns';
-import { PatternLearningSystem } from '@/lib/pattern-learning';
 
 export default function PlannerApp() {
   const [tasks, setTasks] = useLocalStorage<Task[]>('planner-tasks', []);
@@ -39,8 +38,9 @@ export default function PlannerApp() {
       // Only update if there are actual differences to avoid infinite loops
       const hasDateChanges = fixedTasks.some((task, index) => {
         const original = tasks[index];
+        if (!original) return true;
         return (
-          (task.dueDate?.getTime() !== new Date(original.dueDate || 0).getTime()) ||
+          (task.dueDate?.getTime() !== (original.dueDate ? new Date(original.dueDate).getTime() : undefined)) ||
           (task.createdAt?.getTime() !== new Date(original.createdAt).getTime())
         );
       });
@@ -50,9 +50,6 @@ export default function PlannerApp() {
       }
     }
   }, []);
-
-  // Initialize pattern learning system
-  const patternLearning = new PatternLearningSystem(tasks);
 
   const addTask = (newTask: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => {
     const task: Task = {
@@ -64,9 +61,6 @@ export default function PlannerApp() {
     
     const updatedTasks = [...tasks, task];
     setTasks(updatedTasks);
-    
-    // Learn from the new task
-    patternLearning.learnFromTask(task);
     
     // Handle recurring tasks
     if (task.recurring && task.recurring !== 'none' && task.dueDate) {
