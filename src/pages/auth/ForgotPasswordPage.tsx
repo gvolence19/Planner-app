@@ -3,14 +3,12 @@ import { Navigate } from "react-router-dom";
 import ForgotPasswordForm from "@/components/auth/ForgotPasswordForm";
 import AnimatedGradientText from "@/components/AnimatedGradientText";
 
-export function ForgotPasswordPage() {
+export default function ForgotPasswordPage() {
   const [isAuthenticated] = useState(() => {
-    // Check if there's an auth token in local storage
     const token = localStorage.getItem("auth_token") || sessionStorage.getItem("auth_token");
     return !!token;
   });
   
-  // If user is already authenticated, redirect to home
   if (isAuthenticated) {
     return <Navigate to="/" replace />;
   }
@@ -28,5 +26,3 @@ export function ForgotPasswordPage() {
     </div>
   );
 }
-
-export default ForgotPasswordPage;

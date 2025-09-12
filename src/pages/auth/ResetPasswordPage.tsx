@@ -3,14 +3,12 @@ import { Navigate } from "react-router-dom";
 import ResetPasswordForm from "@/components/auth/ResetPasswordForm";
 import AnimatedGradientText from "@/components/AnimatedGradientText";
 
-export function ResetPasswordPage() {
+export default function ResetPasswordPage() {
   const [isAuthenticated] = useState(() => {
-    // Check if there's an auth token in local storage
     const token = localStorage.getItem("auth_token") || sessionStorage.getItem("auth_token");
     return !!token;
   });
   
-  // If user is already authenticated, redirect to home
   if (isAuthenticated) {
     return <Navigate to="/" replace />;
   }
@@ -28,5 +26,3 @@ export function ResetPasswordPage() {
     </div>
   );
 }
-
-export default ResetPasswordPage;

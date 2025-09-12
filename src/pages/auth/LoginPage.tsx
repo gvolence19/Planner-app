@@ -4,25 +4,20 @@ import LoginForm from "@/components/auth/LoginForm";
 import AnimatedGradientText from "@/components/AnimatedGradientText";
 import { User } from "@/types/auth";
 
-export function LoginPage() {
+export default function LoginPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    // Check if there's an auth token in local storage
     const token = localStorage.getItem("auth_token") || sessionStorage.getItem("auth_token");
     return !!token;
   });
   
-  // If user is already authenticated, redirect to home
   if (isAuthenticated) {
     return <Navigate to="/" replace />;
   }
   
-  // Handle successful login
   const handleLoginSuccess = (user: User) => {
     console.log("User authenticated:", user);
     setIsAuthenticated(true);
   };
-  
-
   
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-background to-background/80">
@@ -37,5 +32,3 @@ export function LoginPage() {
     </div>
   );
 }
-
-export default LoginPage;
