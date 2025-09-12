@@ -5,7 +5,6 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { AuthProvider } from '@/contexts/AuthContext';
-import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
 import PlannerApp from './pages/Index';
 import NotFound from './pages/NotFound';
 import LoginPage from './pages/auth/LoginPage';
@@ -50,38 +49,36 @@ const App = () => (
   <ThemeProvider defaultTheme="system" storageKey="planner-ui-theme">
     <GoogleOAuthProvider clientId={googleClientId}>
       <AuthProvider>
-        <SubscriptionProvider>
-          <QueryClientProvider client={queryClient}>
-            <TooltipProvider>
-              <Toaster 
-                position="top-right"
-                expand={false}
-                richColors
-                closeButton
-              />
-              <BrowserRouter>
-                <Routes>
-                  {/* Auth Routes */}
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/register" element={<RegisterPage />} />
-                  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                  <Route path="/reset-password" element={<ResetPasswordPage />} />
-                  <Route path="/oauth/callback" element={<OAuthCallback />} />
-                  
-                  {/* Protected Routes */}
-                  <Route path="/" element={
-                    <ProtectedRoute>
-                      <PlannerApp />
-                    </ProtectedRoute>
-                  } />
-                  
-                  {/* Not Found */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </BrowserRouter>
-            </TooltipProvider>
-          </QueryClientProvider>
-        </SubscriptionProvider>
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <Toaster 
+              position="top-right"
+              expand={false}
+              richColors
+              closeButton
+            />
+            <BrowserRouter>
+              <Routes>
+                {/* Auth Routes */}
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
+                <Route path="/oauth/callback" element={<OAuthCallback />} />
+                
+                {/* Protected Routes */}
+                <Route path="/" element={
+                  <ProtectedRoute>
+                    <PlannerApp />
+                  </ProtectedRoute>
+                } />
+                
+                {/* Not Found */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </TooltipProvider>
+        </QueryClientProvider>
       </AuthProvider>
     </GoogleOAuthProvider>
   </ThemeProvider>

@@ -7,12 +7,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, RepeatIcon, Lock, Clock } from 'lucide-react';
+import { CalendarIcon, RepeatIcon, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Task, PRIORITIES, RECURRING_OPTIONS, TaskCategory } from '@/types';
-import { useSubscription } from '@/contexts/SubscriptionContext';
-import { FREE_CATEGORIES } from '@/types/subscription';
 import LocationInput from './LocationInput';
 import { SmartTaskInput } from './SmartTaskInput';
 
@@ -26,8 +24,6 @@ interface NewTaskDialogProps {
 }
 
 export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDate, categories, tasks }: NewTaskDialogProps) {
-  const { isPremium } = useSubscription();
-  
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<string | undefined>(undefined);
@@ -42,42 +38,34 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
   // AI-related state
   const [isAISuggested, setIsAISuggested] = useState(false);
   const [aiCategory, setAiCategory] = useState<string | undefined>(undefined);
-  
-  // Filter categories for free users
-  const availableCategories = isPremium 
-    ? categories 
-    : categories.filter(cat => FREE_CATEGORIES.includes(cat.name));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
 
-    const finalDuration = duration === 'custom' ? customDuration : duration;
+    const finalDuration = duration === 'custom' ? parseInt(customDuration) || undefined : 
+                         duration ? parseInt(duration) : undefined;
 
-    const newTask: Task = {
-      id: crypto.randomUUID(),
+    const finalCategory = category || aiCategory;
+
+    const newTask: Omit<Task, 'id' | 'createdAt' | 'updatedAt'> = {
       title: title.trim(),
       description: description.trim() || undefined,
-      completed: false,
-      category,
+      category: finalCategory ? categories.find(cat => cat.name === finalCategory) : undefined,
       priority,
       dueDate,
-      startTime: startTime.trim() || undefined,
-      duration: finalDuration.trim() || undefined,
-      createdAt: new Date(),
+      startTime: startTime || undefined,
+      duration: finalDuration,
       recurring,
-      location: location.trim() || undefined,
-      // AI fields
-      isAISuggested,
-      aiCategory
+      completed: false,
+      location: location.trim() ? { address: location.trim() } : undefined,
     };
 
     onAddTask(newTask);
-    resetForm();
-    onOpenChange(false);
+    handleReset();
   };
 
-  const resetForm = () => {
+  const handleReset = () => {
     setTitle('');
     setDescription('');
     setCategory(undefined);
@@ -90,102 +78,98 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
     setLocation('');
     setIsAISuggested(false);
     setAiCategory(undefined);
+    onOpenChange(false);
   };
 
-  const handleSmartTaskCreate = (taskData: {
-    title?: string;
-    category?: string;
-    priority?: Task['priority'];
-    location?: string;
-    duration?: string;
-    startTime?: string;
-    dueDate?: Date;
-    isAISuggested?: boolean;
-    aiCategory?: string;
-  }) => {
-    console.log('Smart task data received:', taskData);
-    if (taskData.title) setTitle(taskData.title);
-    if (taskData.category) setCategory(taskData.category);
-    if (taskData.priority) setPriority(taskData.priority);
-    if (taskData.location) setLocation(taskData.location);
-    if (taskData.duration) setDuration(taskData.duration);
-    if (taskData.startTime) setStartTime(taskData.startTime);
-    if (taskData.dueDate) setDueDate(taskData.dueDate);
-    if (taskData.isAISuggested) setIsAISuggested(taskData.isAISuggested);
-    if (taskData.aiCategory) setAiCategory(taskData.aiCategory);
+  const handleAITask = (task: any) => {
+    setTitle(task.title);
+    setDescription(task.description || '');
+    setPriority(task.priority || 'medium');
+    setRecurring(task.recurring || 'none');
+    setDuration(task.duration?.toString() || '');
+    setIsAISuggested(true);
+    setAiCategory(task.category);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[500px] max-w-[95vw] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add New Task</DialogTitle>
+          <DialogTitle>Create New Task</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 mt-2">
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Smart Task Input */}
+          <SmartTaskInput
+            onTaskGenerated={handleAITask}
+            existingTasks={tasks}
+            categories={categories}
+          />
+
+          {/* Title */}
           <div className="space-y-2">
-            <Label htmlFor="title">Task *</Label>
-            <SmartTaskInput
-              onTaskCreate={handleSmartTaskCreate}
-              tasks={tasks}
-              categories={categories}
-              placeholder="What do you need to do? (e.g., 'doctor appointment tomorrow 2pm')"
+            <Label htmlFor="title">Task Title *</Label>
+            <Input
+              id="title"
               value={title}
-              onChange={setTitle}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter task title"
+              required
             />
           </div>
-          
+
+          {/* Description */}
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
-            <Textarea 
-              id="description" 
-              value={description} 
+            <Textarea
+              id="description"
+              value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Enter task details (optional)" 
+              placeholder="Enter task description"
               rows={3}
             />
           </div>
-          
+
+          {/* Category and Priority */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
+              <Label>Category</Label>
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger id="category">
-                  <SelectValue placeholder="Select" />
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableCategories.map((cat) => (
+                  <SelectItem value="none">No category</SelectItem>
+                  {categories.map((cat) => (
                     <SelectItem key={cat.name} value={cat.name}>
-                      <div className="flex items-center gap-2">
-                        {cat.icon && <span className="text-base">{cat.icon}</span>}
-                        <div className={`w-3 h-3 rounded-full ${cat.color}`} />
-                        <span>{cat.name}</span>
+                      <div className="flex items-center">
+                        <div className={`w-3 h-3 rounded-full ${cat.color} mr-2`} />
+                        {cat.icon && <span className="mr-1">{cat.icon}</span>}
+                        {cat.name}
                       </div>
                     </SelectItem>
                   ))}
-                  {!isPremium && categories.some(cat => !FREE_CATEGORIES.includes(cat.name)) && (
-                    <div className="px-2 py-1.5 text-xs text-muted-foreground border-t mt-1">
-                      <div className="flex items-center">
-                        <Lock className="h-3 w-3 mr-1" />
-                        <span>Premium categories available with subscription</span>
-                      </div>
-                    </div>
-                  )}
                 </SelectContent>
               </Select>
+              {isAISuggested && aiCategory && (
+                <p className="text-xs text-muted-foreground">
+                  AI suggested: {aiCategory}
+                </p>
+              )}
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="priority">Priority</Label>
-              <Select value={priority} onValueChange={(val: Task['priority']) => setPriority(val)}>
-                <SelectTrigger id="priority">
-                  <SelectValue placeholder="Select" />
+              <Label>Priority</Label>
+              <Select value={priority} onValueChange={(value: Task['priority']) => setPriority(value)}>
+                <SelectTrigger>
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {PRIORITIES.map((pri) => (
-                    <SelectItem key={pri.value} value={pri.value}>
+                  {PRIORITIES.map((p) => (
+                    <SelectItem key={p.value} value={p.value}>
                       <div className="flex items-center">
-                        <div className={`w-3 h-3 rounded-full ${pri.color} mr-2`} />
-                        <span>{pri.label}</span>
+                        <span className="mr-2">{p.icon}</span>
+                        <span className={p.color}>{p.label}</span>
                       </div>
                     </SelectItem>
                   ))}
@@ -193,13 +177,13 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
               </Select>
             </div>
           </div>
-          
+
+          {/* Due Date */}
           <div className="space-y-2">
-            <Label htmlFor="dueDate">Due Date</Label>
+            <Label>Due Date</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
-                  id="dueDate"
                   variant="outline"
                   className={cn(
                     "w-full justify-start text-left font-normal",
@@ -207,7 +191,7 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {dueDate ? format(dueDate, "PPP") : "Select a date"}
+                  {dueDate ? format(dueDate, "PPP") : "Pick a date"}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -221,136 +205,85 @@ export default function NewTaskDialog({ open, onOpenChange, onAddTask, initialDa
             </Popover>
           </div>
 
+          {/* Time and Duration */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="startTime">Start Time</Label>
-              <div className="relative">
-                <Input
-                  id="startTime"
-                  type="time"
-                  value={startTime}
-                  onChange={(e) => setStartTime(e.target.value)}
-                  className="pl-8"
-                />
-                <Clock className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              </div>
+              <Input
+                id="startTime"
+                type="time"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+              />
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="duration">Duration</Label>
+              <Label>Duration</Label>
               <Select value={duration} onValueChange={setDuration}>
-                <SelectTrigger id="duration">
+                <SelectTrigger>
                   <SelectValue placeholder="Select duration" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="">No duration</SelectItem>
                   <SelectItem value="15">15 minutes</SelectItem>
                   <SelectItem value="30">30 minutes</SelectItem>
-                  <SelectItem value="45">45 minutes</SelectItem>
                   <SelectItem value="60">1 hour</SelectItem>
-                  <SelectItem value="90">1.5 hours</SelectItem>
                   <SelectItem value="120">2 hours</SelectItem>
-                  <SelectItem value="180">3 hours</SelectItem>
                   <SelectItem value="240">4 hours</SelectItem>
-                  <SelectItem value="480">8 hours</SelectItem>
                   <SelectItem value="custom">Custom</SelectItem>
                 </SelectContent>
               </Select>
               {duration === 'custom' && (
                 <Input
-                  placeholder="Enter minutes"
                   type="number"
-                  min="1"
                   value={customDuration}
                   onChange={(e) => setCustomDuration(e.target.value)}
-                  className="mt-2"
+                  placeholder="Duration in minutes"
+                  min="1"
                 />
               )}
             </div>
           </div>
 
+          {/* Recurring */}
           <div className="space-y-2">
-            <div className="flex items-center gap-1.5">
-              <Label htmlFor="recurring">Recurring</Label>
-              {!isPremium && (
-                <div className="flex items-center text-xs text-amber-500 dark:text-amber-400">
-                  <Lock className="h-3 w-3 mr-0.5" />
-                  Premium Feature
-                </div>
-              )}
-            </div>
-            <Select 
-              value={recurring || 'none'} 
-              onValueChange={(val) => {
-                if (!isPremium && val !== 'none') {
-                  return;
-                }
-                setRecurring(val as Task['recurring']);
-              }}
-            >
-              <SelectTrigger id="recurring" disabled={!isPremium}>
-                <SelectValue placeholder="Not recurring" />
+            <Label>Recurring</Label>
+            <Select value={recurring} onValueChange={(value: Task['recurring']) => setRecurring(value)}>
+              <SelectTrigger>
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">
-                  <span>Not recurring</span>
-                </SelectItem>
-                {isPremium ? (
-                  RECURRING_OPTIONS.filter(option => option.value !== 'none').map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      <div className="flex items-center">
-                        <RepeatIcon className="mr-2 h-4 w-4" />
-                        <span>{option.label}</span>
-                      </div>
-                    </SelectItem>
-                  ))
-                ) : (
-                  <div className="px-2 py-1.5 text-xs text-muted-foreground border-t mt-1">
+                {RECURRING_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
                     <div className="flex items-center">
-                      <Lock className="h-3 w-3 mr-1" />
-                      <span>Recurring tasks available with premium</span>
+                      <RepeatIcon className="mr-2 h-4 w-4" />
+                      {option.label}
                     </div>
-                  </div>
-                )}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
-            {recurring !== 'none' && isPremium && (
-              <p className="text-xs text-muted-foreground">
-                This task will automatically repeat based on the selected frequency.
-              </p>
-            )}
           </div>
 
+          {/* Location */}
           <div className="space-y-2">
-            <div className="flex items-center gap-1.5">
-              <Label>Location</Label>
-              {!isPremium && (
-                <div className="flex items-center text-xs text-amber-500 dark:text-amber-400">
-                  <Lock className="h-3 w-3 mr-0.5" />
-                  Premium Feature
-                </div>
-              )}
-            </div>
+            <Label>Location</Label>
             <LocationInput
               value={location}
               onChange={setLocation}
-              disabled={!isPremium}
-              placeholder={isPremium ? "Enter location" : "Upgrade to premium to add locations"}
-              label=""
+              placeholder="Enter location"
             />
           </div>
-          
-          <div className="flex justify-end gap-2 pt-2">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => {
-                resetForm();
-                onOpenChange(false);
-              }}
-            >
+
+          {/* Action Buttons */}
+          <div className="flex gap-2 pt-4">
+            <Button type="button" variant="outline" onClick={handleReset} className="flex-1">
               Cancel
             </Button>
-            <Button type="submit">Add Task</Button>
+            <Button type="submit" className="flex-1" disabled={!title.trim()}>
+              <Clock className="mr-2 h-4 w-4" />
+              Create Task
+            </Button>
           </div>
         </form>
       </DialogContent>

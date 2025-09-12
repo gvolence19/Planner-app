@@ -1,9 +1,7 @@
 import { useState } from "react"
-import { Settings, Monitor, Moon, Sun, CreditCard } from "lucide-react"
+import { Settings, Monitor, Moon, Sun } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { SubscriptionDialog } from "@/components/SubscriptionDialog"
-import { useSubscription } from "@/contexts/SubscriptionContext"
 import {
   Dialog,
   DialogContent,
@@ -34,10 +32,10 @@ export default function SettingsDialog({
   onOpenChange 
 }: SettingsDialogProps) {
   const { theme, setTheme } = useTheme()
-  const { isPremium, plan } = useSubscription()
   const [notificationsEnabled, setNotificationsEnabled] = useState(false)
   const [compactMode, setCompactMode] = useState(false)
-  const [isSubscriptionDialogOpen, setIsSubscriptionDialogOpen] = useState(false)
+  const [autoSave, setAutoSave] = useState(true)
+  const [soundEnabled, setSoundEnabled] = useState(true)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -56,36 +54,19 @@ export default function SettingsDialog({
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="space-y-4">
-            {/* Subscription Section */}
-            <div className="flex items-center justify-between p-3 border rounded-md bg-muted/50">
+            {/* Theme Settings */}
+            <div className="flex items-center justify-between p-3 border rounded-md">
               <div className="space-y-0.5">
-                <div className="flex items-center gap-2">
-                  <Label>Subscription</Label>
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${isPremium ? 'bg-primary/20 text-primary' : 'bg-muted-foreground/20 text-muted-foreground'}`}>
-                    {isPremium ? 'Premium' : 'Free'}
-                  </span>
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {isPremium ? 'You have access to all premium features' : 'Upgrade to get access to premium features'}
-                </div>
+                <Label htmlFor="theme">Theme</Label>
+                <p className="text-sm text-muted-foreground">
+                  Choose your preferred theme
+                </p>
               </div>
-              <Button
-                size="sm"
-                variant={isPremium ? "outline" : "default"}
-                onClick={() => setIsSubscriptionDialogOpen(true)}
-              >
-                <CreditCard className="mr-2 h-4 w-4" />
-                {isPremium ? 'Manage' : 'Upgrade'}
-              </Button>
-            </div>
-
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="theme">Theme</Label>
-              <Select value={theme} onValueChange={(value) => setTheme(value as 'light' | 'dark' | 'system')}>
-                <SelectTrigger id="theme">
-                  <SelectValue placeholder="Select a theme" />
+              <Select value={theme} onValueChange={setTheme}>
+                <SelectTrigger className="w-[120px]">
+                  <SelectValue />
                 </SelectTrigger>
-                <SelectContent position="popper">
+                <SelectContent>
                   <SelectItem value="light">
                     <div className="flex items-center">
                       <Sun className="mr-2 h-4 w-4" />
@@ -107,13 +88,14 @@ export default function SettingsDialog({
                 </SelectContent>
               </Select>
             </div>
-            
-            <div className="flex items-center justify-between">
+
+            {/* Notifications */}
+            <div className="flex items-center justify-between p-3 border rounded-md">
               <div className="space-y-0.5">
                 <Label htmlFor="notifications">Notifications</Label>
-                <div className="text-sm text-muted-foreground">
-                  Receive reminders for upcoming tasks
-                </div>
+                <p className="text-sm text-muted-foreground">
+                  Receive task reminders
+                </p>
               </div>
               <Switch
                 id="notifications"
@@ -121,19 +103,90 @@ export default function SettingsDialog({
                 onCheckedChange={setNotificationsEnabled}
               />
             </div>
-            
-            <div className="flex items-center justify-between">
+
+            {/* Auto Save */}
+            <div className="flex items-center justify-between p-3 border rounded-md">
+              <div className="space-y-0.5">
+                <Label htmlFor="autosave">Auto Save</Label>
+                <p className="text-sm text-muted-foreground">
+                  Automatically save changes
+                </p>
+              </div>
+              <Switch
+                id="autosave"
+                checked={autoSave}
+                onCheckedChange={setAutoSave}
+              />
+            </div>
+
+            {/* Sound Effects */}
+            <div className="flex items-center justify-between p-3 border rounded-md">
+              <div className="space-y-0.5">
+                <Label htmlFor="sound">Sound Effects</Label>
+                <p className="text-sm text-muted-foreground">
+                  Play sounds for actions
+                </p>
+              </div>
+              <Switch
+                id="sound"
+                checked={soundEnabled}
+                onCheckedChange={setSoundEnabled}
+              />
+            </div>
+
+            {/* Compact Mode */}
+            <div className="flex items-center justify-between p-3 border rounded-md">
               <div className="space-y-0.5">
                 <Label htmlFor="compact">Compact Mode</Label>
-                <div className="text-sm text-muted-foreground">
-                  Use less space in lists and calendar views
-                </div>
+                <p className="text-sm text-muted-foreground">
+                  Use smaller interface elements
+                </p>
               </div>
               <Switch
                 id="compact"
                 checked={compactMode}
                 onCheckedChange={setCompactMode}
               />
+            </div>
+
+            {/* Data Management */}
+            <div className="p-3 border rounded-md bg-muted/50">
+              <Label className="text-base font-semibold">Data Management</Label>
+              <div className="flex gap-2 mt-3">
+                <Button variant="outline" size="sm" onClick={() => {
+                  if (confirm('Export all your tasks and settings?')) {
+                    const data = {
+                      tasks: JSON.parse(localStorage.getItem('planner-tasks') || '[]'),
+                      categories: JSON.parse(localStorage.getItem('planner-categories') || '[]'),
+                      settings: {
+                        theme,
+                        notificationsEnabled,
+                        autoSave,
+                        soundEnabled,
+                        compactMode
+                      },
+                      exportDate: new Date().toISOString()
+                    };
+                    
+                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `planner-backup-${new Date().toISOString().split('T')[0]}.json`;
+                    a.click();
+                  }
+                }}>
+                  Export Data
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => {
+                  if (confirm('This will clear all your data. Are you sure?')) {
+                    localStorage.clear();
+                    window.location.reload();
+                  }
+                }}>
+                  Clear All Data
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -143,10 +196,6 @@ export default function SettingsDialog({
           </Button>
         </DialogFooter>
       </DialogContent>
-      <SubscriptionDialog 
-        open={isSubscriptionDialogOpen}
-        onOpenChange={setIsSubscriptionDialogOpen}
-      />
     </Dialog>
   )
 }
