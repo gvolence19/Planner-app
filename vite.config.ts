@@ -10,55 +10,110 @@ export default defineConfig({
     },
   },
   build: {
-    // Less aggressive settings for Heroku
-    minify: process.env.NODE_ENV === 'production' ? 'esbuild' : false,
+    // Memory optimization
+    minify: 'esbuild',
     sourcemap: false,
     reportCompressedSize: false,
-    target: 'es2015', // More compatible target
+    target: 'esnext',
     
-    // Higher chunk size limits to reduce splitting
-    chunkSizeWarningLimit: 1000,
+    // More reasonable chunk size limits
+    chunkSizeWarningLimit: 500,
     
     rollupOptions: {
-      maxParallelFileOps: 1, // Reduce parallel operations for memory
+      maxParallelFileOps: 2,
       
       output: {
-        // Much simpler chunk splitting
+        // Simplified chunk splitting - REMOVE aggressive CVA splitting
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
-            // Group React ecosystem together
-            if (id.includes('react') || id.includes('scheduler')) {
-              return 'react-vendor'
+            
+            // React ecosystem
+            if (id.includes('react/') && !id.includes('react-dom') && !id.includes('react-router')) {
+              return 'react'
+            }
+            if (id.includes('react-dom/')) {
+              return 'react-dom'
+            }
+            if (id.includes('react-router')) {
+              return 'react-router'
             }
             
-            // Group all Radix UI components together
-            if (id.includes('@radix-ui')) {
+            // Radix UI - group together instead of splitting
+            if (id.includes('@radix-ui/')) {
               return 'radix-ui'
             }
             
-            // Group large libraries
+            // Charts
             if (id.includes('recharts')) {
               return 'charts'
             }
             
+            // Icons
             if (id.includes('lucide-react')) {
               return 'icons'
             }
             
-            // Everything else in vendor
+            // Date utilities
+            if (id.includes('date-fns/')) {
+              return 'date-utils'
+            }
+            
+            // Google Maps
+            if (id.includes('@googlemaps')) {
+              return 'maps'
+            }
+            
+            // Query/State management
+            if (id.includes('@tanstack/react-query')) {
+              return 'query'
+            }
+            
+            // OAuth
+            if (id.includes('@react-oauth')) {
+              return 'oauth'
+            }
+            
+            // IMPORTANT: Keep styling utilities together in one chunk
+            // DO NOT split class-variance-authority separately
+            if (id.includes('clsx') || 
+                id.includes('tailwind-merge') || 
+                id.includes('class-variance-authority')) {
+              return 'style-utils'
+            }
+            
+            // Theme
+            if (id.includes('next-themes')) {
+              return 'themes'
+            }
+            
+            // Toast
+            if (id.includes('sonner')) {
+              return 'toast'
+            }
+            
+            // Everything else
             return 'vendor'
           }
           
-          // App code - minimal splitting
+          // App code splitting
           if (id.includes('src/components/ui/')) {
             return 'ui-components'
           }
-          
-          if (id.includes('src/')) {
-            return 'app'
+          if (id.includes('src/components/')) {
+            return 'components'
+          }
+          if (id.includes('src/pages/')) {
+            return 'pages'
+          }
+          if (id.includes('src/lib/')) {
+            return 'lib'
+          }
+          if (id.includes('src/hooks/')) {
+            return 'hooks'
           }
         },
         
+        // Optimize file names
         chunkFileNames: 'js/[name]-[hash:8].js',
         entryFileNames: 'js/[name]-[hash:8].js',
         assetFileNames: 'assets/[name]-[hash:8].[ext]'
@@ -67,7 +122,7 @@ export default defineConfig({
   },
   
   optimizeDeps: {
-    include: ['react', 'react-dom'],
-    // Remove problematic excludes
+    include: ['react', 'react-dom', 'class-variance-authority'],
+    exclude: ['@googlemaps/js-api-loader']
   }
 })
