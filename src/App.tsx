@@ -1,10 +1,14 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-// Let's try adding back basic UI components one by one
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-// Test login with shadcn/ui components
+// Let's progressively add back the providers
+import { ThemeProvider } from '@/components/ThemeProvider';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
+
+// Test login with providers
 function TestLogin() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
@@ -54,47 +58,6 @@ function TestMain() {
   );
 }
 
-function TestRegister() {
-  return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Register Page</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p>Registration functionality</p>
-          <Button 
-            onClick={() => window.location.href = '/login'}
-            className="w-full"
-          >
-            Go to Login
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-function TestNotFound() {
-  return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>404 - Page Not Found</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Button 
-            onClick={() => window.location.href = '/'}
-            className="w-full"
-          >
-            Go Home
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
 // Simple protected route
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = localStorage.getItem('auth_token');
@@ -108,58 +71,90 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<TestLogin />} />
-        <Route path="/register" element={<TestRegister />} />
-        <Route path="/forgot-password" element={
-          <div className="min-h-screen flex items-center justify-center p-4">
-            <Card className="w-full max-w-md">
-              <CardHeader>
-                <CardTitle>Forgot Password</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Button onClick={() => window.location.href = '/login'} className="w-full">
-                  Back to Login
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        } />
-        <Route path="/reset-password" element={
-          <div className="min-h-screen flex items-center justify-center p-4">
-            <Card className="w-full max-w-md">
-              <CardHeader>
-                <CardTitle>Reset Password</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Button onClick={() => window.location.href = '/login'} className="w-full">
-                  Back to Login
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        } />
-        <Route path="/oauth/callback" element={
-          <div className="min-h-screen flex items-center justify-center p-4">
-            <Card className="w-full max-w-md">
-              <CardHeader>
-                <CardTitle>OAuth Callback</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p>Processing...</p>
-              </CardContent>
-            </Card>
-          </div>
-        } />
-        <Route path="/" element={
-          <ProtectedRoute>
-            <TestMain />
-          </ProtectedRoute>
-        } />
-        <Route path="*" element={<TestNotFound />} />
-      </Routes>
-    </BrowserRouter>
+    <ThemeProvider defaultTheme="system" storageKey="planner-ui-theme">
+      <AuthProvider>
+        <SubscriptionProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/login" element={<TestLogin />} />
+              <Route path="/register" element={
+                <div className="min-h-screen flex items-center justify-center p-4">
+                  <Card className="w-full max-w-md">
+                    <CardHeader>
+                      <CardTitle>Register Page</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Button onClick={() => window.location.href = '/login'} className="w-full">
+                        Go to Login
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+              } />
+              <Route path="/forgot-password" element={
+                <div className="min-h-screen flex items-center justify-center p-4">
+                  <Card className="w-full max-w-md">
+                    <CardHeader>
+                      <CardTitle>Forgot Password</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Button onClick={() => window.location.href = '/login'} className="w-full">
+                        Back to Login
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+              } />
+              <Route path="/reset-password" element={
+                <div className="min-h-screen flex items-center justify-center p-4">
+                  <Card className="w-full max-w-md">
+                    <CardHeader>
+                      <CardTitle>Reset Password</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Button onClick={() => window.location.href = '/login'} className="w-full">
+                        Back to Login
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+              } />
+              <Route path="/oauth/callback" element={
+                <div className="min-h-screen flex items-center justify-center p-4">
+                  <Card className="w-full max-w-md">
+                    <CardHeader>
+                      <CardTitle>OAuth Callback</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p>Processing...</p>
+                    </CardContent>
+                  </Card>
+                </div>
+              } />
+              <Route path="/" element={
+                <ProtectedRoute>
+                  <TestMain />
+                </ProtectedRoute>
+              } />
+              <Route path="*" element={
+                <div className="min-h-screen flex items-center justify-center p-4">
+                  <Card className="w-full max-w-md">
+                    <CardHeader>
+                      <CardTitle>404 - Page Not Found</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Button onClick={() => window.location.href = '/'} className="w-full">
+                        Go Home
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+              } />
+            </Routes>
+          </BrowserRouter>
+        </SubscriptionProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
