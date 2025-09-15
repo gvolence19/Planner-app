@@ -1,18 +1,41 @@
-import React from 'react';
+import { Toaster } from '@/components/ui/sonner';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AnimatedGradientText from '@/components/AnimatedGradientText';
-
-// Let's test just the LoginForm - this is likely the culprit
 import LoginForm from '@/components/auth/LoginForm';
 import { User } from '@/types/auth';
 
-// Test login with actual LoginForm component
-function TestLogin() {
+// Import the main planner app
+import PlannerApp from './pages/Index';
+import NotFound from './pages/NotFound';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: (failureCount, error) => {
+        if (error instanceof Error && error.message.includes('401')) return false;
+        if (error instanceof Error && error.message.includes('403')) return false;
+        return failureCount < 3;
+      },
+    },
+    mutations: {
+      retry: 1,
+    },
+  },
+});
+
+const googleClientId = "246690586453-lhel5i1bk1gmn503u6to8rsl8r3d3hrb.apps.googleusercontent.com";
+
+// Working LoginPage component
+function LoginPage() {
   const handleLoginSuccess = (user: User) => {
     console.log("User authenticated:", user);
     window.location.href = '/';
@@ -32,26 +55,28 @@ function TestLogin() {
   );
 }
 
-function TestMain() {
+// Simple register page without the complex RegisterForm
+function RegisterPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-background to-background/80">
+      <div className="w-full max-w-md mb-8 text-center">
+        <h1 className="text-3xl font-bold tracking-tight mb-2">
+          <AnimatedGradientText text="Task Planner" />
+        </h1>
+        <p className="text-muted-foreground">Create your account to get started</p>
+      </div>
+      
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>
-            <AnimatedGradientText text="Main App" />
-          </CardTitle>
+          <CardTitle>Register</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p>You are logged in!</p>
+          <p>Registration functionality coming soon!</p>
           <Button 
-            onClick={() => {
-              localStorage.removeItem('auth_token');
-              window.location.href = '/login';
-            }}
-            variant="destructive"
+            onClick={() => window.location.href = '/login'}
             className="w-full"
           >
-            Logout
+            Go to Login
           </Button>
         </CardContent>
       </Card>
@@ -59,114 +84,124 @@ function TestMain() {
   );
 }
 
-// Simple protected route
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const isAuthenticated = localStorage.getItem('auth_token');
+// Simple forgot password page
+function ForgotPasswordPage() {
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-background to-background/80">
+      <div className="w-full max-w-md mb-8 text-center">
+        <h1 className="text-3xl font-bold tracking-tight mb-2">
+          <AnimatedGradientText text="Task Planner" />
+        </h1>
+        <p className="text-muted-foreground">Reset your password</p>
+      </div>
+      
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>Forgot Password</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Button onClick={() => window.location.href = '/login'} className="w-full">
+            Back to Login
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// Simple reset password page
+function ResetPasswordPage() {
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-background to-background/80">
+      <div className="w-full max-w-md mb-8 text-center">
+        <h1 className="text-3xl font-bold tracking-tight mb-2">
+          <AnimatedGradientText text="Task Planner" />
+        </h1>
+        <p className="text-muted-foreground">Create a new password</p>
+      </div>
+      
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>Reset Password</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Button onClick={() => window.location.href = '/login'} className="w-full">
+            Back to Login
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// Simple OAuth callback
+function OAuthCallback() {
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>
+            <AnimatedGradientText text="OAuth Callback" />
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>Processing authentication...</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// Protected route component
+const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+  const isAuthenticated = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
   
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
   
-  return <>{children}</>;
-}
+  return children;
+};
 
-function App() {
-  return (
-    <ThemeProvider defaultTheme="system" storageKey="planner-ui-theme">
+const App = () => (
+  <ThemeProvider defaultTheme="system" storageKey="planner-ui-theme">
+    <GoogleOAuthProvider clientId={googleClientId}>
       <AuthProvider>
         <SubscriptionProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/login" element={<TestLogin />} />
-              <Route path="/register" element={
-                <div className="min-h-screen flex items-center justify-center p-4">
-                  <Card className="w-full max-w-md">
-                    <CardHeader>
-                      <CardTitle>
-                        <AnimatedGradientText text="Register Page" />
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <Button onClick={() => window.location.href = '/login'} className="w-full">
-                        Go to Login
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </div>
-              } />
-              <Route path="/forgot-password" element={
-                <div className="min-h-screen flex items-center justify-center p-4">
-                  <Card className="w-full max-w-md">
-                    <CardHeader>
-                      <CardTitle>
-                        <AnimatedGradientText text="Forgot Password" />
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <Button onClick={() => window.location.href = '/login'} className="w-full">
-                        Back to Login
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </div>
-              } />
-              <Route path="/reset-password" element={
-                <div className="min-h-screen flex items-center justify-center p-4">
-                  <Card className="w-full max-w-md">
-                    <CardHeader>
-                      <CardTitle>
-                        <AnimatedGradientText text="Reset Password" />
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <Button onClick={() => window.location.href = '/login'} className="w-full">
-                        Back to Login
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </div>
-              } />
-              <Route path="/oauth/callback" element={
-                <div className="min-h-screen flex items-center justify-center p-4">
-                  <Card className="w-full max-w-md">
-                    <CardHeader>
-                      <CardTitle>
-                        <AnimatedGradientText text="OAuth Callback" />
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p>Processing...</p>
-                    </CardContent>
-                  </Card>
-                </div>
-              } />
-              <Route path="/" element={
-                <ProtectedRoute>
-                  <TestMain />
-                </ProtectedRoute>
-              } />
-              <Route path="*" element={
-                <div className="min-h-screen flex items-center justify-center p-4">
-                  <Card className="w-full max-w-md">
-                    <CardHeader>
-                      <CardTitle>
-                        <AnimatedGradientText text="404 - Page Not Found" />
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <Button onClick={() => window.location.href = '/'} className="w-full">
-                        Go Home
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </div>
-              } />
-            </Routes>
-          </BrowserRouter>
+          <QueryClientProvider client={queryClient}>
+            <TooltipProvider>
+              <Toaster 
+                position="top-right"
+                expand={false}
+                richColors
+                closeButton
+              />
+              <BrowserRouter>
+                <Routes>
+                  {/* Auth Routes */}
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/register" element={<RegisterPage />} />
+                  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                  <Route path="/reset-password" element={<ResetPasswordPage />} />
+                  <Route path="/oauth/callback" element={<OAuthCallback />} />
+                  
+                  {/* Protected Routes */}
+                  <Route path="/" element={
+                    <ProtectedRoute>
+                      <PlannerApp />
+                    </ProtectedRoute>
+                  } />
+                  
+                  {/* Not Found */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
+            </TooltipProvider>
+          </QueryClientProvider>
         </SubscriptionProvider>
       </AuthProvider>
-    </ThemeProvider>
-  );
-}
+    </GoogleOAuthProvider>
+  </ThemeProvider>
+);
 
 export default App;
