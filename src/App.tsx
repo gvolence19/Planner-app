@@ -1,82 +1,149 @@
-import { Toaster } from '@/components/ui/sonner';
-import { TooltipProvider } from '@/components/ui/tooltip';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { GoogleOAuthProvider } from '@react-oauth/google';
-import { ThemeProvider } from '@/components/ThemeProvider';
-import { AuthProvider } from '@/contexts/AuthContext';
-import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
-import PlannerApp from './pages/Index';
-import NotFound from './pages/NotFound';
-import LoginPage from './pages/auth/LoginPage';
-import RegisterPage from './pages/auth/RegisterPage';
-import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
-import ResetPasswordPage from './pages/auth/ResetPasswordPage';
-import OAuthCallback from './pages/OAuthCallback';
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      retry: (failureCount, error) => {
-        // Don't retry on 401/403 errors (auth issues)
-        if (error instanceof Error && error.message.includes('401')) return false;
-        if (error instanceof Error && error.message.includes('403')) return false;
-        return failureCount < 3;
-      },
-    },
-    mutations: {
-      retry: 1,
-    },
-  },
-});
+// Simple test components without any dependencies
+function SimpleLogin() {
+  return (
+    <div style={{ padding: '40px', textAlign: 'center', fontFamily: 'Arial' }}>
+      <h1>Login Page</h1>
+      <p>Please log in to continue</p>
+      <button 
+        onClick={() => {
+          localStorage.setItem('auth_token', 'test-token');
+          window.location.href = '/';
+        }}
+        style={{ 
+          padding: '10px 20px', 
+          fontSize: '16px',
+          backgroundColor: '#007bff',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer'
+        }}
+      >
+        Test Login
+      </button>
+    </div>
+  );
+}
 
-const googleClientId = "246690586453-lhel5i1bk1gmn503u6to8rsl8r3d3hrb.apps.googleusercontent.com";
+function SimpleMain() {
+  return (
+    <div style={{ padding: '40px', textAlign: 'center', fontFamily: 'Arial' }}>
+      <h1>Main App</h1>
+      <p>You are logged in!</p>
+      <button 
+        onClick={() => {
+          localStorage.removeItem('auth_token');
+          window.location.href = '/login';
+        }}
+        style={{ 
+          padding: '10px 20px', 
+          fontSize: '16px',
+          backgroundColor: '#dc3545',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer'
+        }}
+      >
+        Logout
+      </button>
+    </div>
+  );
+}
 
-const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
-  const isAuthenticated = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+function SimpleRegister() {
+  return (
+    <div style={{ padding: '40px', textAlign: 'center', fontFamily: 'Arial' }}>
+      <h1>Register Page</h1>
+      <p>Registration functionality</p>
+      <button 
+        onClick={() => window.location.href = '/login'}
+        style={{ 
+          padding: '10px 20px', 
+          fontSize: '16px',
+          backgroundColor: '#28a745',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer'
+        }}
+      >
+        Go to Login
+      </button>
+    </div>
+  );
+}
+
+function SimpleNotFound() {
+  return (
+    <div style={{ padding: '40px', textAlign: 'center', fontFamily: 'Arial' }}>
+      <h1>404</h1>
+      <p>Page Not Found</p>
+      <button 
+        onClick={() => window.location.href = '/'}
+        style={{ 
+          padding: '10px 20px', 
+          fontSize: '16px',
+          backgroundColor: '#6c757d',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer'
+        }}
+      >
+        Go Home
+      </button>
+    </div>
+  );
+}
+
+// Simple protected route
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const isAuthenticated = localStorage.getItem('auth_token');
   
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
   
-  return children;
-};
+  return <>{children}</>;
+}
 
-const App = () => (
-  <ThemeProvider defaultTheme="system" storageKey="planner-ui-theme">
-    <GoogleOAuthProvider clientId={googleClientId}>
-      <AuthProvider>
-        <SubscriptionProvider>
-          <QueryClientProvider client={queryClient}>
-            <TooltipProvider>
-              <Toaster 
-                position="top-right"
-                expand={false}
-                richColors
-                closeButton
-              />
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/register" element={<RegisterPage />} />
-                  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                  <Route path="/reset-password" element={<ResetPasswordPage />} />
-                  <Route path="/oauth/callback" element={<OAuthCallback />} />
-                  <Route path="/" element={
-                    <ProtectedRoute>
-                      <PlannerApp />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </BrowserRouter>
-            </TooltipProvider>
-          </QueryClientProvider>
-        </SubscriptionProvider>
-      </AuthProvider>
-    </GoogleOAuthProvider>
-  </ThemeProvider>
-);
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<SimpleLogin />} />
+        <Route path="/register" element={<SimpleRegister />} />
+        <Route path="/forgot-password" element={
+          <div style={{ padding: '40px', textAlign: 'center' }}>
+            <h1>Forgot Password</h1>
+            <button onClick={() => window.location.href = '/login'}>Back to Login</button>
+          </div>
+        } />
+        <Route path="/reset-password" element={
+          <div style={{ padding: '40px', textAlign: 'center' }}>
+            <h1>Reset Password</h1>
+            <button onClick={() => window.location.href = '/login'}>Back to Login</button>
+          </div>
+        } />
+        <Route path="/oauth/callback" element={
+          <div style={{ padding: '40px', textAlign: 'center' }}>
+            <h1>OAuth Callback</h1>
+            <p>Processing...</p>
+          </div>
+        } />
+        <Route path="/" element={
+          <ProtectedRoute>
+            <SimpleMain />
+          </ProtectedRoute>
+        } />
+        <Route path="*" element={<SimpleNotFound />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
 
 export default App;
