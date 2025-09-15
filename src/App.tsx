@@ -5,33 +5,29 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
-
-// Let's test AnimatedGradientText - this was a suspect
 import AnimatedGradientText from '@/components/AnimatedGradientText';
 
-// Test login with AnimatedGradientText
+// Let's test just the LoginForm - this is likely the culprit
+import LoginForm from '@/components/auth/LoginForm';
+import { User } from '@/types/auth';
+
+// Test login with actual LoginForm component
 function TestLogin() {
+  const handleLoginSuccess = (user: User) => {
+    console.log("User authenticated:", user);
+    window.location.href = '/';
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>
-            <AnimatedGradientText text="Login Page" />
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p>Please log in to continue</p>
-          <Button 
-            onClick={() => {
-              localStorage.setItem('auth_token', 'test-token');
-              window.location.href = '/';
-            }}
-            className="w-full"
-          >
-            Test Login
-          </Button>
-        </CardContent>
-      </Card>
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-background to-background/80">
+      <div className="w-full max-w-md mb-8 text-center">
+        <h1 className="text-3xl font-bold tracking-tight mb-2">
+          <AnimatedGradientText text="Task Planner" />
+        </h1>
+        <p className="text-muted-foreground">Sign in to access your tasks and calendar</p>
+      </div>
+      
+      <LoginForm onLoginSuccess={handleLoginSuccess} />
     </div>
   );
 }
@@ -63,29 +59,6 @@ function TestMain() {
   );
 }
 
-function TestRegister() {
-  return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>
-            <AnimatedGradientText text="Register Page" />
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p>Create your account</p>
-          <Button 
-            onClick={() => window.location.href = '/login'}
-            className="w-full"
-          >
-            Go to Login
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
 // Simple protected route
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = localStorage.getItem('auth_token');
@@ -105,7 +78,22 @@ function App() {
           <BrowserRouter>
             <Routes>
               <Route path="/login" element={<TestLogin />} />
-              <Route path="/register" element={<TestRegister />} />
+              <Route path="/register" element={
+                <div className="min-h-screen flex items-center justify-center p-4">
+                  <Card className="w-full max-w-md">
+                    <CardHeader>
+                      <CardTitle>
+                        <AnimatedGradientText text="Register Page" />
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Button onClick={() => window.location.href = '/login'} className="w-full">
+                        Go to Login
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+              } />
               <Route path="/forgot-password" element={
                 <div className="min-h-screen flex items-center justify-center p-4">
                   <Card className="w-full max-w-md">
