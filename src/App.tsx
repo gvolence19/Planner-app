@@ -2,19 +2,22 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-
-// Let's progressively add back the providers
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
 
-// Test login with providers
+// Let's test AnimatedGradientText - this was a suspect
+import AnimatedGradientText from '@/components/AnimatedGradientText';
+
+// Test login with AnimatedGradientText
 function TestLogin() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Login Page</CardTitle>
+          <CardTitle>
+            <AnimatedGradientText text="Login Page" />
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p>Please log in to continue</p>
@@ -38,7 +41,9 @@ function TestMain() {
     <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Main App</CardTitle>
+          <CardTitle>
+            <AnimatedGradientText text="Main App" />
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p>You are logged in!</p>
@@ -51,6 +56,29 @@ function TestMain() {
             className="w-full"
           >
             Logout
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function TestRegister() {
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>
+            <AnimatedGradientText text="Register Page" />
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p>Create your account</p>
+          <Button 
+            onClick={() => window.location.href = '/login'}
+            className="w-full"
+          >
+            Go to Login
           </Button>
         </CardContent>
       </Card>
@@ -77,25 +105,14 @@ function App() {
           <BrowserRouter>
             <Routes>
               <Route path="/login" element={<TestLogin />} />
-              <Route path="/register" element={
-                <div className="min-h-screen flex items-center justify-center p-4">
-                  <Card className="w-full max-w-md">
-                    <CardHeader>
-                      <CardTitle>Register Page</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <Button onClick={() => window.location.href = '/login'} className="w-full">
-                        Go to Login
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </div>
-              } />
+              <Route path="/register" element={<TestRegister />} />
               <Route path="/forgot-password" element={
                 <div className="min-h-screen flex items-center justify-center p-4">
                   <Card className="w-full max-w-md">
                     <CardHeader>
-                      <CardTitle>Forgot Password</CardTitle>
+                      <CardTitle>
+                        <AnimatedGradientText text="Forgot Password" />
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <Button onClick={() => window.location.href = '/login'} className="w-full">
@@ -109,7 +126,9 @@ function App() {
                 <div className="min-h-screen flex items-center justify-center p-4">
                   <Card className="w-full max-w-md">
                     <CardHeader>
-                      <CardTitle>Reset Password</CardTitle>
+                      <CardTitle>
+                        <AnimatedGradientText text="Reset Password" />
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <Button onClick={() => window.location.href = '/login'} className="w-full">
@@ -123,7 +142,9 @@ function App() {
                 <div className="min-h-screen flex items-center justify-center p-4">
                   <Card className="w-full max-w-md">
                     <CardHeader>
-                      <CardTitle>OAuth Callback</CardTitle>
+                      <CardTitle>
+                        <AnimatedGradientText text="OAuth Callback" />
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p>Processing...</p>
@@ -140,7 +161,9 @@ function App() {
                 <div className="min-h-screen flex items-center justify-center p-4">
                   <Card className="w-full max-w-md">
                     <CardHeader>
-                      <CardTitle>404 - Page Not Found</CardTitle>
+                      <CardTitle>
+                        <AnimatedGradientText text="404 - Page Not Found" />
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <Button onClick={() => window.location.href = '/'} className="w-full">
