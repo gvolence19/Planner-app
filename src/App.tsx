@@ -13,8 +13,8 @@ import LoginForm from '@/components/auth/LoginForm';
 import { User } from '@/types/auth';
 import NotFound from './pages/NotFound';
 
-// Import the minimal PlannerApp
-import MinimalPlannerApp from './components/MinimalPlannerApp';
+// Import the test component
+import TestComponentsApp from './components/TestComponentsApp';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -98,10 +98,10 @@ const App = () => (
                     </div>
                   } />
                   
-                  {/* Protected Routes - Using minimal PlannerApp */}
+                  {/* Protected Routes - Using TestComponentsApp */}
                   <Route path="/" element={
                     <ProtectedRoute>
-                      <MinimalPlannerApp />
+                      <TestComponentsApp />
                     </ProtectedRoute>
                   } />
                   

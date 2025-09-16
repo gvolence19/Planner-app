@@ -1,33 +1,28 @@
-// Step 2: Add basic types, hooks, and state management
+// Step 3: Test one complex component import at a time to find the problematic one
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlusCircle, Calendar, ListChecks } from 'lucide-react';
 import AnimatedGradientText from '@/components/AnimatedGradientText';
 import { ThemeToggle } from '@/components/ThemeToggle';
-
-// Add back basic types - these should be safe
 import { Task, TaskCategory, DEFAULT_CATEGORIES } from '@/types';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 
-export default function EnhancedPlannerApp() {
-  // Add back basic state management
+// TEST: Let's try importing NewTaskDialog first - this is simpler than TaskList
+import NewTaskDialog from '@/components/NewTaskDialog';
+
+export default function TestComponentsApp() {
+  // State management
   const [tasks, setTasks] = useLocalStorage<Task[]>('planner-tasks', []);
   const [categories, setCategories] = useLocalStorage<TaskCategory[]>('planner-categories', DEFAULT_CATEGORIES);
   const [view, setView] = useLocalStorage<'list' | 'calendar' | 'grocery'>('planner-view', 'list');
+  const [isNewTaskDialogOpen, setIsNewTaskDialogOpen] = useState(false);
   const { isPremium } = useSubscription();
 
-  // Basic task management functions
-  const addTask = (title: string) => {
-    const newTask: Task = {
-      id: crypto.randomUUID(),
-      title,
-      completed: false,
-      createdAt: new Date(),
-      category: 'Personal'
-    };
-    setTasks([...tasks, newTask]);
+  // Task management functions
+  const addTask = (task: Task) => {
+    setTasks([...tasks, { ...task, id: crypto.randomUUID(), createdAt: new Date() }]);
   };
 
   const toggleTask = (id: string) => {
@@ -97,7 +92,7 @@ export default function EnhancedPlannerApp() {
                   <span>Task List</span>
                   <Button 
                     size="sm"
-                    onClick={() => addTask('New Task')}
+                    onClick={() => setIsNewTaskDialogOpen(true)}
                   >
                     <PlusCircle className="h-4 w-4 mr-2" />
                     Add Task
@@ -170,6 +165,14 @@ export default function EnhancedPlannerApp() {
           )}
         </div>
       </div>
+
+      {/* TEST: Use the NewTaskDialog component */}
+      <NewTaskDialog
+        open={isNewTaskDialogOpen}
+        onOpenChange={setIsNewTaskDialogOpen}
+        onAddTask={addTask}
+        categories={categories}
+      />
     </div>
   );
 }
