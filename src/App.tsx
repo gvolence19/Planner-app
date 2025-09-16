@@ -19,8 +19,9 @@ import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import NotFound from './pages/NotFound';
 
-// TEST: Import NewTaskDialog to see if it causes constructor error
+// NewTaskDialog works fine, now let's test TaskList
 import NewTaskDialog from '@/components/NewTaskDialog';
+import TaskList from '@/components/TaskList';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -59,8 +60,8 @@ function LoginPage() {
   );
 }
 
-// Inline Test Component - tests NewTaskDialog
-function TestNewTaskDialog() {
+// Test TaskList component
+function TestTaskList() {
   const [tasks, setTasks] = useLocalStorage<Task[]>('planner-tasks', []);
   const [categories, setCategories] = useLocalStorage<TaskCategory[]>('planner-categories', DEFAULT_CATEGORIES);
   const [view, setView] = useLocalStorage<'list' | 'calendar' | 'grocery'>('planner-view', 'list');
@@ -71,10 +72,8 @@ function TestNewTaskDialog() {
     setTasks([...tasks, { ...task, id: crypto.randomUUID(), createdAt: new Date() }]);
   };
 
-  const toggleTask = (id: string) => {
-    setTasks(tasks.map(task => 
-      task.id === id ? { ...task, completed: !task.completed } : task
-    ));
+  const updateTask = (updatedTask: Task) => {
+    setTasks(tasks.map(task => task.id === updatedTask.id ? updatedTask : task));
   };
 
   const deleteTask = (id: string) => {
@@ -143,39 +142,13 @@ function TestNewTaskDialog() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {tasks.length === 0 ? (
-                  <p className="text-muted-foreground text-center py-8">
-                    No tasks yet. Click "Add Task" to get started!
-                  </p>
-                ) : (
-                  <div className="space-y-2">
-                    {tasks.map(task => (
-                      <div 
-                        key={task.id} 
-                        className="flex items-center justify-between p-3 border rounded-lg"
-                      >
-                        <div className="flex items-center gap-3">
-                          <input
-                            type="checkbox"
-                            checked={task.completed}
-                            onChange={() => toggleTask(task.id)}
-                            className="h-4 w-4"
-                          />
-                          <span className={task.completed ? 'line-through text-muted-foreground' : ''}>
-                            {task.title}
-                          </span>
-                        </div>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => deleteTask(task.id)}
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                {/* TEST: Use TaskList component instead of simple list */}
+                <TaskList
+                  tasks={tasks}
+                  onUpdateTask={updateTask}
+                  onDeleteTask={deleteTask}
+                  categories={categories}
+                />
               </CardContent>
             </Card>
           )}
@@ -208,7 +181,6 @@ function TestNewTaskDialog() {
         </div>
       </div>
 
-      {/* TEST: NewTaskDialog - this will test if this component causes the constructor error */}
       <NewTaskDialog
         open={isNewTaskDialogOpen}
         onOpenChange={setIsNewTaskDialogOpen}
@@ -261,7 +233,7 @@ const App = () => (
                   } />
                   <Route path="/" element={
                     <ProtectedRoute>
-                      <TestNewTaskDialog />
+                      <TestTaskList />
                     </ProtectedRoute>
                   } />
                   <Route path="*" element={<NotFound />} />
