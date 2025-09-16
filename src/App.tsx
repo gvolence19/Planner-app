@@ -12,10 +12,6 @@ import AnimatedGradientText from '@/components/AnimatedGradientText';
 import LoginForm from '@/components/auth/LoginForm';
 import { User } from '@/types/auth';
 
-// Import the main planner app
-import PlannerApp from './pages/Index';
-import NotFound from './pages/NotFound';
-
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -55,7 +51,37 @@ function LoginPage() {
   );
 }
 
-// Simple register page without the complex RegisterForm
+// Simple main app instead of complex PlannerApp
+function SimplePlannerApp() {
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>
+            <AnimatedGradientText text="Task Planner" />
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p>Welcome to your task planner!</p>
+          <p>Main planner functionality coming soon...</p>
+          <Button 
+            onClick={() => {
+              localStorage.removeItem('auth_token');
+              sessionStorage.removeItem('auth_token');
+              window.location.href = '/login';
+            }}
+            variant="destructive"
+            className="w-full"
+          >
+            Logout
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// Simple register page
 function RegisterPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-background to-background/80">
@@ -84,68 +110,20 @@ function RegisterPage() {
   );
 }
 
-// Simple forgot password page
-function ForgotPasswordPage() {
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-background to-background/80">
-      <div className="w-full max-w-md mb-8 text-center">
-        <h1 className="text-3xl font-bold tracking-tight mb-2">
-          <AnimatedGradientText text="Task Planner" />
-        </h1>
-        <p className="text-muted-foreground">Reset your password</p>
-      </div>
-      
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Forgot Password</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Button onClick={() => window.location.href = '/login'} className="w-full">
-            Back to Login
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-// Simple reset password page
-function ResetPasswordPage() {
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-background to-background/80">
-      <div className="w-full max-w-md mb-8 text-center">
-        <h1 className="text-3xl font-bold tracking-tight mb-2">
-          <AnimatedGradientText text="Task Planner" />
-        </h1>
-        <p className="text-muted-foreground">Create a new password</p>
-      </div>
-      
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Reset Password</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Button onClick={() => window.location.href = '/login'} className="w-full">
-            Back to Login
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-// Simple OAuth callback
-function OAuthCallback() {
+// Simple not found page
+function SimpleNotFound() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>
-            <AnimatedGradientText text="OAuth Callback" />
+            <AnimatedGradientText text="404 - Page Not Found" />
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p>Processing authentication...</p>
+          <Button onClick={() => window.location.href = '/'} className="w-full">
+            Go Home
+          </Button>
         </CardContent>
       </Card>
     </div>
@@ -181,19 +159,56 @@ const App = () => (
                   {/* Auth Routes */}
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/register" element={<RegisterPage />} />
-                  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                  <Route path="/reset-password" element={<ResetPasswordPage />} />
-                  <Route path="/oauth/callback" element={<OAuthCallback />} />
+                  <Route path="/forgot-password" element={
+                    <div className="min-h-screen flex items-center justify-center p-4">
+                      <Card className="w-full max-w-md">
+                        <CardHeader>
+                          <CardTitle>Forgot Password</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <Button onClick={() => window.location.href = '/login'} className="w-full">
+                            Back to Login
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  } />
+                  <Route path="/reset-password" element={
+                    <div className="min-h-screen flex items-center justify-center p-4">
+                      <Card className="w-full max-w-md">
+                        <CardHeader>
+                          <CardTitle>Reset Password</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <Button onClick={() => window.location.href = '/login'} className="w-full">
+                            Back to Login
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  } />
+                  <Route path="/oauth/callback" element={
+                    <div className="min-h-screen flex items-center justify-center p-4">
+                      <Card className="w-full max-w-md">
+                        <CardHeader>
+                          <CardTitle>OAuth Callback</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p>Processing authentication...</p>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  } />
                   
                   {/* Protected Routes */}
                   <Route path="/" element={
                     <ProtectedRoute>
-                      <PlannerApp />
+                      <SimplePlannerApp />
                     </ProtectedRoute>
                   } />
                   
                   {/* Not Found */}
-                  <Route path="*" element={<NotFound />} />
+                  <Route path="*" element={<SimpleNotFound />} />
                 </Routes>
               </BrowserRouter>
             </TooltipProvider>
