@@ -11,9 +11,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AnimatedGradientText from '@/components/AnimatedGradientText';
 import LoginForm from '@/components/auth/LoginForm';
 import { User } from '@/types/auth';
-
-// Let's test just the NotFound component
 import NotFound from './pages/NotFound';
+
+// Import the minimal PlannerApp
+import MinimalPlannerApp from './components/MinimalPlannerApp';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -50,36 +51,6 @@ function LoginPage() {
       </div>
       
       <LoginForm onLoginSuccess={handleLoginSuccess} />
-    </div>
-  );
-}
-
-// Simple main app
-function SimplePlannerApp() {
-  return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>
-            <AnimatedGradientText text="Task Planner" />
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p>Welcome to your task planner!</p>
-          <p>Main planner functionality coming soon...</p>
-          <Button 
-            onClick={() => {
-              localStorage.removeItem('auth_token');
-              sessionStorage.removeItem('auth_token');
-              window.location.href = '/login';
-            }}
-            variant="destructive"
-            className="w-full"
-          >
-            Logout
-          </Button>
-        </CardContent>
-      </Card>
     </div>
   );
 }
@@ -127,14 +98,14 @@ const App = () => (
                     </div>
                   } />
                   
-                  {/* Protected Routes */}
+                  {/* Protected Routes - Using minimal PlannerApp */}
                   <Route path="/" element={
                     <ProtectedRoute>
-                      <SimplePlannerApp />
+                      <MinimalPlannerApp />
                     </ProtectedRoute>
                   } />
                   
-                  {/* Test NotFound component */}
+                  {/* Not Found */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>
