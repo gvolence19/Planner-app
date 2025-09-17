@@ -1,9 +1,9 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import React, { useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { ThemeProvider } from '@/contexts/ThemeContext';
-import { AuthProvider } from '@/contexts/AuthContext';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import LoginPage from '@/pages/auth/LoginPage';
@@ -13,11 +13,10 @@ import NotFound from '@/pages/NotFound';
 import NewTaskDialog from '@/components/NewTaskDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
 import { Task, TaskCategory, DEFAULT_CATEGORIES } from '@/types';
 
 // Protected route component using your existing auth pattern
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
   
   if (isLoading) {
@@ -37,6 +36,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   return <>{children}</>;
 };
+
+const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
