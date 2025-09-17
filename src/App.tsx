@@ -6,9 +6,8 @@ import { ThemeProvider } from '@/contexts/ThemeContext';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import LoginPage from '@/pages/LoginPage';
-import NotFound from '@/components/NotFound';
-import ProtectedRoute from '@/components/ProtectedRoute';
+import LoginPage from '@/pages/auth/LoginPage';
+import NotFound from '@/pages/NotFound';
 
 // Import the components we're testing
 import NewTaskDialog from '@/components/NewTaskDialog';
@@ -17,7 +16,27 @@ import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { Task, TaskCategory, DEFAULT_CATEGORIES } from '@/types';
 
-const queryClient = new QueryClient({
+// Protected route component using your existing auth pattern
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated, isLoading } = useAuth();
+  
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+};
   defaultOptions: {
     queries: {
       retry: 1,
@@ -141,20 +160,7 @@ const App: React.FC = () => (
                 <Routes>
                   {/* Login Route */}
                   <Route path="/login" element={<LoginPage />} />
-                  <Route path="/register" element={
-                    <div className="min-h-screen flex items-center justify-center p-4">
-                      <Card className="w-full max-w-md">
-                        <CardHeader>
-                          <CardTitle>Register</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <Button onClick={() => window.location.href = '/login'} className="w-full">
-                            Go to Login
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  } />
+                  <Route path="/register" element={<LoginPage />} />
                   
                   {/* Protected Routes - Testing NewTaskDialog */}
                   <Route path="/" element={
