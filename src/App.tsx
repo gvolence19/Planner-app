@@ -4,18 +4,18 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
-import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
+import { SubscriptionProvider } from '@/contexts/SubscriptionProvider';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import LoginPage from '@/pages/auth/LoginPage';
 import NotFound from '@/pages/NotFound';
 
-// Import the components we're testing
-import NewTaskDialog from '@/components/NewTaskDialog';
+// Import the UI components we need for testing
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Task, TaskCategory, DEFAULT_CATEGORIES } from '@/types';
 
-// Protected route component using your existing auth pattern
+// Protected route component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
   
@@ -46,106 +46,182 @@ const queryClient = new QueryClient({
   },
 });
 
-// Test Component for NewTaskDialog
-const TestNewTaskDialogApp: React.FC = () => {
-  const [isNewTaskDialogOpen, setIsNewTaskDialogOpen] = useState(false);
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [categories] = useState<TaskCategory[]>(DEFAULT_CATEGORIES);
+// Test 1: Just test date-fns imports
+const TestDateFnsComponent: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [testResult, setTestResult] = useState<'pending' | 'success' | 'error'>('pending');
 
-  const handleAddTask = (task: Task) => {
-    console.log('✅ Task successfully created:', task);
-    setTasks(prev => [...prev, task]);
-    setIsNewTaskDialogOpen(false);
+  const testDateFns = () => {
+    try {
+      // Import and test date-fns - this is the most likely culprit
+      import('date-fns').then((dateFns) => {
+        console.log('✅ date-fns imported successfully:', dateFns);
+        const today = new Date();
+        const formatted = dateFns.format(today, 'yyyy-MM-dd');
+        console.log('✅ date-fns format works:', formatted);
+        setTestResult('success');
+      }).catch((error) => {
+        console.error('❌ date-fns import failed:', error);
+        setTestResult('error');
+      });
+    } catch (error) {
+      console.error('❌ date-fns test failed:', error);
+      setTestResult('error');
+    }
+    setIsOpen(true);
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <Card className="max-w-4xl mx-auto">
+    <div className="p-6">
+      <Card>
         <CardHeader>
-          <CardTitle className="text-center">
-            🧪 Testing NewTaskDialog Component
-          </CardTitle>
+          <CardTitle>🧪 Test 1: Date-FNS Library</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
-          
-          {/* Test Status */}
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-            <h3 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">
-              🎯 Critical Test Phase
-            </h3>
-            <p className="text-sm text-blue-700 dark:text-blue-300 mb-2">
-              Testing the real NewTaskDialog component with all its complex dependencies:
+        <CardContent className="space-y-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h3 className="font-semibold text-blue-800 mb-2">Testing date-fns imports</h3>
+            <p className="text-sm text-blue-700">
+              The date-fns library is commonly responsible for "as is not a constructor" errors.
+              This test will try to import and use date-fns functions.
             </p>
-            <ul className="text-sm text-blue-600 dark:text-blue-400 ml-4 list-disc space-y-1">
-              <li><strong>date-fns</strong> - Date formatting library</li>
-              <li><strong>Calendar UI component</strong> - Date picker</li>
-              <li><strong>SmartTaskInput</strong> - AI-powered task creation</li>
-              <li><strong>LocationInput</strong> - Location autocomplete</li>
-              <li><strong>Form validation</strong> - Input validation</li>
-            </ul>
           </div>
 
-          {/* Test Button */}
-          <div className="text-center">
-            <Button 
-              size="lg"
-              onClick={() => setIsNewTaskDialogOpen(true)}
-              className="px-8 py-3"
-            >
-              🚀 Open NewTaskDialog (Critical Test)
-            </Button>
-          </div>
+          <Button onClick={testDateFns} className="w-full">
+            🧪 Test date-fns Import
+          </Button>
 
-          {/* Results Display */}
-          {tasks.length > 0 && (
-            <div className="mt-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-              <h3 className="font-semibold text-green-800 dark:text-green-200 mb-2">
-                ✅ Success! Tasks Created ({tasks.length})
-              </h3>
-              <div className="space-y-2">
-                {tasks.map((task) => (
-                  <div key={task.id} className="p-3 bg-white dark:bg-gray-800 border rounded-lg">
-                    <div className="font-medium">{task.title}</div>
-                    {task.description && (
-                      <div className="text-sm text-gray-600 dark:text-gray-400">{task.description}</div>
-                    )}
-                    <div className="text-xs text-gray-500 mt-1">
-                      Priority: {task.priority} | Category: {task.category || 'None'}
-                      {task.dueDate && ` | Due: ${task.dueDate.toLocaleDateString()}`}
-                      {task.location && ` | Location: ${task.location}`}
-                    </div>
+          <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Date-FNS Test Result</DialogTitle>
+              </DialogHeader>
+              <div className="p-4">
+                {testResult === 'success' && (
+                  <div className="text-green-700 bg-green-50 p-3 rounded">
+                    ✅ Success! date-fns is working correctly.
+                    <br />
+                    <strong>Next:</strong> We need to test other NewTaskDialog dependencies.
                   </div>
-                ))}
+                )}
+                {testResult === 'error' && (
+                  <div className="text-red-700 bg-red-50 p-3 rounded">
+                    ❌ Error! date-fns is causing the constructor issue.
+                    <br />
+                    <strong>Found the problem!</strong>
+                  </div>
+                )}
+                {testResult === 'pending' && (
+                  <div className="text-blue-700 bg-blue-50 p-3 rounded">
+                    🔄 Testing date-fns imports...
+                  </div>
+                )}
               </div>
-            </div>
-          )}
-
-          {/* Instructions */}
-          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-            <h3 className="font-semibold text-yellow-800 dark:text-yellow-200 mb-2">
-              📋 Test Instructions
-            </h3>
-            <div className="text-sm text-yellow-700 dark:text-yellow-300 space-y-2">
-              <p><strong>Step 1:</strong> Click "Open NewTaskDialog" above</p>
-              <p><strong>Step 2a - If dialog opens successfully:</strong> NewTaskDialog is NOT causing the constructor error. We need to test other components next.</p>
-              <p><strong>Step 2b - If page crashes with "as is not a constructor":</strong> 🎯 We've found the problematic component! The error is in NewTaskDialog or one of its dependencies.</p>
-              <p className="text-red-600 dark:text-red-400 font-medium">
-                ⚠️ Most likely culprits: date-fns import, Calendar component, or SmartTaskInput
-              </p>
-            </div>
-          </div>
-
-          {/* The actual NewTaskDialog component */}
-          <NewTaskDialog
-            open={isNewTaskDialogOpen}
-            onOpenChange={setIsNewTaskDialogOpen}
-            onAddTask={handleAddTask}
-            categories={categories}
-            tasks={tasks}
-          />
-          
+            </DialogContent>
+          </Dialog>
         </CardContent>
       </Card>
+    </div>
+  );
+};
+
+// Test 2: Test Calendar UI component
+const TestCalendarUIComponent: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const testCalendarUI = () => {
+    try {
+      // Try to import the Calendar UI component
+      import('@/components/ui/calendar').then((CalendarModule) => {
+        console.log('✅ Calendar UI imported successfully:', CalendarModule);
+        setIsOpen(true);
+      }).catch((error) => {
+        console.error('❌ Calendar UI import failed:', error);
+        setIsOpen(true);
+      });
+    } catch (error) {
+      console.error('❌ Calendar UI test failed:', error);
+      setIsOpen(true);
+    }
+  };
+
+  return (
+    <div className="p-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>🧪 Test 2: Calendar UI Component</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+            <h3 className="font-semibold text-orange-800 mb-2">Testing Calendar UI component</h3>
+            <p className="text-sm text-orange-700">
+              The Calendar component from shadcn/ui might be causing constructor errors.
+            </p>
+          </div>
+
+          <Button onClick={testCalendarUI} className="w-full">
+            🧪 Test Calendar UI Import
+          </Button>
+
+          <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Calendar UI Test</DialogTitle>
+              </DialogHeader>
+              <div className="p-4">
+                <div className="text-blue-700 bg-blue-50 p-3 rounded">
+                  Check the console for Calendar UI import results.
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+// Main test app with tabs
+const TestNewTaskDependencies: React.FC = () => {
+  const [activeTest, setActiveTest] = useState<'dateFns' | 'calendar'>('dateFns');
+
+  return (
+    <div className="min-h-screen bg-background p-6">
+      <div className="max-w-4xl mx-auto">
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="text-center">
+              🔍 NewTaskDialog Dependency Testing
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+              <h3 className="font-semibold text-red-800 mb-2">✅ Confirmed: NewTaskDialog is the problem!</h3>
+              <p className="text-sm text-red-700">
+                The error occurs when NewTaskDialog loads. Now we're testing individual dependencies 
+                to find the specific cause of the "as is not a constructor" error.
+              </p>
+            </div>
+            
+            <div className="flex gap-2 mb-4">
+              <Button 
+                variant={activeTest === 'dateFns' ? 'default' : 'outline'}
+                onClick={() => setActiveTest('dateFns')}
+              >
+                Test 1: date-fns
+              </Button>
+              <Button 
+                variant={activeTest === 'calendar' ? 'default' : 'outline'}
+                onClick={() => setActiveTest('calendar')}
+              >
+                Test 2: Calendar UI
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {activeTest === 'dateFns' && <TestDateFnsComponent />}
+        {activeTest === 'calendar' && <TestCalendarUIComponent />}
+      </div>
     </div>
   );
 };
@@ -159,18 +235,15 @@ const App: React.FC = () => (
             <TooltipProvider>
               <BrowserRouter>
                 <Routes>
-                  {/* Login Route */}
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/register" element={<LoginPage />} />
                   
-                  {/* Protected Routes - Testing NewTaskDialog */}
                   <Route path="/" element={
                     <ProtectedRoute>
-                      <TestNewTaskDialogApp />
+                      <TestNewTaskDependencies />
                     </ProtectedRoute>
                   } />
                   
-                  {/* Not Found */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>
