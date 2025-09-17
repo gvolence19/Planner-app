@@ -46,26 +46,23 @@ const queryClient = new QueryClient({
   },
 });
 
-// Test 1: Just test date-fns imports
-const TestDateFnsComponent: React.FC = () => {
+// Test 3: SmartTaskInput component
+const TestSmartTaskInputComponent: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [testResult, setTestResult] = useState<'pending' | 'success' | 'error'>('pending');
 
-  const testDateFns = () => {
+  const testSmartTaskInput = () => {
     try {
-      // Import and test date-fns - this is the most likely culprit
-      import('date-fns').then((dateFns) => {
-        console.log('✅ date-fns imported successfully:', dateFns);
-        const today = new Date();
-        const formatted = dateFns.format(today, 'yyyy-MM-dd');
-        console.log('✅ date-fns format works:', formatted);
+      // Try to import SmartTaskInput - this might be causing the constructor error
+      import('@/components/SmartTaskInput').then((SmartTaskInputModule) => {
+        console.log('✅ SmartTaskInput imported successfully:', SmartTaskInputModule);
         setTestResult('success');
       }).catch((error) => {
-        console.error('❌ date-fns import failed:', error);
+        console.error('❌ SmartTaskInput import failed:', error);
         setTestResult('error');
       });
     } catch (error) {
-      console.error('❌ date-fns test failed:', error);
+      console.error('❌ SmartTaskInput test failed:', error);
       setTestResult('error');
     }
     setIsOpen(true);
@@ -75,44 +72,43 @@ const TestDateFnsComponent: React.FC = () => {
     <div className="p-6">
       <Card>
         <CardHeader>
-          <CardTitle>🧪 Test 1: Date-FNS Library</CardTitle>
+          <CardTitle>🧪 Test 3: SmartTaskInput Component</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h3 className="font-semibold text-blue-800 mb-2">Testing date-fns imports</h3>
-            <p className="text-sm text-blue-700">
-              The date-fns library is commonly responsible for "as is not a constructor" errors.
-              This test will try to import and use date-fns functions.
+          <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+            <h3 className="font-semibold text-purple-800 mb-2">Testing SmartTaskInput component</h3>
+            <p className="text-sm text-purple-700">
+              SmartTaskInput handles AI-powered task creation and might have dependencies causing constructor errors.
             </p>
           </div>
 
-          <Button onClick={testDateFns} className="w-full">
-            🧪 Test date-fns Import
+          <Button onClick={testSmartTaskInput} className="w-full">
+            🧪 Test SmartTaskInput Import
           </Button>
 
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Date-FNS Test Result</DialogTitle>
+                <DialogTitle>SmartTaskInput Test Result</DialogTitle>
               </DialogHeader>
               <div className="p-4">
                 {testResult === 'success' && (
                   <div className="text-green-700 bg-green-50 p-3 rounded">
-                    ✅ Success! date-fns is working correctly.
+                    ✅ Success! SmartTaskInput is working correctly.
                     <br />
-                    <strong>Next:</strong> We need to test other NewTaskDialog dependencies.
+                    <strong>Next:</strong> We need to test LocationInput component.
                   </div>
                 )}
                 {testResult === 'error' && (
                   <div className="text-red-700 bg-red-50 p-3 rounded">
-                    ❌ Error! date-fns is causing the constructor issue.
+                    ❌ Error! SmartTaskInput is causing the constructor issue.
                     <br />
                     <strong>Found the problem!</strong>
                   </div>
                 )}
                 {testResult === 'pending' && (
                   <div className="text-blue-700 bg-blue-50 p-3 rounded">
-                    🔄 Testing date-fns imports...
+                    🔄 Testing SmartTaskInput imports...
                   </div>
                 )}
               </div>
@@ -124,53 +120,71 @@ const TestDateFnsComponent: React.FC = () => {
   );
 };
 
-// Test 2: Test Calendar UI component
-const TestCalendarUIComponent: React.FC = () => {
+// Test 4: LocationInput component
+const TestLocationInputComponent: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [testResult, setTestResult] = useState<'pending' | 'success' | 'error'>('pending');
 
-  const testCalendarUI = () => {
+  const testLocationInput = () => {
     try {
-      // Try to import the Calendar UI component
-      import('@/components/ui/calendar').then((CalendarModule) => {
-        console.log('✅ Calendar UI imported successfully:', CalendarModule);
-        setIsOpen(true);
+      // Try to import LocationInput - this often has Google Maps dependencies
+      import('@/components/LocationInput').then((LocationInputModule) => {
+        console.log('✅ LocationInput imported successfully:', LocationInputModule);
+        setTestResult('success');
       }).catch((error) => {
-        console.error('❌ Calendar UI import failed:', error);
-        setIsOpen(true);
+        console.error('❌ LocationInput import failed:', error);
+        setTestResult('error');
       });
     } catch (error) {
-      console.error('❌ Calendar UI test failed:', error);
-      setIsOpen(true);
+      console.error('❌ LocationInput test failed:', error);
+      setTestResult('error');
     }
+    setIsOpen(true);
   };
 
   return (
     <div className="p-6">
       <Card>
         <CardHeader>
-          <CardTitle>🧪 Test 2: Calendar UI Component</CardTitle>
+          <CardTitle>🧪 Test 4: LocationInput Component</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-            <h3 className="font-semibold text-orange-800 mb-2">Testing Calendar UI component</h3>
+            <h3 className="font-semibold text-orange-800 mb-2">Testing LocationInput component</h3>
             <p className="text-sm text-orange-700">
-              The Calendar component from shadcn/ui might be causing constructor errors.
+              LocationInput uses Google Maps API and autocomplete, which can cause constructor errors.
             </p>
           </div>
 
-          <Button onClick={testCalendarUI} className="w-full">
-            🧪 Test Calendar UI Import
+          <Button onClick={testLocationInput} className="w-full">
+            🧪 Test LocationInput Import
           </Button>
 
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Calendar UI Test</DialogTitle>
+                <DialogTitle>LocationInput Test Result</DialogTitle>
               </DialogHeader>
               <div className="p-4">
-                <div className="text-blue-700 bg-blue-50 p-3 rounded">
-                  Check the console for Calendar UI import results.
-                </div>
+                {testResult === 'success' && (
+                  <div className="text-green-700 bg-green-50 p-3 rounded">
+                    ✅ Success! LocationInput is working correctly.
+                    <br />
+                    <strong>Next:</strong> We need to test other NewTaskDialog imports.
+                  </div>
+                )}
+                {testResult === 'error' && (
+                  <div className="text-red-700 bg-red-50 p-3 rounded">
+                    ❌ Error! LocationInput is causing the constructor issue.
+                    <br />
+                    <strong>Found the problem!</strong>
+                  </div>
+                )}
+                {testResult === 'pending' && (
+                  <div className="text-blue-700 bg-blue-50 p-3 rounded">
+                    🔄 Testing LocationInput imports...
+                  </div>
+                )}
               </div>
             </DialogContent>
           </Dialog>
@@ -180,9 +194,83 @@ const TestCalendarUIComponent: React.FC = () => {
   );
 };
 
-// Main test app with tabs
+// Test 5: Direct NewTaskDialog imports (but not rendering)
+const TestNewTaskDialogImportsComponent: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [testResult, setTestResult] = useState<'pending' | 'success' | 'error'>('pending');
+
+  const testNewTaskDialogImports = () => {
+    try {
+      // Try to import NewTaskDialog without rendering it
+      import('@/components/NewTaskDialog').then((NewTaskDialogModule) => {
+        console.log('✅ NewTaskDialog imported successfully:', NewTaskDialogModule);
+        setTestResult('success');
+      }).catch((error) => {
+        console.error('❌ NewTaskDialog import failed:', error);
+        setTestResult('error');
+      });
+    } catch (error) {
+      console.error('❌ NewTaskDialog test failed:', error);
+      setTestResult('error');
+    }
+    setIsOpen(true);
+  };
+
+  return (
+    <div className="p-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>🧪 Test 5: NewTaskDialog Import (No Render)</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <h3 className="font-semibold text-red-800 mb-2">Testing NewTaskDialog import only</h3>
+            <p className="text-sm text-red-700">
+              This tests if the error occurs during import vs. during rendering of NewTaskDialog.
+            </p>
+          </div>
+
+          <Button onClick={testNewTaskDialogImports} className="w-full">
+            🧪 Test NewTaskDialog Import Only
+          </Button>
+
+          <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>NewTaskDialog Import Test Result</DialogTitle>
+              </DialogHeader>
+              <div className="p-4">
+                {testResult === 'success' && (
+                  <div className="text-green-700 bg-green-50 p-3 rounded">
+                    ✅ Success! NewTaskDialog imports correctly.
+                    <br />
+                    <strong>This means:</strong> The error happens during rendering, not import.
+                  </div>
+                )}
+                {testResult === 'error' && (
+                  <div className="text-red-700 bg-red-50 p-3 rounded">
+                    ❌ Error! NewTaskDialog import itself is causing the constructor issue.
+                    <br />
+                    <strong>The problem is in NewTaskDialog's dependencies!</strong>
+                  </div>
+                )}
+                {testResult === 'pending' && (
+                  <div className="text-blue-700 bg-blue-50 p-3 rounded">
+                    🔄 Testing NewTaskDialog import...
+                  </div>
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+// Main test app
 const TestNewTaskDependencies: React.FC = () => {
-  const [activeTest, setActiveTest] = useState<'dateFns' | 'calendar'>('dateFns');
+  const [activeTest, setActiveTest] = useState<'smartTask' | 'location' | 'imports'>('smartTask');
 
   return (
     <div className="min-h-screen bg-background p-6">
@@ -190,37 +278,43 @@ const TestNewTaskDependencies: React.FC = () => {
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="text-center">
-              🔍 NewTaskDialog Dependency Testing
+              🔍 Phase 2: Testing Remaining Dependencies
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-              <h3 className="font-semibold text-red-800 mb-2">✅ Confirmed: NewTaskDialog is the problem!</h3>
-              <p className="text-sm text-red-700">
-                The error occurs when NewTaskDialog loads. Now we're testing individual dependencies 
-                to find the specific cause of the "as is not a constructor" error.
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+              <h3 className="font-semibold text-green-800 mb-2">✅ Confirmed: date-fns and Calendar UI work fine!</h3>
+              <p className="text-sm text-green-700">
+                The constructor error is NOT in date-fns or Calendar UI. Now testing the remaining NewTaskDialog dependencies.
               </p>
             </div>
             
-            <div className="flex gap-2 mb-4">
+            <div className="flex flex-wrap gap-2 mb-4">
               <Button 
-                variant={activeTest === 'dateFns' ? 'default' : 'outline'}
-                onClick={() => setActiveTest('dateFns')}
+                variant={activeTest === 'smartTask' ? 'default' : 'outline'}
+                onClick={() => setActiveTest('smartTask')}
               >
-                Test 1: date-fns
+                Test 3: SmartTaskInput
               </Button>
               <Button 
-                variant={activeTest === 'calendar' ? 'default' : 'outline'}
-                onClick={() => setActiveTest('calendar')}
+                variant={activeTest === 'location' ? 'default' : 'outline'}
+                onClick={() => setActiveTest('location')}
               >
-                Test 2: Calendar UI
+                Test 4: LocationInput
+              </Button>
+              <Button 
+                variant={activeTest === 'imports' ? 'default' : 'outline'}
+                onClick={() => setActiveTest('imports')}
+              >
+                Test 5: Import Only
               </Button>
             </div>
           </CardContent>
         </Card>
 
-        {activeTest === 'dateFns' && <TestDateFnsComponent />}
-        {activeTest === 'calendar' && <TestCalendarUIComponent />}
+        {activeTest === 'smartTask' && <TestSmartTaskInputComponent />}
+        {activeTest === 'location' && <TestLocationInputComponent />}
+        {activeTest === 'imports' && <TestNewTaskDialogImportsComponent />}
       </div>
     </div>
   );
