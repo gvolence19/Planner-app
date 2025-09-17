@@ -19,9 +19,12 @@ import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import NotFound from './pages/NotFound';
 
-// NewTaskDialog works fine, now let's test TaskList
+// Working components
 import NewTaskDialog from '@/components/NewTaskDialog';
 import TaskList from '@/components/TaskList';
+
+// TEST: CalendarView component
+import CalendarView from '@/components/CalendarView';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -60,8 +63,8 @@ function LoginPage() {
   );
 }
 
-// Test TaskList component
-function TestTaskList() {
+// Test CalendarView component
+function TestCalendarView() {
   const [tasks, setTasks] = useLocalStorage<Task[]>('planner-tasks', []);
   const [categories, setCategories] = useLocalStorage<TaskCategory[]>('planner-categories', DEFAULT_CATEGORIES);
   const [view, setView] = useLocalStorage<'list' | 'calendar' | 'grocery'>('planner-view', 'list');
@@ -142,7 +145,6 @@ function TestTaskList() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {/* TEST: Use TaskList component instead of simple list */}
                 <TaskList
                   tasks={tasks}
                   onUpdateTask={updateTask}
@@ -159,9 +161,13 @@ function TestTaskList() {
                 <CardTitle>Calendar View</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">
-                  Calendar functionality will be added here.
-                </p>
+                {/* TEST: Use actual CalendarView component */}
+                <CalendarView
+                  tasks={tasks}
+                  onUpdateTask={updateTask}
+                  onDeleteTask={deleteTask}
+                  categories={categories}
+                />
               </CardContent>
             </Card>
           )}
@@ -233,7 +239,7 @@ const App = () => (
                   } />
                   <Route path="/" element={
                     <ProtectedRoute>
-                      <TestTaskList />
+                      <TestCalendarView />
                     </ProtectedRoute>
                   } />
                   <Route path="*" element={<NotFound />} />
