@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
-import { SubscriptionProvider } from '@/contexts/SubscriptionProvider';
+import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import LoginPage from '@/pages/auth/LoginPage';
 import NotFound from '@/pages/NotFound';
