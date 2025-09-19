@@ -46,20 +46,29 @@ const queryClient = new QueryClient({
   },
 });
 
-// Final Test: Render NewTaskDialog properly
+// Final Test: Render NewTaskDialog properly with safe defaults
 const TestNewTaskDialogCorrectly: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [testStatus, setTestStatus] = useState<'ready' | 'testing' | 'success' | 'error'>('ready');
 
+  // Ensure we have safe defaults for all required props
+  const safeCategories: TaskCategory[] = DEFAULT_CATEGORIES || [
+    { id: '1', name: 'Work', color: '#3b82f6', icon: 'briefcase' },
+    { id: '2', name: 'Personal', color: '#10b981', icon: 'user' },
+    { id: '3', name: 'Shopping', color: '#f59e0b', icon: 'shopping-cart' },
+  ];
+
+  const safeTasks: Task[] = tasks || [];
+
   const handleAddTask = (task: Task) => {
     console.log('✅ Task creation successful:', task);
-    setTasks(prev => [...prev, task]);
+    setTasks(prev => [...(prev || []), task]);
     setTestStatus('success');
   };
 
   const openDialog = () => {
-    console.log('🧪 Opening NewTaskDialog with proper ES6 imports...');
+    console.log('🧪 Opening NewTaskDialog with safe defaults...');
     setTestStatus('testing');
     setIsDialogOpen(true);
   };
@@ -152,13 +161,13 @@ const TestNewTaskDialogCorrectly: React.FC = () => {
         </Card>
       </div>
 
-      {/* The actual NewTaskDialog - properly imported */}
+      {/* The actual NewTaskDialog - with safe defaults */}
       <NewTaskDialog
         open={isDialogOpen}
         onOpenChange={closeDialog}
         onAddTask={handleAddTask}
-        categories={DEFAULT_CATEGORIES}
-        tasks={tasks}
+        categories={safeCategories}
+        tasks={safeTasks}
       />
     </div>
   );
