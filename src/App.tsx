@@ -12,8 +12,10 @@ import NotFound from '@/pages/NotFound';
 // Import components for testing
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Task, TaskCategory, DEFAULT_CATEGORIES } from '@/types';
-import NewTaskDialog from '@/components/NewTaskDialog';
 
 // Protected route component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -46,20 +48,74 @@ const queryClient = new QueryClient({
   },
 });
 
-// Final Test: Render NewTaskDialog properly with safe defaults
-const TestNewTaskDialogCorrectly: React.FC = () => {
+// Simplified NewTaskDialog without SmartTaskInput to test
+const SimpleNewTaskDialog: React.FC<{
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onAddTask: (task: Task) => void;
+  categories: TaskCategory[];
+}> = ({ open, onOpenChange, onAddTask, categories }) => {
+  const [title, setTitle] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title.trim()) return;
+
+    const newTask: Task = {
+      id: crypto.randomUUID(),
+      title: title.trim(),
+      completed: false,
+      priority: 'medium',
+      createdAt: new Date(),
+      recurring: 'none',
+    };
+
+    onAddTask(newTask);
+    setTitle('');
+    onOpenChange(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Add New Task (Simplified)</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4 mt-2">
+          <div className="space-y-2">
+            <Label htmlFor="title">Task Title *</Label>
+            <Input 
+              id="title" 
+              value={title} 
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter task title" 
+              required
+            />
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button type="submit">Add Task</Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+// Test component to isolate the SmartTaskInput issue
+const TestSimplifiedDialog: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [testStatus, setTestStatus] = useState<'ready' | 'testing' | 'success' | 'error'>('ready');
 
-  // Ensure we have safe defaults for all required props
+  // Safe defaults
   const safeCategories: TaskCategory[] = DEFAULT_CATEGORIES || [
     { id: '1', name: 'Work', color: '#3b82f6', icon: 'briefcase' },
     { id: '2', name: 'Personal', color: '#10b981', icon: 'user' },
     { id: '3', name: 'Shopping', color: '#f59e0b', icon: 'shopping-cart' },
   ];
-
-  const safeTasks: Task[] = tasks || [];
 
   const handleAddTask = (task: Task) => {
     console.log('✅ Task creation successful:', task);
@@ -68,7 +124,7 @@ const TestNewTaskDialogCorrectly: React.FC = () => {
   };
 
   const openDialog = () => {
-    console.log('🧪 Opening NewTaskDialog with safe defaults...');
+    console.log('🧪 Testing simplified dialog without SmartTaskInput...');
     setTestStatus('testing');
     setIsDialogOpen(true);
   };
@@ -86,15 +142,15 @@ const TestNewTaskDialogCorrectly: React.FC = () => {
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="text-center">
-              🎯 Final Test: NewTaskDialog with Correct Imports
+              🧪 Testing Simplified Dialog (No SmartTaskInput)
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-              <h3 className="font-semibold text-yellow-800 mb-2">Issue Found: require() vs import</h3>
-              <p className="text-sm text-yellow-700">
-                The original error was caused by using <code>require()</code> in a modern ES6 environment. 
-                This test uses proper ES6 imports for NewTaskDialog.
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+              <h3 className="font-semibold text-blue-800 mb-2">Hypothesis: SmartTaskInput is causing the map error</h3>
+              <p className="text-sm text-blue-700">
+                This test uses a simplified dialog without SmartTaskInput, LocationInput, or other complex components.
+                If this works, we know SmartTaskInput is the problematic component.
               </p>
             </div>
             
@@ -105,14 +161,14 @@ const TestNewTaskDialogCorrectly: React.FC = () => {
                 size="lg"
                 disabled={testStatus === 'testing'}
               >
-                {testStatus === 'testing' ? '🔄 Testing...' : '🧪 Test NewTaskDialog (Should Work Now)'}
+                {testStatus === 'testing' ? '🔄 Testing...' : '🧪 Test Simplified Dialog'}
               </Button>
               
               {testStatus === 'success' && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                   <h3 className="font-semibold text-green-800 mb-2">✅ Success!</h3>
                   <p className="text-sm text-green-700 mb-2">
-                    NewTaskDialog is working perfectly. The "as is not a constructor" error is resolved!
+                    Simplified dialog works! This confirms SmartTaskInput (or LocationInput) is causing the map error.
                   </p>
                   <p className="text-xs text-green-600">
                     Tasks created: {tasks.length}
@@ -126,12 +182,8 @@ const TestNewTaskDialogCorrectly: React.FC = () => {
                   {tasks.map((task) => (
                     <div key={task.id} className="p-3 bg-white border rounded-lg">
                       <div className="font-medium">{task.title}</div>
-                      {task.description && (
-                        <div className="text-sm text-gray-600">{task.description}</div>
-                      )}
                       <div className="text-xs text-gray-500 mt-1">
-                        Priority: {task.priority} | Category: {task.category || 'None'}
-                        {task.dueDate && ` | Due: ${task.dueDate.toLocaleDateString()}`}
+                        Priority: {task.priority}
                       </div>
                     </div>
                   ))}
@@ -143,31 +195,30 @@ const TestNewTaskDialogCorrectly: React.FC = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>🔍 Problem Summary</CardTitle>
+            <CardTitle>🔍 Debugging Process</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3 text-sm">
               <div className="p-3 bg-red-50 border border-red-200 rounded">
-                <strong>Original Error:</strong> "as is not a constructor" in NewTaskDialog
+                <strong>Current Error:</strong> "Cannot read properties of undefined (reading 'map')" in NewTaskDialog
               </div>
               <div className="p-3 bg-blue-50 border border-blue-200 rounded">
-                <strong>Root Cause:</strong> Test code was using <code>require()</code> instead of ES6 <code>import</code>
+                <strong>Hypothesis:</strong> SmartTaskInput component is trying to map over undefined arrays
               </div>
-              <div className="p-3 bg-green-50 border border-green-200 rounded">
-                <strong>Solution:</strong> Use proper ES6 imports for all components
+              <div className="p-3 bg-yellow-50 border border-yellow-200 rounded">
+                <strong>Test:</strong> Use simplified dialog without SmartTaskInput to isolate the issue
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* The actual NewTaskDialog - with safe defaults */}
-      <NewTaskDialog
+      {/* Simplified dialog */}
+      <SimpleNewTaskDialog
         open={isDialogOpen}
         onOpenChange={closeDialog}
         onAddTask={handleAddTask}
         categories={safeCategories}
-        tasks={safeTasks}
       />
     </div>
   );
@@ -198,10 +249,10 @@ class ErrorBoundary extends React.Component<
         <Card className="m-6">
           <CardContent className="p-6">
             <div className="text-red-700 bg-red-50 p-4 rounded">
-              <h3 className="font-semibold mb-2">🚨 Unexpected Error Occurred</h3>
-              <p className="mb-2">An error was caught by the error boundary:</p>
+              <h3 className="font-semibold mb-2">🚨 Error Still Occurred</h3>
+              <p className="mb-2">Even the simplified dialog failed:</p>
               <p className="text-sm mb-2"><strong>Error:</strong> {this.state.error?.message}</p>
-              <p className="text-xs">This means there might be another issue beyond the require() problem.</p>
+              <p className="text-xs">This means the issue might be in a different component or deeper in the stack.</p>
             </div>
           </CardContent>
         </Card>
@@ -227,7 +278,7 @@ const App: React.FC = () => (
                   <Route path="/" element={
                     <ProtectedRoute>
                       <ErrorBoundary>
-                        <TestNewTaskDialogCorrectly />
+                        <TestSimplifiedDialog />
                       </ErrorBoundary>
                     </ProtectedRoute>
                   } />
