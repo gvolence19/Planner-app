@@ -7,8 +7,56 @@ import { Badge } from '@/components/ui/badge';
 import { Sparkles, X, Brain, Lightbulb, Wand2, Clock, MapPin, Star, Zap } from 'lucide-react';
 import { Task, TaskCategory } from '@/types';
 import { PatternLearningSystem } from '@/lib/pattern-learning';
-import { AdvancedAITaskService, AdvancedAITaskSuggestion } from './AdvancedAITaskService';
-import { getFunTaskIcon, getIconSuggestions, PRIORITY_ICONS } from '@/lib/taskIcons';
+
+// Import the service with a fallback for missing imports
+let AdvancedAITaskService: any;
+let getFunTaskIcon: any;
+let getIconSuggestions: any;
+let PRIORITY_ICONS: any;
+
+try {
+  const aiServiceModule = await import('./AdvancedAITaskService');
+  AdvancedAITaskService = aiServiceModule.AdvancedAITaskService;
+} catch (error) {
+  console.warn('AdvancedAITaskService not found, using fallback');
+  AdvancedAITaskService = {
+    getSmartSuggestions: async () => []
+  };
+}
+
+try {
+  const taskIconsModule = await import('@/lib/taskIcons');
+  getFunTaskIcon = taskIconsModule.getFunTaskIcon || (() => '📝');
+  getIconSuggestions = taskIconsModule.getIconSuggestions || (() => []);
+  PRIORITY_ICONS = taskIconsModule.PRIORITY_ICONS || { high: '🔴', medium: '🟡', low: '🟢' };
+} catch (error) {
+  console.warn('taskIcons not found, using fallbacks');
+  getFunTaskIcon = () => '📝';
+  getIconSuggestions = () => [];
+  PRIORITY_ICONS = { high: '🔴', medium: '🟡', low: '🟢' };
+}
+
+// Define the interface locally since import might fail
+interface AdvancedAITaskSuggestion {
+  title: string;
+  category: string;
+  priority: 'low' | 'medium' | 'high';
+  location?: string;
+  duration?: string;
+  startTime?: string;
+  confidence: number;
+  reason: string;
+  estimatedTime?: string;
+  suggestedDate?: Date;
+  icon?: string;
+  autoFillData?: {
+    commonDuration?: string;
+    typicalLocation?: string;
+    recommendedTime?: string;
+    preparationTasks?: string[];
+    followUpTasks?: string[];
+  };
+}
 
 interface SuperSmartTaskInputProps {
   onTaskCreate: (taskData: {
@@ -106,7 +154,7 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
           const categoryNames = categories.map(cat => cat.name);
           
           const suggestions = await AdvancedAITaskService.getSmartSuggestions(input, existingTaskTitles, categoryNames);
-          setAiSuggestions(suggestions);
+          setAiSuggestions(suggestions || []);
         } catch (error) {
           console.error('Error getting advanced AI suggestions:', error);
           setAiSuggestions([]);
@@ -327,26 +375,32 @@ export const SuperSmartTaskInput: React.FC<SuperSmartTaskInputProps> = ({
       return;
     }
 
-    const predicted = {
-      category: PatternLearningSystem.predictCategory(text),
-      priority: PatternLearningSystem.predictPriority(text),
-      location: PatternLearningSystem.predictLocation(text)
-    };
+    try {
+      const predicted = {
+        category: PatternLearningSystem?.predictCategory?.(text),
+        priority: PatternLearningSystem?.predictPriority?.(text),
+        location: PatternLearningSystem?.predictLocation?.(text)
+      };
 
-    // Merge with advanced natural language parsing
-    const parsed = parseAdvancedNaturalLanguage(text);
-    
-    const finalPredictions = {
-      category: parsed.category || predicted.category,
-      priority: parsed.priority || predicted.priority,
-      location: parsed.location || predicted.location,
-      duration: parsed.duration,
-      startTime: parsed.startTime,
-      dueDate: parsed.dueDate
-    };
+      // Merge with advanced natural language parsing
+      const parsed = parseAdvancedNaturalLanguage(text);
+      
+      const finalPredictions = {
+        category: parsed.category || predicted.category,
+        priority: parsed.priority || predicted.priority,
+        location: parsed.location || predicted.location,
+        duration: parsed.duration,
+        startTime: parsed.startTime,
+        dueDate: parsed.dueDate
+      };
 
-    setPredictions(finalPredictions);
-    setShowPredictions(Object.values(finalPredictions).some(Boolean));
+      setPredictions(finalPredictions);
+      setShowPredictions(Object.values(finalPredictions).some(Boolean));
+    } catch (error) {
+      console.error('Error generating predictions:', error);
+      setPredictions({});
+      setShowPredictions(false);
+    }
   };
 
   useEffect(() => {
