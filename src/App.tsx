@@ -40,8 +40,8 @@ import MealReminderManager from '@/components/MealReminderManager';
 import SleepWakeManager from '@/components/SleepWakeManager';
 import LocationInput from '@/components/LocationInput';
 
-// Import the fixed SmartTaskInput
-import SmartTaskInput from './FixedSmartTaskInput';
+// Import the correct SmartTaskInput
+import { SmartTaskInput } from '@/components/SmartTaskInput';
 
 // Import types
 import { Task, TaskCategory, DEFAULT_CATEGORIES, PRIORITIES, RECURRING_OPTIONS } from '@/types';

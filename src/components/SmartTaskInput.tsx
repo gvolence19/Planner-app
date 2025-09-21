@@ -6,35 +6,61 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, X, Brain, Lightbulb, Wand2, Clock, MapPin, Star, Zap } from 'lucide-react';
 import { Task, TaskCategory } from '@/types';
-import { PatternLearningSystem } from '@/lib/pattern-learning';
 
-// Import the service with a fallback for missing imports
+// Safe imports with fallbacks
+let PatternLearningSystem: any;
 let AdvancedAITaskService: any;
 let getFunTaskIcon: any;
 let getIconSuggestions: any;
 let PRIORITY_ICONS: any;
 
-try {
-  const aiServiceModule = await import('./AdvancedAITaskService');
-  AdvancedAITaskService = aiServiceModule.AdvancedAITaskService;
-} catch (error) {
-  console.warn('AdvancedAITaskService not found, using fallback');
+// Initialize fallback functions
+const initializeDependencies = () => {
+  // PatternLearningSystem fallback
+  PatternLearningSystem = {
+    predictCategory: () => undefined,
+    predictPriority: () => undefined,
+    predictLocation: () => undefined
+  };
+
+  // AdvancedAITaskService fallback  
   AdvancedAITaskService = {
     getSmartSuggestions: async () => []
   };
-}
 
-try {
-  const taskIconsModule = await import('@/lib/taskIcons');
-  getFunTaskIcon = taskIconsModule.getFunTaskIcon || (() => '📝');
-  getIconSuggestions = taskIconsModule.getIconSuggestions || (() => []);
-  PRIORITY_ICONS = taskIconsModule.PRIORITY_ICONS || { high: '🔴', medium: '🟡', low: '🟢' };
-} catch (error) {
-  console.warn('taskIcons not found, using fallbacks');
+  // Icon functions fallbacks
   getFunTaskIcon = () => '📝';
   getIconSuggestions = () => [];
   PRIORITY_ICONS = { high: '🔴', medium: '🟡', low: '🟢' };
-}
+
+  // Try to load real implementations
+  try {
+    import('@/lib/pattern-learning').then(module => {
+      if (module.PatternLearningSystem) {
+        PatternLearningSystem = module.PatternLearningSystem;
+      }
+    }).catch(() => {});
+  } catch (error) {}
+
+  try {
+    import('./AdvancedAITaskService').then(module => {
+      if (module.AdvancedAITaskService) {
+        AdvancedAITaskService = module.AdvancedAITaskService;
+      }
+    }).catch(() => {});
+  } catch (error) {}
+
+  try {
+    import('@/lib/taskIcons').then(module => {
+      getFunTaskIcon = module.getFunTaskIcon || getFunTaskIcon;
+      getIconSuggestions = module.getIconSuggestions || getIconSuggestions;
+      PRIORITY_ICONS = module.PRIORITY_ICONS || PRIORITY_ICONS;
+    }).catch(() => {});
+  } catch (error) {}
+};
+
+// Initialize on module load
+initializeDependencies();
 
 // Define the interface locally since import might fail
 interface AdvancedAITaskSuggestion {
