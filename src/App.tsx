@@ -235,8 +235,8 @@ const FullFeaturedNewTaskDialog: React.FC<{
                 </SelectTrigger>
                 <SelectContent>
                   {PRIORITIES.map((p) => (
-                    <SelectItem key={p} value={p}>
-                      {p.charAt(0).toUpperCase() + p.slice(1)}
+                    <SelectItem key={p.value} value={p.value}>
+                      {p.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
