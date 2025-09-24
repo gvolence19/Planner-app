@@ -319,8 +319,8 @@ const FullFeaturedNewTaskDialog: React.FC<{
               </SelectTrigger>
               <SelectContent>
                 {RECURRING_OPTIONS.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {option === 'none' ? 'No repeat' : option.charAt(0).toUpperCase() + option.slice(1)}
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.value === 'none' ? 'No repeat' : option.label}
                   </SelectItem>
                 ))}
               </SelectContent>
