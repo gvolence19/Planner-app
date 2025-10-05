@@ -27,11 +27,11 @@ const SafeLocationDisplay = ({ location, showMap = false }: { location: unknown;
     if (typeof location === 'string') return location;
     
     if (typeof location === 'object' && location !== null) {
-      return location.displayName || 
-             location.name || 
-             location.address || 
-             location.title || 
-             location.description ||
+      return (location as any).displayName || 
+             (location as any).name || 
+             (location as any).address || 
+             (location as any).title || 
+             (location as any).description ||
              'Unknown location';
     }
     
@@ -46,9 +46,9 @@ const SafeLocationDisplay = ({ location, showMap = false }: { location: unknown;
       <span className="text-xs text-muted-foreground truncate">
         {displayText}
       </span>
-      {showMap && location?.placeId && (
+      {showMap && (location as any)?.placeId && (
         <a 
-          href={`https://www.google.com/maps/place/?q=place_id:${location.placeId}`}
+          href={`https://www.google.com/maps/place/?q=place_id:${(location as any).placeId}`}
           target="_blank"
           rel="noopener noreferrer"
           className="ml-1"
@@ -85,21 +85,23 @@ export default function TaskCard({
   
   return (
     <Card className={cn(
-      "task-card group relative overflow-hidden border-0 shadow-md hover:shadow-xl",
-      task.completed && "task-card-completed",
+      "task-card group relative overflow-hidden border-0 shadow-md hover:shadow-xl transition-all",
+      // KEY FIX: Add proper background colors for light and dark mode
+      "bg-white dark:bg-gray-800",
+      task.completed && "task-card-completed opacity-75",
       // Modern gradient border based on priority
-      !task.completed && task.priority === 'high' && "border-l-4 border-l-red-400",
-      !task.completed && task.priority === 'medium' && "border-l-4 border-l-yellow-400", 
-      !task.completed && task.priority === 'low' && "border-l-4 border-l-green-400",
+      !task.completed && task.priority === 'high' && "border-l-4 border-l-red-400 dark:border-l-red-500",
+      !task.completed && task.priority === 'medium' && "border-l-4 border-l-yellow-400 dark:border-l-yellow-500", 
+      !task.completed && task.priority === 'low' && "border-l-4 border-l-green-400 dark:border-l-green-500",
       !task.completed && !task.priority && category?.color && `border-l-4 border-l-[${category.color}]`,
-      // AI task modern styling
-      isAISuggested && "bg-gradient-to-r from-purple-50/80 via-white to-pink-50/80 border-purple-200 dark:from-purple-900/30 dark:via-card dark:to-pink-900/30 dark:border-purple-700",
+      // AI task modern styling with proper dark mode support
+      isAISuggested && "bg-gradient-to-r from-purple-50/80 via-white to-pink-50/80 border-purple-200 dark:from-purple-900/20 dark:via-gray-800 dark:to-pink-900/20 dark:border-purple-700",
       className
     )}>
       {/* Completion Status Indicator */}
       <div className={cn(
         "absolute top-0 left-0 w-1 h-full transition-all duration-300",
-        task.completed ? "bg-green-500" : category?.color ? `bg-[${category.color}]` : "bg-muted"
+        task.completed ? "bg-green-500 dark:bg-green-400" : category?.color ? `bg-[${category.color}]` : "bg-muted"
       )} />
       
       <CardContent className="p-4 sm:p-6 relative">
@@ -111,8 +113,8 @@ export default function TaskCard({
             className={cn(
               "h-8 w-8 shrink-0 rounded-full p-0 transition-all duration-300 border-2", 
               task.completed 
-                ? "text-green-600 border-green-300 bg-green-50 hover:bg-green-100" 
-                : "text-muted-foreground border-muted-foreground/30 hover:text-primary hover:border-primary hover:bg-primary/5"
+                ? "text-green-600 dark:text-green-400 border-green-300 dark:border-green-600 bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50" 
+                : "text-muted-foreground border-muted-foreground/30 hover:text-primary hover:border-primary hover:bg-primary/5 dark:hover:bg-primary/10"
             )}
             onClick={() => onToggleComplete(task)}
           >
@@ -150,6 +152,7 @@ export default function TaskCard({
                 
                 <h3 className={cn(
                   "font-bold text-base sm:text-lg leading-tight transition-all duration-300",
+                  "text-gray-900 dark:text-gray-100",
                   task.completed && "line-through text-muted-foreground opacity-70"
                 )}>
                   {task.completed && "🎉 "}
@@ -161,8 +164,8 @@ export default function TaskCard({
                 
                 {/* AI Badge with modern styling */}
                 {isAISuggested && (
-                  <div className="badge-modern bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 border border-purple-200">
-                    <Sparkles className="h-3 w-3 mr-1" />
+                  <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/50 dark:to-pink-900/50 text-purple-800 dark:text-purple-200 border border-purple-200 dark:border-purple-700">
+                    <Sparkles className="h-3 w-3" />
                     <span className="text-xs font-semibold">AI</span>
                   </div>
                 )}
@@ -170,14 +173,14 @@ export default function TaskCard({
               
               {/* Priority Badge */}
               {task.priority && (
-                <div className={cn(
-                  "badge-modern shrink-0",
-                  task.priority === 'high' && "badge-priority-high",
-                  task.priority === 'medium' && "badge-priority-medium", 
-                  task.priority === 'low' && "badge-priority-low"
+                <Badge className={cn(
+                  "shrink-0 uppercase text-xs font-bold",
+                  task.priority === 'high' && "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 border-red-300 dark:border-red-700",
+                  task.priority === 'medium' && "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300 border-yellow-300 dark:border-yellow-700", 
+                  task.priority === 'low' && "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 border-green-300 dark:border-green-700"
                 )}>
                   {task.priority}
-                </div>
+                </Badge>
               )}
             </div>
             
@@ -188,119 +191,87 @@ export default function TaskCard({
               </p>
             )}
             
-            {/* Meta information */}
-            <div className="flex flex-wrap items-center gap-3 mt-3 text-sm text-muted-foreground ml-10">
-              {/* Date and time */}
-              {task.dueDate && (
-                <div className="flex items-center gap-1.5 bg-muted/30 px-3 py-1.5 rounded-full">
-                  <Calendar className="h-4 w-4" />
-                  <span>{format(new Date(task.dueDate), 'MMM d, yyyy')}</span>
-                  {task.startTime && (
-                    <>
-                      <Clock className="h-4 w-4 ml-1" />
-                      <span>{task.startTime}</span>
-                    </>
-                  )}
+            {/* Metadata Row */}
+            <div className="flex flex-wrap items-center gap-3 ml-10 text-xs text-muted-foreground">
+              {/* Category */}
+              {task.category && (
+                <div className="flex items-center gap-1">
+                  <span className="text-base">{category?.icon || '📁'}</span>
+                  <span className="font-medium">{task.category}</span>
                 </div>
               )}
-
+              
+              {/* Due Date */}
+              {task.dueDate && (
+                <div className="flex items-center gap-1">
+                  <Calendar className="h-3 w-3" />
+                  <span>{format(new Date(task.dueDate), 'MMM d, yyyy')}</span>
+                </div>
+              )}
+              
+              {/* Start Time */}
+              {task.startTime && (
+                <div className="flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  <span>{task.startTime}</span>
+                </div>
+              )}
+              
               {/* Duration */}
               {task.duration && (
-                <div className="flex items-center gap-1.5 bg-muted/30 px-3 py-1.5 rounded-full">
-                  <Clock className="h-4 w-4" />
-                  <span>{task.duration}min</span>
+                <div className="flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  <span>{task.duration} min</span>
                 </div>
               )}
               
-              {/* Category with Icon */}
-              {task.category && (
-                <div className={cn(
-                  "badge-modern flex items-center gap-1.5",
-                  category?.color && `bg-[${category.color}]/10 text-[${category.color}] border-[${category.color}]/30`
-                )}>
-                  {category?.icon && (
-                    <span className="text-sm">{category.icon}</span>
-                  )}
-                  <span>{typeof task.category === 'string' ? task.category : task.category?.name || 'Unknown'}</span>
-                </div>
-              )}
-              
-              {/* Recurring indicator */}
-              {task.recurring && task.recurring !== 'none' && (
-                <div className="badge-modern bg-blue-100 text-blue-800 border-blue-200">
-                  <span className="mr-1">🔄</span>
-                  {task.recurring}
-                </div>
+              {/* Location */}
+              {task.location && (
+                <SafeLocationDisplay location={task.location} showMap />
               )}
             </div>
-            
-            {/* Location */}
-            {task.location && (
-              <div className="mt-3 ml-10">
-                <SafeLocationDisplay location={task.location} showMap={false} />
-              </div>
-            )}
           </div>
         </div>
       </CardContent>
       
-      {/* Modern Action Buttons */}
-      <CardFooter className="px-4 py-3 bg-muted/20 border-t border-muted/30">
-        <div className="flex justify-end gap-2 ml-auto">
+      {/* Action Footer - only visible on hover */}
+      <CardFooter className="p-3 border-t border-border/50 dark:border-border bg-gray-50/50 dark:bg-gray-900/30 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        <div className="flex items-center justify-end gap-2 w-full">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="btn-modern h-8 w-8 p-0 hover:bg-blue-100 hover:text-blue-600"
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => onEdit(task)}
+                className="h-8 w-8 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400"
               >
                 <Edit className="h-4 w-4" />
                 <span className="sr-only">Edit task</span>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Edit task</TooltipContent>
+            <TooltipContent>
+              <p>Edit task</p>
+            </TooltipContent>
           </Tooltip>
           
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 size="sm"
-                className="btn-modern h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-red-50"
                 onClick={() => onDelete(task.id)}
+                className="h-8 w-8 p-0 hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"
               >
                 <Trash2 className="h-4 w-4" />
                 <span className="sr-only">Delete task</span>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Delete task</TooltipContent>
+            <TooltipContent>
+              <p>Delete task</p>
+            </TooltipContent>
           </Tooltip>
-          
-          {task.location?.placeId && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  asChild
-                  className="btn-modern h-8 w-8 p-0 text-primary hover:text-primary hover:bg-green-50"
-                >
-                  <a 
-                    href={`https://www.google.com/maps/place/?q=place_id:${task.location.placeId}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <MapPin className="h-4 w-4" />
-                    <span className="sr-only">View on map</span>
-                  </a>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>View on Google Maps</TooltipContent>
-            </Tooltip>
-          )}
         </div>
       </CardFooter>
     </Card>
-  )
+  );
 }
