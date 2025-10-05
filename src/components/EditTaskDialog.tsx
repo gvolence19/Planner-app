@@ -51,6 +51,7 @@ export default function EditTaskDialog({ task, open, onOpenChange, onUpdateTask,
     return duration && !predefinedValues.includes(duration);
   };
 
+  // Update form when task changes
   useEffect(() => {
     if (open) {
       setTitle(task.title);
@@ -104,7 +105,7 @@ export default function EditTaskDialog({ task, open, onOpenChange, onUpdateTask,
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Task</DialogTitle>
         </DialogHeader>
@@ -181,11 +182,10 @@ export default function EditTaskDialog({ task, open, onOpenChange, onUpdateTask,
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="dueDate">Due Date</Label>
+            <Label>Due Date</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
-                  id="dueDate"
                   variant="outline"
                   className={cn(
                     "w-full justify-start text-left font-normal",
@@ -193,10 +193,10 @@ export default function EditTaskDialog({ task, open, onOpenChange, onUpdateTask,
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {dueDate ? format(dueDate, "PPP") : "Select a date"}
+                  {dueDate ? format(dueDate, "PPP") : "Pick a date"}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
+              <PopoverContent className="w-auto p-0">
                 <Calendar
                   mode="single"
                   selected={dueDate}
@@ -206,20 +206,16 @@ export default function EditTaskDialog({ task, open, onOpenChange, onUpdateTask,
               </PopoverContent>
             </Popover>
           </div>
-
+          
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="startTime">Start Time</Label>
-              <div className="relative">
-                <Input
-                  id="startTime"
-                  type="time"
-                  value={startTime}
-                  onChange={(e) => setStartTime(e.target.value)}
-                  className="pl-8"
-                />
-                <Clock className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              </div>
+              <Input 
+                id="startTime" 
+                type="time"
+                value={startTime} 
+                onChange={(e) => setStartTime(e.target.value)}
+              />
             </div>
             
             <div className="space-y-2">
@@ -241,18 +237,21 @@ export default function EditTaskDialog({ task, open, onOpenChange, onUpdateTask,
                   <SelectItem value="custom">Custom</SelectItem>
                 </SelectContent>
               </Select>
-              {duration === 'custom' && (
-                <Input
-                  placeholder="Enter minutes"
-                  type="number"
-                  min="1"
-                  value={customDuration}
-                  onChange={(e) => setCustomDuration(e.target.value)}
-                  className="mt-2"
-                />
-              )}
             </div>
           </div>
+          
+          {duration === 'custom' && (
+            <div className="space-y-2">
+              <Label htmlFor="customDuration">Custom Duration (minutes)</Label>
+              <Input 
+                id="customDuration" 
+                type="number"
+                value={customDuration} 
+                onChange={(e) => setCustomDuration(e.target.value)}
+                placeholder="e.g., 45"
+              />
+            </div>
+          )}
 
           {!task.recurringParentId && (
             <div className="space-y-2">
@@ -324,6 +323,7 @@ export default function EditTaskDialog({ task, open, onOpenChange, onUpdateTask,
               onChange={setLocation}
               disabled={!isPremium}
               placeholder={isPremium ? "Enter location" : "Upgrade to premium to add locations"}
+              label=""
             />
           </div>
           
@@ -342,7 +342,7 @@ export default function EditTaskDialog({ task, open, onOpenChange, onUpdateTask,
               </Button>
             )}
             
-            <div className="flex gap-2">
+            <div className="flex gap-2 ml-auto">
               <Button 
                 type="button" 
                 variant="outline" 
