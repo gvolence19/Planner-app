@@ -12,16 +12,10 @@ interface LocationInputProps {
   placeholder?: string;
 }
 
-// Use the eslint-disable comment to bypass the no-explicit-any rule for this specific case
-// Since Google Maps typings are complex and not essential to the core functionality
-/* eslint-disable @typescript-eslint/no-explicit-any */
-declare global {
-  interface Window {
-    google: any;
-    initAutocomplete: () => void;
-  }
+interface MapboxSuggestion {
+  place_name: string;
+  center: [number, number];
 }
-/* eslint-enable @typescript-eslint/no-explicit-any */
 
 export default function LocationInput({ 
   value, 
@@ -31,186 +25,125 @@ export default function LocationInput({
   disabled = false,
   placeholder = "Enter location (e.g., 123 Main St, City)"
 }: LocationInputProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  const autocompleteRef = useRef<any>(null);
-  /* eslint-enable @typescript-eslint/no-explicit-any */
-  const [manualInput, setManualInput] = useState(value);
-  const [googleMapsLoaded, setGoogleMapsLoaded] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [debounceTimeout, setDebounceTimeout] = useState<number | null>(null);
+  const [suggestions, setSuggestions] = useState<MapboxSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const debounceTimer = useRef<NodeJS.Timeout>();
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
-  // Function to check if Google Maps API is available
-  const isGoogleMapsAvailable = () => {
-    return window.google && 
-           window.google.maps && 
-           window.google.maps.places && 
-           typeof window.google.maps.places.Autocomplete === 'function';
-  };
-
-  // Function to initialize autocomplete - with built-in retry logic
-  const initializeAutocomplete = (retry = 3, delay = 500) => {
-    if (!inputRef.current) return;
-    
-    // If Google Maps is not available yet, retry a few times
-    if (!isGoogleMapsAvailable()) {
-      if (retry > 0) {
-        console.log(`Google Maps not available yet, retrying in ${delay}ms. Attempts left: ${retry}`);
-        setTimeout(() => initializeAutocomplete(retry - 1, delay * 1.5), delay);
-      } else {
-        console.error("Google Maps API not available after retries");
-        setError("Location service unavailable. Please enter address manually.");
-      }
-      return;
-    }
-    
-    try {
-      console.log("Initializing Google Maps Autocomplete");
-      
-      // Destroy previous instance if it exists
-      if (autocompleteRef.current) {
-        // Google doesn't provide a direct way to destroy an autocomplete instance
-        // so we'll just create a new one
-        console.log("Replacing existing autocomplete instance");
-        autocompleteRef.current = null;
-      }
-      
-      // Create new autocomplete instance
-      const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
-        types: ['address'],
-        fields: ['formatted_address', 'name', 'geometry', 'place_id']
-      });
-      
-      // Store the instance in ref
-      autocompleteRef.current = autocomplete;
-      
-      // Add place_changed listener
-      autocomplete.addListener('place_changed', () => {
-        try {
-          const place = autocomplete.getPlace();
-          console.log("Place selected:", place);
-          
-          // Check if we got a valid place with a place_id
-          if (place && place.place_id) {
-            // Prefer formatted_address, but fall back to name if needed
-            const address = place.formatted_address || place.name || '';
-            console.log("Setting location to:", address);
-            setManualInput(address);
-            onChange(address);
-          } else {
-            console.warn("Selected place has no place_id or is incomplete", place);
-          }
-        } catch (err) {
-          console.error("Error in place_changed handler:", err);
-        }
-      });
-      
-      console.log("Autocomplete initialized successfully on:", inputRef.current);
-      
-    } catch (error) {
-      console.error("Error initializing Google Maps Autocomplete:", error);
-      setError("Error initializing location service. Please enter address manually.");
-    }
-  };
-
-  // Check if Google Maps API is loaded on mount and listen for events
+  // Mapbox Access Token - Get yours free at https://account.mapbox.com/
+  const MAPBOX_TOKEN = 'pk.eyJ1IjoiZ3ZvbGVuY2UiLCJhIjoiY21nZmlyNnZnMDY2ejJsb3B5OWZjaTF4cCJ9.mPaWj5EJCD1m8Rd_X84RLw';
+  
+  // Close suggestions when clicking outside
   useEffect(() => {
-    console.log("LocationInput mounted, checking for Google Maps API");
-    
-    // Check if API is already available
-    if (isGoogleMapsAvailable()) {
-      console.log("Google Maps API already available on mount");
-      setGoogleMapsLoaded(true);
-      initializeAutocomplete();
-      setError(null);
-    }
-
-    // Listen for successful loading
-    const handleGoogleMapsLoaded = () => {
-      console.log("Google Maps loaded event received");
-      setGoogleMapsLoaded(true);
-      initializeAutocomplete();
-      setError(null);
-    };
-
-    // Listen for loading failure
-    const handleGoogleMapsFailed = () => {
-      console.error("Google Maps API failed to load");
-      setGoogleMapsLoaded(false);
-      setError("Location service unavailable. Please enter address manually.");
-    };
-
-    // Add event listeners
-    window.addEventListener('google-maps-loaded', handleGoogleMapsLoaded);
-    window.addEventListener('google-maps-failed', handleGoogleMapsFailed);
-
-    // Cleanup event listeners and autocomplete instance
-    return () => {
-      window.removeEventListener('google-maps-loaded', handleGoogleMapsLoaded);
-      window.removeEventListener('google-maps-failed', handleGoogleMapsFailed);
-      
-      // Clean up any debounce timers
-      if (debounceTimeout !== null) {
-        clearTimeout(debounceTimeout);
+    function handleClickOutside(event: MouseEvent) {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
       }
-      
-      // No explicit cleanup needed for autocomplete as it's attached to the input element
-      autocompleteRef.current = null;
-    };
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Re-initialize when the input changes or becomes available
-  useEffect(() => {
-    // Update local state when value prop changes
-    if (value !== manualInput) {
-      setManualInput(value);
+  const searchLocations = async (query: string) => {
+    if (!query || query.length < 3) {
+      setSuggestions([]);
+      return;
     }
-  }, [value]);
 
-  // Handle manual text changes with debouncing to improve performance
+    setIsLoading(true);
+    
+    try {
+      const response = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&types=address,place&limit=5`
+      );
+      
+      if (response.ok) {
+        const data = await response.json();
+        setSuggestions(data.features || []);
+        setShowSuggestions(true);
+      } else {
+        console.error('Mapbox API error:', response.statusText);
+        setSuggestions([]);
+      }
+    } catch (error) {
+      console.error('Error fetching location suggestions:', error);
+      setSuggestions([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
-    setManualInput(newValue);
-    
-    // Clear any existing timeout to debounce rapid typing
-    if (debounceTimeout !== null) {
-      clearTimeout(debounceTimeout);
+    onChange(newValue);
+
+    // Debounce API calls
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
     }
-    
-    // Debounce the onChange prop call
-    const timeoutId = window.setTimeout(() => {
-      onChange(newValue);
+
+    debounceTimer.current = setTimeout(() => {
+      searchLocations(newValue);
     }, 300);
-    
-    setDebounceTimeout(timeoutId);
   };
-  
+
+  const handleSuggestionClick = (suggestion: MapboxSuggestion) => {
+    onChange(suggestion.place_name);
+    setShowSuggestions(false);
+    setSuggestions([]);
+  };
+
   return (
-    <div className="space-y-2">
-      <Label htmlFor={id}>{label}</Label>
+    <div className="space-y-2" ref={wrapperRef}>
+      {label && <Label htmlFor={id}>{label}</Label>}
       <div className="relative">
         <Input
           id={id}
-          ref={inputRef}
           type="text"
-          value={manualInput}
-          placeholder={placeholder}
-          className="pr-8"
-          disabled={disabled}
+          value={value}
           onChange={handleInputChange}
-          onFocus={() => {
-            // Try to initialize on focus in case it wasn't initialized earlier
-            if (googleMapsLoaded && !autocompleteRef.current && inputRef.current) {
-              console.log("Initializing autocomplete on focus");
-              initializeAutocomplete();
-            }
-          }}
+          placeholder={placeholder}
+          disabled={disabled}
+          className="pr-8"
+          autoComplete="off"
         />
         <MapPin className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        
+        {/* Suggestions Dropdown */}
+        {showSuggestions && suggestions.length > 0 && (
+          <div className="absolute z-50 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-60 overflow-auto">
+            {isLoading ? (
+              <div className="p-3 text-sm text-muted-foreground text-center">
+                Searching...
+              </div>
+            ) : (
+              suggestions.map((suggestion, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  className="w-full text-left px-3 py-2 hover:bg-accent hover:text-accent-foreground transition-colors text-sm border-b last:border-b-0"
+                  onClick={() => handleSuggestionClick(suggestion)}
+                >
+                  <div className="flex items-start gap-2">
+                    <MapPin className="h-4 w-4 mt-0.5 text-muted-foreground flex-shrink-0" />
+                    <span>{suggestion.place_name}</span>
+                  </div>
+                </button>
+              ))
+            )}
+          </div>
+        )}
       </div>
-      {error && <p className="text-xs text-red-500">{error}</p>}
-      {!googleMapsLoaded && !error && (
-        <p className="text-xs text-amber-500">Loading location service...</p>
+      {!MAPBOX_TOKEN.includes('your') && (
+        <p className="text-xs text-muted-foreground">
+          Location autocomplete powered by Mapbox
+        </p>
+      )}
+      {MAPBOX_TOKEN.includes('your') && (
+        <p className="text-xs text-amber-600">
+          ⚠️ Add your Mapbox token to enable autocomplete
+        </p>
       )}
     </div>
   );
