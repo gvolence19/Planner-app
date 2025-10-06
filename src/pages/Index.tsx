@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Calendar, ListChecks, ShoppingBasket, Tags, Utensils, Moon } from 'lucide-react';
+import { PlusCircle, Calendar, ListChecks, ShoppingBasket, Tags, Utensils, Moon, FolderOpen, FileText, Filter, HelpCircle } from 'lucide-react';
 import TaskList from '@/components/TaskList';
 import CalendarView from '@/components/CalendarView';
 import GroceryList from '@/components/GroceryList';
@@ -16,6 +16,7 @@ import { Task, TaskCategory, DEFAULT_CATEGORIES } from '@/types';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { addDays, addWeeks, addMonths, isSameDay } from 'date-fns';
 import { PatternLearningSystem } from '@/lib/pattern-learning';
+import { useNavigate } from 'react-router-dom';
 
 export default function PlannerApp() {
   const [tasks, setTasks] = useLocalStorage<Task[]>('planner-tasks', []);
@@ -24,6 +25,8 @@ export default function PlannerApp() {
   const [isNewTaskDialogOpen, setIsNewTaskDialogOpen] = useLocalStorage<boolean>('planner-new-task-dialog', false);
   const [isCategoryManagerOpen, setIsCategoryManagerOpen] = useState(false);
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
+export default function PlannerApp() {
+  const navigate = useNavigate();
 
   // Fix date objects that come from localStorage as strings and migrate categories
   useEffect(() => {
@@ -275,6 +278,15 @@ export default function PlannerApp() {
           <span className="absolute inset-0 rounded-full bg-white/20 transform scale-0 group-hover:scale-100 transition-transform"></span>
         </Button>
       </div>
+<Button
+    variant="outline"
+    size="sm"
+    onClick={() => navigate('/help')}
+    title="Help & Support"
+    className="btn-modern rounded-xl"
+  >
+    <HelpCircle className="h-4 w-4" />
+  </Button>
 
       {/* Dialogs */}
       <NewTaskDialog 

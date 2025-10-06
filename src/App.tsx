@@ -8,6 +8,7 @@ import { SubscriptionProvider, useSubscription } from '@/contexts/SubscriptionCo
 import { TooltipProvider } from '@/components/ui/tooltip';
 import LoginPage from '@/pages/auth/LoginPage';
 import NotFound from '@/pages/NotFound';
+import HelpSupport from '@/pages/HelpSupport';
 
 // Import all the advanced components
 import { Button } from '@/components/ui/button';
@@ -21,7 +22,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { 
   PlusCircle, Calendar, ListChecks, ShoppingBasket, Tags, Utensils, Moon, 
   FolderOpen, FileText, Filter, CalendarIcon, RepeatIcon, Lock, Clock,
-  Settings, Mic
+  Settings, Mic, HelpCircle
 } from 'lucide-react';
 
 // Import all your existing components
@@ -50,6 +51,7 @@ import { FREE_CATEGORIES } from '@/types/subscription';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { addDays, addWeeks, addMonths, isSameDay, format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 
 // Protected route component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -351,6 +353,8 @@ const FullFeaturedNewTaskDialog: React.FC<{
 
 // Main Full-Featured Task Planner Application
 const FullFeaturedPlannerApp: React.FC = () => {
+  const navigate = useNavigate();
+  
   // All state management with localStorage
   const [tasks, setTasks] = useLocalStorage<Task[]>('planner-tasks', []);
   const [categories, setCategories] = useLocalStorage<TaskCategory[]>('planner-categories', DEFAULT_CATEGORIES || [
@@ -560,6 +564,14 @@ const FullFeaturedPlannerApp: React.FC = () => {
               <Button
                 variant="ghost"
                 size="sm"
+                onClick={() => navigate('/help')}
+                title="Help & Support"
+              >
+                <HelpCircle className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => setIsSettingsDialogOpen(true)}
                 title="Settings"
               >
@@ -687,6 +699,12 @@ const App: React.FC = () => (
                   <Route path="/" element={
                     <ProtectedRoute>
                       <FullFeaturedPlannerApp />
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/help" element={
+                    <ProtectedRoute>
+                      <HelpSupport />
                     </ProtectedRoute>
                   } />
                   
