@@ -459,7 +459,7 @@ const FullFeaturedPlannerApp: React.FC = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <h1 className="text-2xl font-bold">
-                <AnimatedGradientText>Task Planner</AnimatedGradientText>
+                <AnimatedGradientText>Plannio</AnimatedGradientText>
               </h1>
               
               {/* Premium Badge */}
