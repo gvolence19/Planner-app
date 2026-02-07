@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct PlannerApp: App {
+struct MyPlannerAppApp: App {
     @StateObject private var dataManager = DataManager.shared
     @AppStorage("isDarkMode") private var isDarkMode = false
     
