@@ -132,7 +132,7 @@ class LocationSearchCompleter: NSObject, ObservableObject, MKLocalSearchComplete
     }
     
     func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
-        Task { @MainActor in
+        _Concurrency.Task { @MainActor in
             var locationResults: [LocationSearchResult] = []
             
             for completion in completer.results {
