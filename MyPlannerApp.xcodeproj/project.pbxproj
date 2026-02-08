@@ -28,6 +28,7 @@
 		A1000019 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B1000019 /* Assets.xcassets */; };
 		A1000020 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B1000020 /* Preview Assets.xcassets */; };
 		A1000021 /* HelperViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000022 /* HelperViews.swift */; };
+		A1000023 /* LocationSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000024 /* LocationSearchView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -54,6 +55,7 @@
 		B1000020 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		B1000021 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B1000022 /* HelperViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperViews.swift; sourceTree = "<group>"; };
+		B1000024 /* LocationSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,6 +99,7 @@
 				B1000017 /* AITaskService.swift */,
 				B1000018 /* AnalyticsManager.swift */,
 				B1000022 /* HelperViews.swift */,
+				B1000024 /* LocationSearchView.swift */,
 				B1000019 /* Assets.xcassets */,
 				B1000021 /* Info.plist */,
 				E1000004 /* Preview Content */,
@@ -209,6 +212,7 @@
 				A1000017 /* AITaskService.swift in Sources */,
 				A1000018 /* AnalyticsManager.swift in Sources */,
 				A1000021 /* HelperViews.swift in Sources */,
+				A1000023 /* LocationSearchView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

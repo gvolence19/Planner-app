@@ -96,7 +96,7 @@ struct AddTaskView: View {
                 
                 // Location Section
                 Section(header: Text("Location")) {
-                    TextField("Add location (optional)", text: $location)
+                    LocationFieldView(location: $location)
                 }
             }
             .navigationTitle("New Task")
@@ -340,7 +340,7 @@ struct EditTaskView: View {
                 }
                 
                 Section(header: Text("Location")) {
-                    TextField("Add location (optional)", text: $location)
+                    LocationFieldView(location: $location)
                 }
             }
             .navigationTitle("Edit Task")

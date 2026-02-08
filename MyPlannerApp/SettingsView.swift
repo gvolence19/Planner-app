@@ -38,6 +38,27 @@ struct SettingsView: View {
                     .padding(.vertical, 8)
                 }
                 
+                // Premium Features
+                if dataManager.isPremium {
+                    Section(header: Text("Premium Features")) {
+                        NavigationLink {
+                            CalendarSettingsView()
+                        } label: {
+                            Label("Calendar Sync", systemImage: "calendar.badge.plus")
+                        }
+                    }
+                } else {
+                    Section(header: Text("Premium Features"), footer: Text("Upgrade to Premium to unlock these features")) {
+                        HStack {
+                            Label("Calendar Sync", systemImage: "calendar.badge.plus")
+                            Spacer()
+                            Image(systemName: "lock.fill")
+                                .foregroundColor(.secondary)
+                        }
+                        .foregroundColor(.secondary)
+                    }
+                }
+                
                 // App Settings
                 Section(header: Text("Preferences")) {
                     Toggle("Dark Mode", isOn: $isDarkMode)
