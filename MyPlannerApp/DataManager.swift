@@ -10,12 +10,14 @@ class DataManager: ObservableObject {
     @Published var categories: [TaskCategory] = TaskCategory.defaultCategories
     @Published var groceryItems: [GroceryItem] = []
     @Published var projects: [Project] = []
+    @Published var templates: [TaskTemplate] = []
     @Published var isPremium: Bool = false
     
     private let tasksKey = "saved_tasks"
     private let categoriesKey = "saved_categories"
     private let groceryKey = "saved_grocery"
     private let projectsKey = "saved_projects"
+    private let templatesKey = "saved_templates"
     private let premiumKey = "is_premium"
     
     private init() {
@@ -46,6 +48,12 @@ class DataManager: ObservableObject {
         if let projectsData = UserDefaults.standard.data(forKey: projectsKey),
            let decodedProjects = try? JSONDecoder().decode([Project].self, from: projectsData) {
             self.projects = decodedProjects
+        }
+        
+        // Load templates
+        if let templatesData = UserDefaults.standard.data(forKey: templatesKey),
+           let decodedTemplates = try? JSONDecoder().decode([TaskTemplate].self, from: templatesData) {
+            self.templates = decodedTemplates
         }
         
         // Load premium status
@@ -203,5 +211,29 @@ class DataManager: ObservableObject {
     
     func incompleteTasks() -> [Task] {
         return tasks.filter { !$0.completed }
+    }
+    
+    // MARK: - Template Management
+    func saveTemplates() {
+        if let encoded = try? JSONEncoder().encode(templates) {
+            UserDefaults.standard.set(encoded, forKey: templatesKey)
+        }
+    }
+    
+    func addTemplate(_ template: TaskTemplate) {
+        templates.append(template)
+        saveTemplates()
+    }
+    
+    func updateTemplate(_ template: TaskTemplate) {
+        if let index = templates.firstIndex(where: { $0.id == template.id }) {
+            templates[index] = template
+            saveTemplates()
+        }
+    }
+    
+    func deleteTemplate(_ template: TaskTemplate) {
+        templates.removeAll { $0.id == template.id }
+        saveTemplates()
     }
 }

@@ -57,6 +57,8 @@ class AuthenticationManager: ObservableObject {
             biometricType = .faceID
         case .touchID:
             biometricType = .touchID
+        case .opticID:
+            biometricType = .faceID // Treat Optic ID like Face ID
         case .none:
             biometricType = .none
         @unknown default:
@@ -299,7 +301,7 @@ struct LoginView: View {
                 authenticateWithBiometrics()
             }
         }
-        .onChange(of: authManager.isAuthenticated) { _, newValue in
+        .onChange(of: authManager.isAuthenticated) { newValue in
             isAuthenticated = newValue
         }
     }
