@@ -136,7 +136,9 @@ class LocationSearchCompleter: NSObject, ObservableObject, MKLocalSearchComplete
             var locationResults: [LocationSearchResult] = []
             
             for completion in completer.results {
-                let searchRequest = MKLocalSearch.Request(completion: completion)
+                // Create search request manually for iOS 16 compatibility
+                let searchRequest = MKLocalSearch.Request()
+                searchRequest.naturalLanguageQuery = completion.title + " " + completion.subtitle
                 let search = MKLocalSearch(request: searchRequest)
                 
                 do {

@@ -29,7 +29,7 @@ struct ContentView: View {
                         }
                     case .sleep:
                         if dataManager.isPremium {
-                            SleepView()
+                            SleepTrackingView()
                         } else {
                             PremiumLockedView(feature: "Sleep Tracking")
                         }
