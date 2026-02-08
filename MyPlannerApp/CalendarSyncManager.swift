@@ -23,13 +23,38 @@ class CalendarSyncManager: NSObject, ObservableObject {
     
     // MARK: - Authorization
     func requestCalendarAccess() {
-        eventStore.requestAccess(to: .event) { [weak self] granted, error in
-            DispatchQueue.main.async {
-                self?.isAuthorized = granted
-                if granted {
-                    self?.fetchCalendars()
-                } else if let error = error {
-                    self?.errorMessage = "Calendar access denied: \(error.localizedDescription)"
+        if #available(iOS 17.0, *) {
+            // iOS 17+ uses new API
+            _Concurrency.Task {
+                do {
+                    let granted = try await eventStore.requestFullAccessToEvents()
+                    await MainActor.run {
+                        self.isAuthorized = granted
+                        if granted {
+                            self.fetchCalendars()
+                        } else {
+                            self.errorMessage = "Calendar access denied. Please enable in Settings."
+                        }
+                    }
+                } catch {
+                    await MainActor.run {
+                        self.isAuthorized = false
+                        self.errorMessage = "Calendar access error: \(error.localizedDescription)"
+                    }
+                }
+            }
+        } else {
+            // iOS 16 and below
+            eventStore.requestAccess(to: .event) { [weak self] granted, error in
+                DispatchQueue.main.async {
+                    self?.isAuthorized = granted
+                    if granted {
+                        self?.fetchCalendars()
+                    } else if let error = error {
+                        self?.errorMessage = "Calendar access denied: \(error.localizedDescription)"
+                    } else {
+                        self?.errorMessage = "Calendar access denied. Please enable in Settings."
+                    }
                 }
             }
         }
@@ -293,7 +318,7 @@ struct CalendarSettingsView: View {
         NavigationView {
             Form {
                 // Authorization Status
-                Section(header: Text("Calendar Access")) {
+                Section(header: Text("Calendar Access"), footer: syncManager.isAuthorized ? nil : Text("Calendar access is required to sync tasks with your iOS Calendar. If denied, you can enable it in Settings > My Planner > Calendars.")) {
                     HStack {
                         Image(systemName: syncManager.isAuthorized ? "checkmark.circle.fill" : "xmark.circle.fill")
                             .foregroundColor(syncManager.isAuthorized ? .green : .red)
@@ -306,7 +331,23 @@ struct CalendarSettingsView: View {
                             Button("Request Access") {
                                 syncManager.requestCalendarAccess()
                             }
+                            .buttonStyle(.bordered)
                         }
+                    }
+                    
+                    if !syncManager.isAuthorized && !syncManager.errorMessage.isEmpty {
+                        Text(syncManager.errorMessage)
+                            .font(.caption)
+                            .foregroundColor(.red)
+                    }
+                    
+                    if !syncManager.isAuthorized {
+                        Button("Open Settings") {
+                            if let url = URL(string: UIApplication.openSettingsURLString) {
+                                UIApplication.shared.open(url)
+                            }
+                        }
+                        .font(.caption)
                     }
                 }
                 

@@ -87,6 +87,27 @@ struct SettingsView: View {
                     }
                 }
                 
+                // Siri Shortcuts
+                if #available(iOS 16.0, *) {
+                    Section(header: Text("Siri & Shortcuts")) {
+                        NavigationLink {
+                            SiriTipsView()
+                        } label: {
+                            Label("Siri Commands", systemImage: "waveform")
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Voice Commands Available")
+                                .font(.subheadline)
+                            Text("\"Add a task in My Planner\"")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .italic()
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
+                
                 // About
                 Section(header: Text("About")) {
                     HStack {

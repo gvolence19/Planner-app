@@ -67,6 +67,8 @@
 	<string>We need reminders access to create reminders for your tasks.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Use Face ID to secure your planner data and quickly unlock the app.</string>
+	<key>NSSiriUsageDescription</key>
+	<string>Siri can help you quickly add tasks, check your to-do list, and mark tasks as complete using voice commands.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 </dict>
