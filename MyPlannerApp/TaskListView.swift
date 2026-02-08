@@ -231,31 +231,6 @@ struct TaskRowView: View {
     }
 }
 
-// MARK: - Search Bar
-struct SearchBar: View {
-    @Binding var text: String
-    
-    var body: some View {
-        HStack {
-            Image(systemName: "magnifyingglass")
-                .foregroundColor(.gray)
-            
-            TextField("Search tasks...", text: $text)
-                .textFieldStyle(PlainTextFieldStyle())
-            
-            if !text.isEmpty {
-                Button(action: { text = "" }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.gray)
-                }
-            }
-        }
-        .padding(10)
-        .background(Color(.systemGray6))
-        .cornerRadius(10)
-    }
-}
-
 // MARK: - Preview
 struct TaskListView_Previews: PreviewProvider {
     static var previews: some View {

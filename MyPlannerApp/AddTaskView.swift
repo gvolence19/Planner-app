@@ -253,32 +253,6 @@ struct TaskDetailView: View {
     }
 }
 
-// MARK: - Detail Row
-struct DetailRow: View {
-    let icon: String
-    let title: String
-    let value: String
-    var color: Color?
-    
-    var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            Image(systemName: icon)
-                .font(.system(size: 18))
-                .foregroundColor(color ?? .accentColor)
-                .frame(width: 24)
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                
-                Text(value)
-                    .font(.body)
-            }
-        }
-    }
-}
-
 // MARK: - Edit Task View
 struct EditTaskView: View {
     let task: Task

@@ -460,8 +460,6 @@ struct AnalyticsView: View {
     }
 }
 
-// MARK: - Stat Card (reuse from ProjectManager)
-struct InsightRow: View {
     let icon: String
     let title: String
     let value: String

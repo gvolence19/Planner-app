@@ -411,32 +411,6 @@ struct ProjectDetailView: View {
     }
 }
 
-// MARK: - Stat Card
-struct StatCard: View {
-    let icon: String
-    let title: String
-    let value: String
-    
-    var body: some View {
-        VStack(spacing: 8) {
-            Image(systemName: icon)
-                .font(.title3)
-                .foregroundColor(.accentColor)
-            
-            Text(value)
-                .font(.title3)
-                .fontWeight(.bold)
-            
-            Text(title)
-                .font(.caption)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(Color(.systemGray6))
-        .cornerRadius(10)
-    }
-}
 
 // MARK: - Project Task Row
 struct ProjectTaskRow: View {

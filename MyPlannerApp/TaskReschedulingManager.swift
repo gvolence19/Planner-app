@@ -448,26 +448,6 @@ struct MissedTaskCard: View {
     }
 }
 
-// MARK: - Priority Badge
-struct PriorityBadge: View {
-    let priority: Priority
-    let count: Int
-    
-    var body: some View {
-        HStack(spacing: 4) {
-            Circle()
-                .fill(priority.color)
-                .frame(width: 8, height: 8)
-            Text("\(count)")
-                .font(.caption)
-                .fontWeight(.semibold)
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
-        .background(priority.color.opacity(0.1))
-        .cornerRadius(8)
-    }
-}
 
 // MARK: - Custom Reschedule View
 struct CustomRescheduleView: View {
