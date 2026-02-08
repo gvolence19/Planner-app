@@ -314,7 +314,7 @@ struct CalendarSettingsView: View {
                     // Sync Toggle
                     Section(header: Text("Sync Settings")) {
                         Toggle("Enable Calendar Sync", isOn: $syncManager.syncEnabled)
-                            .onChange(of: syncManager.syncEnabled) { _, newValue in
+                            .onChange(of: syncManager.syncEnabled) { newValue in
                                 if newValue {
                                     showingSyncConfirmation = true
                                 }

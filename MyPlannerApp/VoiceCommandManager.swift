@@ -137,7 +137,7 @@ class VoiceCommandManager: NSObject, ObservableObject {
         
         guard !title.isEmpty else { return nil }
         
-        return Task(title: title, category: category, priority: priority, dueDate: dueDate)
+        return Task(title: title, dueDate: dueDate, category: category, priority: priority)
     }
 }
 
@@ -175,7 +175,7 @@ struct VoiceCommandButtonView: View {
                 VoiceTaskPreviewView(task: task, transcribedText: voiceManager.transcribedText)
             }
         }
-        .onChange(of: voiceManager.transcribedText) { oldValue, newValue in
+        .onChange(of: voiceManager.transcribedText) { newValue in
             if !newValue.isEmpty && !voiceManager.isRecording {
                 if let task = voiceManager.parseVoiceCommand(newValue) {
                     parsedTask = task
@@ -268,9 +268,9 @@ struct VoiceTaskPreviewView: View {
     private func createTask() {
         let newTask = Task(
             title: editedTitle,
+            dueDate: hasDueDate ? editedDueDate : nil,
             category: editedCategory,
-            priority: editedPriority,
-            dueDate: hasDueDate ? editedDueDate : nil
+            priority: editedPriority
         )
         dataManager.addTask(newTask)
         dismiss()
