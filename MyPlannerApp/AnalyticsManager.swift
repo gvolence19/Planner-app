@@ -460,30 +460,6 @@ struct AnalyticsView: View {
     }
 }
 
-    let icon: String
-    let title: String
-    let value: String
-    let color: Color
-    
-    var body: some View {
-        HStack {
-            Image(systemName: icon)
-                .foregroundColor(color)
-                .frame(width: 30)
-            
-            Text(title)
-                .font(.subheadline)
-            
-            Spacer()
-            
-            Text(value)
-                .font(.subheadline)
-                .fontWeight(.semibold)
-                .foregroundColor(color)
-        }
-    }
-}
-
 // MARK: - Performance Monitor
 class PerformanceMonitor {
     static let shared = PerformanceMonitor()
