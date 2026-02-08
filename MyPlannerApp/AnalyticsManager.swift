@@ -282,30 +282,30 @@ struct AnalyticsView: View {
             
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                 StatCard(
+                    icon: "checkmark.circle",
                     title: "Total Tasks",
                     value: "\(analyticsManager.stats.totalTasks)",
-                    icon: "checkmark.circle",
                     color: .blue
                 )
                 
                 StatCard(
+                    icon: "checkmark.circle.fill",
                     title: "Completed",
                     value: "\(analyticsManager.stats.completedTasks)",
-                    icon: "checkmark.circle.fill",
                     color: .green
                 )
                 
                 StatCard(
+                    icon: "circle.dashed",
                     title: "Active",
                     value: "\(analyticsManager.stats.activeTasks)",
-                    icon: "circle.dashed",
                     color: .orange
                 )
                 
                 StatCard(
+                    icon: "exclamationmark.circle",
                     title: "Overdue",
                     value: "\(analyticsManager.stats.overdueTasks)",
-                    icon: "exclamationmark.circle",
                     color: .red
                 )
             }

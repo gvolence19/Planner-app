@@ -367,7 +367,7 @@ struct AITaskSuggestionsView: View {
         VStack {
             SearchBar(text: $searchText)
                 .padding()
-                .onChange(of: searchText) { _, newValue in
+                .onChange(of: searchText) { newValue in
                     if newValue.count > 2 {
                         aiService.generateSuggestions(for: newValue, basedOn: dataManager.tasks)
                     }
@@ -455,10 +455,10 @@ struct AISuggestionCard: View {
             title: suggestion.title,
             category: suggestion.category,
             priority: suggestion.priority,
-            startTime: suggestion.suggestedTime,
-            duration: suggestion.suggestedDuration,
             isAISuggested: true,
-            aiCategory: suggestion.category
+            aiCategory: suggestion.category,
+            startTime: suggestion.suggestedTime,
+            duration: suggestion.suggestedDuration
         )
         dataManager.addTask(task)
     }
