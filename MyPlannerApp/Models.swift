@@ -202,6 +202,7 @@ enum ViewType: String, CaseIterable {
     case grocery
     case meals
     case sleep
+    case water
     
     var displayName: String {
         switch self {
@@ -210,6 +211,7 @@ enum ViewType: String, CaseIterable {
         case .grocery: return "Grocery"
         case .meals: return "Meals"
         case .sleep: return "Sleep"
+        case .water: return "Water"
         }
     }
     
@@ -220,6 +222,7 @@ enum ViewType: String, CaseIterable {
         case .grocery: return "cart"
         case .meals: return "fork.knife"
         case .sleep: return "moon.zzz"
+        case .water: return "drop.fill"
         }
     }
 }

@@ -33,6 +33,12 @@ struct ContentView: View {
                         } else {
                             PremiumLockedView(feature: "Sleep Tracking")
                         }
+                    case .water:
+                        if dataManager.isPremium {
+                            WaterTrackerView()
+                        } else {
+                            PremiumLockedView(feature: "Water Tracker")
+                        }
                     }
                 }
                 
