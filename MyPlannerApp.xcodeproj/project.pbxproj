@@ -31,6 +31,7 @@
 		A1000023 /* LocationSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000024 /* LocationSearchView.swift */; };
 		A1000025 /* SiriIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000026 /* SiriIntents.swift */; };
 		A1000027 /* WaterTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000028 /* WaterTracker.swift */; };
+		A1000029 /* AIAssistant.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000030 /* AIAssistant.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -60,6 +61,7 @@
 		B1000024 /* LocationSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchView.swift; sourceTree = "<group>"; };
 		B1000026 /* SiriIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiriIntents.swift; sourceTree = "<group>"; };
 		B1000028 /* WaterTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterTracker.swift; sourceTree = "<group>"; };
+		B1000030 /* AIAssistant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAssistant.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -106,6 +108,7 @@
 				B1000024 /* LocationSearchView.swift */,
 				B1000026 /* SiriIntents.swift */,
 				B1000028 /* WaterTracker.swift */,
+				B1000030 /* AIAssistant.swift */,
 				B1000019 /* Assets.xcassets */,
 				B1000021 /* Info.plist */,
 				E1000004 /* Preview Content */,
@@ -221,6 +224,7 @@
 				A1000023 /* LocationSearchView.swift in Sources */,
 				A1000025 /* SiriIntents.swift in Sources */,
 				A1000027 /* WaterTracker.swift in Sources */,
+				A1000029 /* AIAssistant.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

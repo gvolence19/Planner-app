@@ -40,6 +40,12 @@ struct ContentView: View {
                         } else {
                             PremiumLockedView(feature: "Water Tracker")
                         }
+                    case .aiAssistant:
+                        if dataManager.isPremium {
+                            AIAssistantView()
+                        } else {
+                            PremiumLockedView(feature: "AI Assistant")
+                        }
                     }
                 }
                 
