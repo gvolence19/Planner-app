@@ -61,7 +61,26 @@ struct SettingsView: View {
                 
                 // App Settings
                 Section(header: Text("Preferences")) {
-                    Toggle("Dark Mode", isOn: $isDarkMode)
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Appearance")
+                            .font(.subheadline)
+                        
+                        Picker("", selection: $isDarkMode) {
+                            HStack {
+                                Image(systemName: "sun.max.fill")
+                                Text("Light")
+                            }
+                            .tag(false)
+                            
+                            HStack {
+                                Image(systemName: "moon.fill")
+                                Text("Dark")
+                            }
+                            .tag(true)
+                        }
+                        .pickerStyle(SegmentedPickerStyle())
+                    }
+                    .padding(.vertical, 4)
                     
                     Toggle("Notifications", isOn: $notificationsEnabled)
                     

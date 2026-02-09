@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var dataManager = DataManager.shared
+    @AppStorage("isDarkMode") private var isDarkMode = false
     @State private var selectedTab: ViewType = .list
     @State private var showingAddTask = false
     @State private var showingSettings = false
@@ -47,6 +48,7 @@ struct ContentView: View {
             }
             .navigationBarHidden(true)
         }
+        .preferredColorScheme(isDarkMode ? .dark : .light)
         .sheet(isPresented: $showingAddTask) {
             AddTaskView()
         }
