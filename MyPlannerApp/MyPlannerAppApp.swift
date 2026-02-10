@@ -4,12 +4,15 @@ import UserNotifications
 @main
 struct MyPlannerAppApp: App {
     @StateObject private var dataManager = DataManager.shared
+    @StateObject private var themeManager = ThemeManager.shared
     @AppStorage("isDarkMode") private var isDarkMode = false
     
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(dataManager)
+                .environment(\.appTheme, themeManager.currentTheme)
+                .accentColor(themeManager.currentTheme.accentColor.color)
                 .preferredColorScheme(isDarkMode ? .dark : .light)
                 .onAppear {
                     setupApp()

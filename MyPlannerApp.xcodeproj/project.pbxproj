@@ -33,6 +33,8 @@
 		A1000027 /* WaterTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000028 /* WaterTracker.swift */; };
 		A1000029 /* AIAssistant.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000030 /* AIAssistant.swift */; };
 		A1000031 /* EventsAndMilestones.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000032 /* EventsAndMilestones.swift */; };
+		A1000033 /* CalendarIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000034 /* CalendarIntegration.swift */; };
+		A1000035 /* ColorThemes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000036 /* ColorThemes.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -64,6 +66,8 @@
 		B1000028 /* WaterTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterTracker.swift; sourceTree = "<group>"; };
 		B1000030 /* AIAssistant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAssistant.swift; sourceTree = "<group>"; };
 		B1000032 /* EventsAndMilestones.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsAndMilestones.swift; sourceTree = "<group>"; };
+		B1000034 /* CalendarIntegration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarIntegration.swift; sourceTree = "<group>"; };
+		B1000036 /* ColorThemes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorThemes.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,6 +116,8 @@
 				B1000028 /* WaterTracker.swift */,
 				B1000030 /* AIAssistant.swift */,
 				B1000032 /* EventsAndMilestones.swift */,
+				B1000034 /* CalendarIntegration.swift */,
+				B1000036 /* ColorThemes.swift */,
 				B1000019 /* Assets.xcassets */,
 				B1000021 /* Info.plist */,
 				E1000004 /* Preview Content */,
@@ -229,6 +235,8 @@
 				A1000027 /* WaterTracker.swift in Sources */,
 				A1000029 /* AIAssistant.swift in Sources */,
 				A1000031 /* EventsAndMilestones.swift in Sources */,
+				A1000033 /* CalendarIntegration.swift in Sources */,
+				A1000035 /* ColorThemes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

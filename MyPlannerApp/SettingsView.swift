@@ -46,11 +46,25 @@ struct SettingsView: View {
                         } label: {
                             Label("Calendar Sync", systemImage: "calendar.badge.plus")
                         }
+                        
+                        NavigationLink {
+                            CalendarIntegrationView()
+                        } label: {
+                            Label("Calendar Integration", systemImage: "calendar.badge.clock")
+                        }
                     }
                 } else {
                     Section(header: Text("Premium Features"), footer: Text("Upgrade to Premium to unlock these features")) {
                         HStack {
                             Label("Calendar Sync", systemImage: "calendar.badge.plus")
+                            Spacer()
+                            Image(systemName: "lock.fill")
+                                .foregroundColor(.secondary)
+                        }
+                        .foregroundColor(.secondary)
+                        
+                        HStack {
+                            Label("Calendar Integration", systemImage: "calendar.badge.clock")
                             Spacer()
                             Image(systemName: "lock.fill")
                                 .foregroundColor(.secondary)
@@ -81,6 +95,18 @@ struct SettingsView: View {
                         .pickerStyle(SegmentedPickerStyle())
                     }
                     .padding(.vertical, 4)
+                    
+                    NavigationLink {
+                        ThemeSelectorView()
+                    } label: {
+                        HStack {
+                            Label("Color Theme", systemImage: "paintpalette")
+                            Spacer()
+                            Text(ThemeManager.shared.currentTheme.emoji)
+                            Text(ThemeManager.shared.currentTheme.name)
+                                .foregroundColor(.secondary)
+                        }
+                    }
                     
                     Toggle("Notifications", isOn: $notificationsEnabled)
                     
