@@ -526,8 +526,8 @@ struct ShimmerView: View {
     }
 }
 
-// MARK: - Priority Badge
-struct PriorityBadge: View {
+// MARK: - Simple Priority Badge
+struct SimplePriorityBadge: View {
     let priority: Priority
     
     var body: some View {
