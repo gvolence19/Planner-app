@@ -63,7 +63,7 @@ struct AddTaskIntent: AppIntent {
             message += " due \(formatter.string(from: dueDate))"
         }
         
-        return .result(dialog: IntentDialog(message))
+        return .result(dialog: IntentDialog(stringLiteral: message))
     }
 }
 
@@ -96,7 +96,7 @@ struct QuickAddTaskIntent: AppIntent {
             dataManager.addTask(newTask)
         }
         
-        return .result(dialog: IntentDialog("Added '\(taskTitle)' to your tasks"))
+        return .result(dialog: IntentDialog(stringLiteral: "Added '\(taskTitle)' to your tasks"))
     }
 }
 
@@ -117,11 +117,11 @@ struct ViewTasksIntent: AppIntent {
         let taskCount = incompleteTasks.count
         
         if taskCount == 0 {
-            return .result(dialog: IntentDialog("You have no tasks. Great job!"))
+            return .result(dialog: IntentDialog(stringLiteral: "You have no tasks. Great job!"))
         } else if taskCount == 1 {
-            return .result(dialog: IntentDialog("You have 1 task pending"))
+            return .result(dialog: IntentDialog(stringLiteral: "You have 1 task pending"))
         } else {
-            return .result(dialog: IntentDialog("You have \(taskCount) tasks pending"))
+            return .result(dialog: IntentDialog(stringLiteral: "You have \(taskCount) tasks pending"))
         }
     }
 }
@@ -158,9 +158,9 @@ struct CompleteTaskIntent: AppIntent {
         }
         
         if completed {
-            return .result(dialog: IntentDialog("Great! Marked '\(taskTitle)' as complete"))
+            return .result(dialog: IntentDialog(stringLiteral: "Great! Marked '\(taskTitle)' as complete"))
         } else {
-            return .result(dialog: IntentDialog("Sorry, I couldn't find a task matching '\(taskTitle)'"))
+            return .result(dialog: IntentDialog(stringLiteral: "Sorry, I couldn't find a task matching '\(taskTitle)'"))
         }
     }
 }

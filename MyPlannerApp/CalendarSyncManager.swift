@@ -335,8 +335,8 @@ struct CalendarSettingsView: View {
                         }
                     }
                     
-                    if !syncManager.isAuthorized && !syncManager.errorMessage.isEmpty {
-                        Text(syncManager.errorMessage)
+                    if !syncManager.isAuthorized && !(syncManager.errorMessage?.isEmpty ?? true) {
+                        Text(syncManager.errorMessage ?? "")
                             .font(.caption)
                             .foregroundColor(.red)
                     }
