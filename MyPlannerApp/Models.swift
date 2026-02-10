@@ -203,6 +203,7 @@ enum ViewType: String, CaseIterable {
     case meals
     case sleep
     case water
+    case events
     case aiAssistant
     
     var displayName: String {
@@ -213,6 +214,7 @@ enum ViewType: String, CaseIterable {
         case .meals: return "Meals"
         case .sleep: return "Sleep"
         case .water: return "Water"
+        case .events: return "Events"
         case .aiAssistant: return "AI"
         }
     }
@@ -225,6 +227,7 @@ enum ViewType: String, CaseIterable {
         case .meals: return "fork.knife"
         case .sleep: return "moon.zzz"
         case .water: return "drop.fill"
+        case .events: return "gift"
         case .aiAssistant: return "brain"
         }
     }
