@@ -142,26 +142,6 @@ struct ContentView: View {
     }
 }
 
-// MARK: - Floating Action Button
-struct FloatingActionButton: View {
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            Image(systemName: "plus")
-                .font(.system(size: 24, weight: .semibold))
-                .foregroundColor(.white)
-                .frame(width: 60, height: 60)
-                .background(
-                    Circle()
-                        .fill(Color.accentColor)
-                        .shadow(color: Color.accentColor.opacity(0.4), radius: 8, x: 0, y: 4)
-                )
-        }
-        .position(x: UIScreen.main.bounds.width - 50, y: UIScreen.main.bounds.height - 150)
-    }
-}
-
 // MARK: - Premium Locked View
 struct PremiumLockedView: View {
     let feature: String

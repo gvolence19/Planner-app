@@ -25,31 +25,6 @@ struct SearchBar: View {
     }
 }
 
-// MARK: - Detail Row
-struct DetailRow: View {
-    let icon: String
-    let title: String
-    let value: String
-    var color: Color = .accentColor
-    
-    var body: some View {
-        HStack {
-            Image(systemName: icon)
-                .foregroundColor(color)
-                .frame(width: 30)
-            
-            Text(title)
-                .font(.subheadline)
-            
-            Spacer()
-            
-            Text(value)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-        }
-    }
-}
-
 // MARK: - Stat Card
 struct StatCard: View {
     let icon: String
@@ -75,27 +50,6 @@ struct StatCard: View {
         .padding()
         .background(Color(.systemGray6))
         .cornerRadius(10)
-    }
-}
-
-// MARK: - Priority Badge
-struct PriorityBadge: View {
-    let priority: Priority
-    let count: Int
-    
-    var body: some View {
-        HStack(spacing: 4) {
-            Circle()
-                .fill(priority.color)
-                .frame(width: 8, height: 8)
-            Text("\(count)")
-                .font(.caption)
-                .fontWeight(.semibold)
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
-        .background(priority.color.opacity(0.1))
-        .cornerRadius(8)
     }
 }
 

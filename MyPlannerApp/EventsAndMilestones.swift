@@ -605,15 +605,15 @@ struct EventDetailView: View {
                     
                     // Details
                     VStack(alignment: .leading, spacing: 16) {
-                        DetailRow(label: "Name", value: event.name)
-                        DetailRow(label: "Type", value: event.type.rawValue)
-                        DetailRow(label: "Date", value: event.nextOccurrence.formatted(date: .long, time: .omitted))
+                        EventDetailRow(label: "Name", value: event.name)
+                        EventDetailRow(label: "Type", value: event.type.rawValue)
+                        EventDetailRow(label: "Date", value: event.nextOccurrence.formatted(date: .long, time: .omitted))
                         
                         if event.isRecurring, let years = event.yearsSince, years > 0 {
-                            DetailRow(label: "Years", value: "\(years) year\(years == 1 ? "" : "s")")
+                            EventDetailRow(label: "Years", value: "\(years) year\(years == 1 ? "" : "s")")
                         }
                         
-                        DetailRow(label: "Recurring", value: event.isRecurring ? "Yes (Annual)" : "No")
+                        EventDetailRow(label: "Recurring", value: event.isRecurring ? "Yes (Annual)" : "No")
                         
                         if let notes = event.notes, !notes.isEmpty {
                             VStack(alignment: .leading, spacing: 8) {
@@ -631,7 +631,7 @@ struct EventDetailView: View {
                                              event.notificationDaysBefore == 1 ? "1 day before" :
                                              event.notificationDaysBefore == 7 ? "1 week before" :
                                              "\(event.notificationDaysBefore) days before"
-                            DetailRow(label: "Reminder", value: reminderText)
+                            EventDetailRow(label: "Reminder", value: reminderText)
                         }
                     }
                     .padding()
@@ -684,7 +684,7 @@ struct EventDetailView: View {
     }
 }
 
-struct DetailRow: View {
+struct EventDetailRow: View {
     let label: String
     let value: String
     

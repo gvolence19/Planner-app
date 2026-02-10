@@ -135,7 +135,7 @@ class WaterTrackerManager: ObservableObject {
         
         guard notificationsEnabled else { return }
         
-        for reminder in settings.reminders where reminder.enabled {
+        for reminder in settings.reminderTimes where reminder.enabled {
             let content = UNMutableNotificationContent()
             content.title = "💧 Stay Hydrated!"
             content.body = "Time for your \(reminder.label.lowercased()) water. Keep up the good work!"
