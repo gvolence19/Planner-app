@@ -44,14 +44,14 @@ struct ConnectedCalendar: Identifiable, Codable {
 }
 
 enum SyncDirection: String, CaseIterable, Codable {
-    case import = "Import Only"
-    case export = "Export Only"
+    case importOnly = "Import Only"
+    case exportOnly = "Export Only"
     case twoWay = "Two-Way Sync"
     
     var description: String {
         switch self {
-        case .import: return "Import events from this calendar"
-        case .export: return "Export tasks to this calendar"
+        case .importOnly: return "Import events from this calendar"
+        case .exportOnly: return "Export tasks to this calendar"
         case .twoWay: return "Keep calendars in sync"
         }
     }

@@ -52,7 +52,8 @@ struct ContentView: View {
                 }
                 
                 // Bottom Tab Bar
-                tabBar
+                ModernTabBar(selectedTab: $selectedTab, isPremium: dataManager.isPremium)
+                    .padding(.horizontal, 8)
             }
             .navigationBarHidden(true)
         }
