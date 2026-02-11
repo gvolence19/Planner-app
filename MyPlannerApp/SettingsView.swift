@@ -42,11 +42,12 @@ struct SettingsView: View {
                 // Premium Features
                 if dataManager.isPremium {
                     Section(header: Text("Premium Features")) {
-                        NavigationLink {
-                            WidgetGalleryView()
-                        } label: {
-                            Label("Home Screen Widgets", systemImage: "square.grid.2x2.fill")
-                        }
+                        // TODO: Add WidgetGalleryView.swift to Xcode project first
+                        // NavigationLink {
+                        //     WidgetGalleryView()
+                        // } label: {
+                        //     Label("Home Screen Widgets", systemImage: "square.grid.2x2.fill")
+                        // }
                         
                         NavigationLink {
                             CalendarIntegrationView()
@@ -56,13 +57,14 @@ struct SettingsView: View {
                     }
                 } else {
                     Section(header: Text("Premium Features"), footer: Text("Upgrade to Premium to unlock these features")) {
-                        HStack {
-                            Label("Home Screen Widgets", systemImage: "square.grid.2x2.fill")
-                            Spacer()
-                            Image(systemName: "lock.fill")
-                                .foregroundColor(.secondary)
-                        }
-                        .foregroundColor(.secondary)
+                        // TODO: Add WidgetGalleryView.swift to Xcode project first
+                        // HStack {
+                        //     Label("Home Screen Widgets", systemImage: "square.grid.2x2.fill")
+                        //     Spacer()
+                        //     Image(systemName: "lock.fill")
+                        //         .foregroundColor(.secondary)
+                        // }
+                        // .foregroundColor(.secondary)
                         
                         HStack {
                             Label("Calendar Integration", systemImage: "calendar.badge.clock")
