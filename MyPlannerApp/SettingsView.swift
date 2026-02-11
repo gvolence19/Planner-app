@@ -43,6 +43,12 @@ struct SettingsView: View {
                 if dataManager.isPremium {
                     Section(header: Text("Premium Features")) {
                         NavigationLink {
+                            WidgetGalleryView()
+                        } label: {
+                            Label("Home Screen Widgets", systemImage: "square.grid.2x2.fill")
+                        }
+                        
+                        NavigationLink {
                             CalendarIntegrationView()
                         } label: {
                             Label("Calendar Integration", systemImage: "calendar.badge.clock")
@@ -50,6 +56,14 @@ struct SettingsView: View {
                     }
                 } else {
                     Section(header: Text("Premium Features"), footer: Text("Upgrade to Premium to unlock these features")) {
+                        HStack {
+                            Label("Home Screen Widgets", systemImage: "square.grid.2x2.fill")
+                            Spacer()
+                            Image(systemName: "lock.fill")
+                                .foregroundColor(.secondary)
+                        }
+                        .foregroundColor(.secondary)
+                        
                         HStack {
                             Label("Calendar Integration", systemImage: "calendar.badge.clock")
                             Spacer()
