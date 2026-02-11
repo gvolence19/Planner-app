@@ -71,6 +71,7 @@ struct ContentView: View {
                 
                 // Bottom Tab Bar
                 ModernTabBar(selectedTab: $selectedTab, isPremium: dataManager.isPremium)
+                    .environmentObject(themeManager)
                     .padding(.horizontal, 8)
             }
             .navigationBarHidden(true)

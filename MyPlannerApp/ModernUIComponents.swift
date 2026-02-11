@@ -119,7 +119,11 @@ struct ModernTaskCard: View {
 struct FloatingActionButton: View {
     let action: () -> Void
     @State private var isPressed = false
-    @Environment(\.appTheme) var theme
+    @EnvironmentObject var themeManager: ThemeManager
+    
+    private var theme: AppTheme {
+        themeManager.currentTheme
+    }
     
     var body: some View {
         Button(action: {
@@ -205,7 +209,11 @@ struct ModernEmptyState: View {
     let message: String
     let actionTitle: String?
     let action: (() -> Void)?
-    @Environment(\.appTheme) var theme
+    @EnvironmentObject var themeManager: ThemeManager
+    
+    private var theme: AppTheme {
+        themeManager.currentTheme
+    }
     
     var body: some View {
         VStack(spacing: 20) {
@@ -289,8 +297,12 @@ struct StatsCard: View {
 struct ModernTabBar: View {
     @Binding var selectedTab: ViewType
     let isPremium: Bool
-    @Environment(\.appTheme) var theme
+    @EnvironmentObject var themeManager: ThemeManager
     @Namespace private var animation
+    
+    private var theme: AppTheme {
+        themeManager.currentTheme
+    }
     
     var tabs: [ViewType] {
         isPremium ? ViewType.allCases : [.list, .calendar, .grocery]
@@ -359,7 +371,11 @@ struct ProgressRing: View {
     let progress: Double
     let lineWidth: CGFloat
     let size: CGFloat
-    @Environment(\.appTheme) var theme
+    @EnvironmentObject var themeManager: ThemeManager
+    
+    private var theme: AppTheme {
+        themeManager.currentTheme
+    }
     
     var body: some View {
         ZStack {
@@ -392,7 +408,11 @@ struct QuickAddBar: View {
     let placeholder: String
     let onSubmit: () -> Void
     @FocusState private var isFocused: Bool
-    @Environment(\.appTheme) var theme
+    @EnvironmentObject var themeManager: ThemeManager
+    
+    private var theme: AppTheme {
+        themeManager.currentTheme
+    }
     
     var body: some View {
         HStack(spacing: 12) {
@@ -430,7 +450,11 @@ struct CategoryPill: View {
     let category: String
     let isSelected: Bool
     let action: () -> Void
-    @Environment(\.appTheme) var theme
+    @EnvironmentObject var themeManager: ThemeManager
+    
+    private var theme: AppTheme {
+        themeManager.currentTheme
+    }
     
     var body: some View {
         Button(action: action) {
@@ -561,7 +585,11 @@ struct SimplePriorityBadge: View {
 struct DatePickerCard: View {
     @Binding var date: Date
     let title: String
-    @Environment(\.appTheme) var theme
+    @EnvironmentObject var themeManager: ThemeManager
+    
+    private var theme: AppTheme {
+        themeManager.currentTheme
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
