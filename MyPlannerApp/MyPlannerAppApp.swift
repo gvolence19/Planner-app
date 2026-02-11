@@ -47,13 +47,12 @@ struct MyPlannerAppApp: App {
     }
 }
 
-// Wrapper that observes theme changes
+// Wrapper that provides theme to child views
 struct ThemedContentView: View {
     @EnvironmentObject var themeManager: ThemeManager
     
     var body: some View {
         ContentView()
-            .environment(\.appTheme, themeManager.currentTheme)
             .tint(themeManager.currentTheme.accentColor.color)
     }
 }

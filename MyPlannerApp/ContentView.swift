@@ -2,11 +2,16 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var dataManager = DataManager.shared
-    @Environment(\.appTheme) var theme
+    @EnvironmentObject var themeManager: ThemeManager
     @AppStorage("isDarkMode") private var isDarkMode = false
     @State private var selectedTab: ViewType = .list
     @State private var showingAddTask = false
     @State private var showingSettings = false
+    
+    // Computed property to get current theme
+    private var theme: AppTheme {
+        themeManager.currentTheme
+    }
     
     var body: some View {
         NavigationView {
@@ -189,5 +194,6 @@ struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
             .environmentObject(ThemeManager.shared)
+            .environmentObject(DataManager.shared)
     }
 }
