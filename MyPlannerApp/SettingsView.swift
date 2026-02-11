@@ -3,6 +3,7 @@ import SwiftUI
 struct SettingsView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject private var dataManager = DataManager.shared
+    @StateObject private var themeManager = ThemeManager.shared
     @State private var showingCategoryManager = false
     @State private var showingAbout = false
     @State private var notificationsEnabled = true
@@ -42,12 +43,6 @@ struct SettingsView: View {
                 if dataManager.isPremium {
                     Section(header: Text("Premium Features")) {
                         NavigationLink {
-                            CalendarSettingsView()
-                        } label: {
-                            Label("Calendar Sync", systemImage: "calendar.badge.plus")
-                        }
-                        
-                        NavigationLink {
                             CalendarIntegrationView()
                         } label: {
                             Label("Calendar Integration", systemImage: "calendar.badge.clock")
@@ -55,14 +50,6 @@ struct SettingsView: View {
                     }
                 } else {
                     Section(header: Text("Premium Features"), footer: Text("Upgrade to Premium to unlock these features")) {
-                        HStack {
-                            Label("Calendar Sync", systemImage: "calendar.badge.plus")
-                            Spacer()
-                            Image(systemName: "lock.fill")
-                                .foregroundColor(.secondary)
-                        }
-                        .foregroundColor(.secondary)
-                        
                         HStack {
                             Label("Calendar Integration", systemImage: "calendar.badge.clock")
                             Spacer()
@@ -75,24 +62,16 @@ struct SettingsView: View {
                 
                 // App Settings
                 Section(header: Text("Preferences")) {
+                    // Appearance Picker
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Appearance")
+                        Label("Appearance", systemImage: isDarkMode ? "moon.fill" : "sun.max.fill")
                             .font(.subheadline)
                         
-                        Picker("", selection: $isDarkMode) {
-                            HStack {
-                                Image(systemName: "sun.max.fill")
-                                Text("Light")
-                            }
-                            .tag(false)
-                            
-                            HStack {
-                                Image(systemName: "moon.fill")
-                                Text("Dark")
-                            }
-                            .tag(true)
+                        Picker("Appearance", selection: $isDarkMode) {
+                            Text("☀️ Light").tag(false)
+                            Text("🌙 Dark").tag(true)
                         }
-                        .pickerStyle(SegmentedPickerStyle())
+                        .pickerStyle(.segmented)
                     }
                     .padding(.vertical, 4)
                     
@@ -102,8 +81,8 @@ struct SettingsView: View {
                         HStack {
                             Label("Color Theme", systemImage: "paintpalette")
                             Spacer()
-                            Text(ThemeManager.shared.currentTheme.emoji)
-                            Text(ThemeManager.shared.currentTheme.name)
+                            Text(themeManager.currentTheme.emoji)
+                            Text(themeManager.currentTheme.name)
                                 .foregroundColor(.secondary)
                         }
                     }

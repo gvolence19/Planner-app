@@ -2,6 +2,8 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var dataManager = DataManager.shared
+    @EnvironmentObject var themeManager: ThemeManager
+    @Environment(\.appTheme) var theme
     @AppStorage("isDarkMode") private var isDarkMode = false
     @State private var selectedTab: ViewType = .list
     @State private var showingAddTask = false
@@ -73,7 +75,7 @@ struct ContentView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text("My Planner")
                     .font(.system(size: 28, weight: .bold))
-                    .foregroundColor(.primary)
+                    .foregroundColor(theme.primaryColor.color)
                 
                 Text(todayDateString())
                     .font(.system(size: 14))
@@ -88,7 +90,7 @@ struct ContentView: View {
                 Button(action: { showingSettings = true }) {
                     Image(systemName: "gearshape")
                         .font(.system(size: 20))
-                        .foregroundColor(.primary)
+                        .foregroundColor(theme.accentColor.color)
                         .frame(width: 44, height: 44)
                 }
             }

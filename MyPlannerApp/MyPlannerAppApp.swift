@@ -11,6 +11,7 @@ struct MyPlannerAppApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(dataManager)
+                .environmentObject(themeManager)
                 .environment(\.appTheme, themeManager.currentTheme)
                 .accentColor(themeManager.currentTheme.accentColor.color)
                 .preferredColorScheme(isDarkMode ? .dark : .light)
