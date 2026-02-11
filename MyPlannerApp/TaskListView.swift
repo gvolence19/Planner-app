@@ -24,6 +24,7 @@ struct TaskListView: View {
             VStack(spacing: 0) {
                 // Search Bar
                 SearchBar(text: $searchText)
+                    .environmentObject(themeManager)
                     .padding(.horizontal)
                     .padding(.top, 8)
                 
@@ -38,6 +39,7 @@ struct TaskListView: View {
                         LazyVStack(spacing: 12) {
                             ForEach(filteredTasks) { task in
                                 TaskRowView(task: task)
+                                    .environmentObject(themeManager)
                             }
                         }
                         .padding()
@@ -242,6 +244,7 @@ struct TaskRowView: View {
         .buttonStyle(PlainButtonStyle())
         .sheet(isPresented: $showingDetail) {
             TaskDetailView(task: task)
+                .environmentObject(themeManager)
         }
     }
     

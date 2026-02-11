@@ -24,35 +24,47 @@ struct ContentView: View {
                     switch selectedTab {
                     case .list:
                         TaskListView()
+                            .environmentObject(themeManager)
                     case .calendar:
                         CalendarView()
+                            .environmentObject(themeManager)
                     case .grocery:
                         GroceryListView()
+                            .environmentObject(themeManager)
                     case .meals:
                         if dataManager.isPremium {
                             MealsView()
+                                .environmentObject(themeManager)
                         } else {
                             PremiumLockedView(feature: "Meal Planning")
+                                .environmentObject(themeManager)
                         }
                     case .sleep:
                         if dataManager.isPremium {
                             SleepTrackingView()
+                                .environmentObject(themeManager)
                         } else {
                             PremiumLockedView(feature: "Sleep Tracking")
+                                .environmentObject(themeManager)
                         }
                     case .water:
                         if dataManager.isPremium {
                             WaterTrackerView()
+                                .environmentObject(themeManager)
                         } else {
                             PremiumLockedView(feature: "Water Tracker")
+                                .environmentObject(themeManager)
                         }
                     case .events:
                         EventsAndMilestonesView()
+                            .environmentObject(themeManager)
                     case .aiAssistant:
                         if dataManager.isPremium {
                             AIAssistantView()
+                                .environmentObject(themeManager)
                         } else {
                             PremiumLockedView(feature: "AI Assistant")
+                                .environmentObject(themeManager)
                         }
                     }
                 }

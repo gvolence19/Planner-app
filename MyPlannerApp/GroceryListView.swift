@@ -30,6 +30,7 @@ struct GroceryListView: View {
                             Section {
                                 ForEach(uncheckedItems) { item in
                                     GroceryItemRow(item: item)
+                                        .environmentObject(themeManager)
                                     Divider()
                                 }
                             }
@@ -47,13 +48,14 @@ struct GroceryListView: View {
                                         clearCheckedItems()
                                     }
                                     .font(.subheadline)
-                                    .foregroundColor(.accentColor)
+                                    .foregroundColor(theme.primaryColor.color)
                                 }
                                 .padding()
                                 .background(Color(.systemGroupedBackground))
                                 
                                 ForEach(checkedItems) { item in
                                     GroceryItemRow(item: item)
+                                        .environmentObject(themeManager)
                                     Divider()
                                 }
                             }
