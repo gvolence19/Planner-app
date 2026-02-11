@@ -9,11 +9,9 @@ struct MyPlannerAppApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ThemedContentView()
                 .environmentObject(dataManager)
                 .environmentObject(themeManager)
-                .environment(\.appTheme, themeManager.currentTheme)
-                .accentColor(themeManager.currentTheme.accentColor.color)
                 .preferredColorScheme(isDarkMode ? .dark : .light)
                 .onAppear {
                     setupApp()
@@ -46,5 +44,16 @@ struct MyPlannerAppApp: App {
         
         UINavigationBar.appearance().standardAppearance = appearance
         UINavigationBar.appearance().scrollEdgeAppearance = appearance
+    }
+}
+
+// Wrapper that observes theme changes
+struct ThemedContentView: View {
+    @EnvironmentObject var themeManager: ThemeManager
+    
+    var body: some View {
+        ContentView()
+            .environment(\.appTheme, themeManager.currentTheme)
+            .tint(themeManager.currentTheme.accentColor.color)
     }
 }
