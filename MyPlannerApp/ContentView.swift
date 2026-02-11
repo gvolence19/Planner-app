@@ -188,5 +188,6 @@ struct PremiumLockedView: View {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
+            .environmentObject(ThemeManager.shared)
     }
 }

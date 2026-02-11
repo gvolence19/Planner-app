@@ -387,5 +387,6 @@ struct AboutView: View {
 struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
         SettingsView()
+            .environmentObject(ThemeManager.shared)
     }
 }
