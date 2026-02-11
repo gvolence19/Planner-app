@@ -92,7 +92,7 @@ struct ContentView: View {
         HStack {
             // App Title
             VStack(alignment: .leading, spacing: 4) {
-                Text("My Planner")
+                Text("Plannio")
                     .font(.system(size: 28, weight: .bold))
                     .foregroundColor(theme.primaryColor.color)
                 

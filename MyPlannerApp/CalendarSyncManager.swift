@@ -318,7 +318,7 @@ struct CalendarSettingsView: View {
         NavigationView {
             Form {
                 // Authorization Status
-                Section(header: Text("Calendar Access"), footer: syncManager.isAuthorized ? nil : Text("Calendar access is required to sync tasks with your iOS Calendar. If denied, you can enable it in Settings > My Planner > Calendars.")) {
+                Section(header: Text("Calendar Access"), footer: syncManager.isAuthorized ? nil : Text("Calendar access is required to sync tasks with your iOS Calendar. If denied, you can enable it in Settings > Plannio > Calendars.")) {
                     HStack {
                         Image(systemName: syncManager.isAuthorized ? "checkmark.circle.fill" : "xmark.circle.fill")
                             .foregroundColor(syncManager.isAuthorized ? .green : .red)

@@ -5,7 +5,7 @@ import SwiftUI
 @available(iOS 16.0, *)
 struct AddTaskIntent: AppIntent {
     static var title: LocalizedStringResource = "Add Task"
-    static var description = IntentDescription("Add a new task to My Planner")
+    static var description = IntentDescription("Add a new task to Plannio")
     static var openAppWhenRun: Bool = false
     
     @Parameter(title: "Task Title", description: "What do you want to add?")
@@ -21,7 +21,7 @@ struct AddTaskIntent: AppIntent {
     var dueDate: Date?
     
     static var parameterSummary: some ParameterSummary {
-        Summary("Add \(\.$taskTitle) to My Planner") {
+        Summary("Add \(\.$taskTitle) to Plannio") {
             \.$category
             \.$priority
             \.$dueDate
@@ -205,10 +205,10 @@ struct SiriTipsView: View {
                 .foregroundColor(.secondary)
             
             VStack(alignment: .leading, spacing: 12) {
-                SiriTipRow(icon: "plus.circle", phrase: "Add a task in My Planner")
+                SiriTipRow(icon: "plus.circle", phrase: "Add a task in Plannio")
                 SiriTipRow(icon: "list.bullet", phrase: "Show my tasks")
                 SiriTipRow(icon: "checkmark.circle", phrase: "Complete [task name]")
-                SiriTipRow(icon: "plus.app", phrase: "Add buy milk to My Planner")
+                SiriTipRow(icon: "plus.app", phrase: "Add buy milk to Plannio")
             }
             
             Divider()
@@ -218,7 +218,7 @@ struct SiriTipsView: View {
                     .font(.caption)
                     .fontWeight(.semibold)
                 
-                Text("\"Hey Siri, add buy groceries to My Planner\"")
+                Text("\"Hey Siri, add buy groceries to Plannio\"")
                     .font(.caption)
                     .italic()
                 

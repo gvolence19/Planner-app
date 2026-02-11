@@ -3,7 +3,7 @@
 ## Theme Colors Now Applied To:
 
 ### ✅ Header (ContentView)
-- App title "My Planner" → Primary color
+- App title "Plannio" → Primary color
 - Settings gear icon → Accent color
 
 ### ✅ Tab Bar (ModernTabBar)

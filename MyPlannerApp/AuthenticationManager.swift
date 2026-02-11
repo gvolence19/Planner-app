@@ -235,7 +235,7 @@ struct LoginView: View {
                         .font(.system(size: 80))
                         .foregroundColor(.white)
                     
-                    Text("My Planner")
+                    Text("Plannio")
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .foregroundColor(.white)

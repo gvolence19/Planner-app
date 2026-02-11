@@ -9,17 +9,17 @@ Your app now supports Siri! Users can add and manage tasks using voice commands.
 ## 📱 Supported Commands
 
 ### Quick Add Task
-**"Hey Siri, add a task in My Planner"**
+**"Hey Siri, add a task in Plannio"**
 - Siri will ask: "What do you want to add?"
 - User responds with task name
 - Task is added instantly!
 
 ### Add Task with Title
-**"Hey Siri, add [task name] to My Planner"**
+**"Hey Siri, add [task name] to Plannio"**
 Examples:
-- "Hey Siri, add buy groceries to My Planner"
-- "Hey Siri, add team meeting to My Planner"
-- "Hey Siri, create dentist appointment in My Planner"
+- "Hey Siri, add buy groceries to Plannio"
+- "Hey Siri, add team meeting to Plannio"
+- "Hey Siri, create dentist appointment in Plannio"
 
 ### View Tasks
 **"Hey Siri, show my tasks"**
@@ -58,7 +58,7 @@ Examples:
    - Tap "OK" to allow Siri access
 
 2. **Try a Command:**
-   - Say "Hey Siri, add a task in My Planner"
+   - Say "Hey Siri, add a task in Plannio"
    - Siri will guide you through adding your first task!
 
 3. **View Available Commands:**
@@ -70,13 +70,13 @@ Examples:
 ## 💡 Tips for Best Results
 
 ### For Natural Conversation:
-✅ "Add buy milk to My Planner"
+✅ "Add buy milk to Plannio"
 ✅ "What are my tasks?"
 ✅ "Complete team meeting"
 
 ### More Specific Commands:
-✅ "Add buy groceries due tomorrow to My Planner"
-✅ "Create high priority review code in My Planner"
+✅ "Add buy groceries due tomorrow to Plannio"
+✅ "Create high priority review code in Plannio"
 
 ### Task Completion:
 - Use partial names: "Complete groceries" will find "buy groceries"
@@ -107,7 +107,7 @@ The app uses Apple's modern **App Intents** framework (iOS 16+):
 
 - [ ] Enable Siri capability in Xcode
 - [ ] Build and run app
-- [ ] Say "Hey Siri, add a task in My Planner"
+- [ ] Say "Hey Siri, add a task in Plannio"
 - [ ] Check that task appears in app
 - [ ] Try "Hey Siri, what are my tasks?"
 - [ ] Try completing a task via Siri
@@ -148,9 +148,9 @@ Users can create custom shortcuts combining:
 
 ### Multiple Tasks:
 Users can say multiple commands:
-1. "Add buy milk to My Planner"
-2. "Add walk dog to My Planner"  
-3. "Add call mom to My Planner"
+1. "Add buy milk to Plannio"
+2. "Add walk dog to Plannio"  
+3. "Add call mom to Plannio"
 
 All tasks will be added!
 
@@ -158,7 +158,7 @@ All tasks will be added!
 
 ## 📱 User Experience
 
-**User:** "Hey Siri, add buy groceries to My Planner"
+**User:** "Hey Siri, add buy groceries to Plannio"
 **Siri:** "Added 'buy groceries' to your tasks"
 ✅ Task appears in app instantly!
 
@@ -180,4 +180,4 @@ Your app now has full Siri integration! Users can manage their tasks hands-free,
 - Multitasking
 - Quick captures
 
-**Try it now: "Hey Siri, add a task in My Planner"** 🎤
+**Try it now: "Hey Siri, add a task in Plannio"** 🎤

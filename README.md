@@ -1,4 +1,4 @@
-# My Planner - iOS App
+# Plannio - iOS App
 
 A comprehensive task management and planning app for iOS, converted from a React web application to native SwiftUI.
 
@@ -43,7 +43,7 @@ A comprehensive task management and planning app for iOS, converted from a React
    - Open Xcode
    - Select "Create a new Xcode project"
    - Choose "iOS" → "App"
-   - Product Name: `My Planner`
+   - Product Name: `Plannio`
    - Organization Identifier: `com.yourcompany.planner` (use your own)
    - Interface: SwiftUI
    - Language: Swift

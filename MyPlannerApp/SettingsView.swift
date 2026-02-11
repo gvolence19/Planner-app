@@ -123,7 +123,7 @@ struct SettingsView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Voice Commands Available")
                                 .font(.subheadline)
-                            Text("\"Add a task in My Planner\"")
+                            Text("\"Add a task in Plannio\"")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                                 .italic()
@@ -323,7 +323,7 @@ struct AboutView: View {
                         .font(.system(size: 80))
                         .foregroundColor(.accentColor)
                     
-                    Text("My Planner")
+                    Text("Plannio")
                         .font(.largeTitle)
                         .fontWeight(.bold)
                     
