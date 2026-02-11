@@ -173,8 +173,6 @@ struct MyPlannerShortcuts: AppShortcutsProvider {
             intent: QuickAddTaskIntent(),
             phrases: [
                 "Add a task in \(.applicationName)",
-                "Create a task in \(.applicationName)",
-                "Add to \(.applicationName)",
                 "Quick add in \(.applicationName)"
             ],
             shortTitle: "Add Task",
@@ -182,37 +180,13 @@ struct MyPlannerShortcuts: AppShortcutsProvider {
         )
         
         AppShortcut(
-            intent: AddTaskIntent(),
-            phrases: [
-                "Add \(\.$taskTitle) to \(.applicationName)",
-                "Create \(\.$taskTitle) in \(.applicationName)",
-                "Add task \(\.$taskTitle)"
-            ],
-            shortTitle: "Add Task with Details",
-            systemImageName: "plus.circle.fill"
-        )
-        
-        AppShortcut(
             intent: ViewTasksIntent(),
             phrases: [
                 "Show my tasks in \(.applicationName)",
-                "What are my tasks",
-                "Check my tasks",
-                "View my tasks"
+                "Check my tasks in \(.applicationName)"
             ],
             shortTitle: "View Tasks",
             systemImageName: "list.bullet"
-        )
-        
-        AppShortcut(
-            intent: CompleteTaskIntent(),
-            phrases: [
-                "Complete \(\.$taskTitle) in \(.applicationName)",
-                "Mark \(\.$taskTitle) as done",
-                "Finish \(\.$taskTitle)"
-            ],
-            shortTitle: "Complete Task",
-            systemImageName: "checkmark.circle"
         )
     }
 }
