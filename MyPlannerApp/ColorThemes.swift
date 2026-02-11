@@ -264,7 +264,7 @@ class ThemeManager: ObservableObject {
 
 // MARK: - Theme Selector View
 struct ThemeSelectorView: View {
-    @StateObject private var themeManager = ThemeManager.shared
+    @EnvironmentObject var themeManager: ThemeManager
     @Environment(\.dismiss) var dismiss
     
     let columns = [

@@ -3,7 +3,7 @@ import SwiftUI
 struct SettingsView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject private var dataManager = DataManager.shared
-    @StateObject private var themeManager = ThemeManager.shared
+    @EnvironmentObject var themeManager: ThemeManager
     @State private var showingCategoryManager = false
     @State private var showingAbout = false
     @State private var notificationsEnabled = true

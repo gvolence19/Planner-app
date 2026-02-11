@@ -2,7 +2,6 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var dataManager = DataManager.shared
-    @EnvironmentObject var themeManager: ThemeManager
     @Environment(\.appTheme) var theme
     @AppStorage("isDarkMode") private var isDarkMode = false
     @State private var selectedTab: ViewType = .list
