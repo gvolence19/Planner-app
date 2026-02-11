@@ -1,7 +1,12 @@
 import SwiftUI
 
 struct CalendarView: View {
+    @EnvironmentObject var themeManager: ThemeManager
     @StateObject private var dataManager = DataManager.shared
+    
+    private var theme: AppTheme {
+        themeManager.currentTheme
+    }
     @State private var selectedDate = Date()
     @State private var showingAddTask = false
     @State private var currentMonth = Date()
@@ -31,20 +36,21 @@ struct CalendarView: View {
             Button(action: { changeMonth(by: -1) }) {
                 Image(systemName: "chevron.left")
                     .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(.accentColor)
+                    .foregroundColor(theme.primaryColor.color)
             }
             
             Spacer()
             
             Text(monthYearString())
                 .font(.system(size: 20, weight: .bold))
+                .foregroundColor(theme.primaryColor.color)
             
             Spacer()
             
             Button(action: { changeMonth(by: 1) }) {
                 Image(systemName: "chevron.right")
                     .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(.accentColor)
+                    .foregroundColor(theme.primaryColor.color)
             }
         }
         .padding()
@@ -92,20 +98,26 @@ struct CalendarView: View {
                     .font(.system(size: 16, weight: isToday ? .bold : .regular))
                     .foregroundColor(
                         isSelected ? .white :
-                        isToday ? .accentColor :
+                        isToday ? theme.primaryColor.color :
                         calendar.isDate(date, equalTo: currentMonth, toGranularity: .month) ? .primary : .secondary
                     )
                 
                 if taskCount > 0 {
                     Circle()
-                        .fill(isSelected ? Color.white : Color.accentColor)
+                        .fill(isSelected ? Color.white : theme.primaryColor.color)
                         .frame(width: 6, height: 6)
                 }
             }
             .frame(height: 50)
             .frame(maxWidth: .infinity)
             .background(
-                isSelected ? Color.accentColor : Color.clear
+                isSelected 
+                    ? LinearGradient(
+                        colors: [theme.primaryColor.color, theme.secondaryColor.color],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                      )
+                    : LinearGradient(colors: [Color.clear, Color.clear], startPoint: .top, endPoint: .bottom)
             )
             .cornerRadius(8)
         }

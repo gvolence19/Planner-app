@@ -1,10 +1,15 @@
 import SwiftUI
 
 struct TaskListView: View {
+    @EnvironmentObject var themeManager: ThemeManager
     @StateObject private var dataManager = DataManager.shared
     @State private var selectedFilter: TaskFilter = .all
     @State private var showingAddTask = false
     @State private var searchText = ""
+    
+    private var theme: AppTheme {
+        themeManager.currentTheme
+    }
     
     enum TaskFilter: String, CaseIterable {
         case all = "All"
@@ -52,8 +57,14 @@ struct TaskListView: View {
                             .frame(width: 60, height: 60)
                             .background(
                                 Circle()
-                                    .fill(Color.accentColor)
-                                    .shadow(color: Color.accentColor.opacity(0.4), radius: 8, x: 0, y: 4)
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [theme.primaryColor.color, theme.secondaryColor.color],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .shadow(color: theme.primaryColor.color.opacity(0.4), radius: 8, x: 0, y: 4)
                             )
                     }
                     .padding(.trailing, 20)
@@ -87,7 +98,17 @@ struct TaskListView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
                 .background(
-                    selectedFilter == filter ? Color.accentColor : Color(.systemGray6)
+                    selectedFilter == filter 
+                        ? LinearGradient(
+                            colors: [theme.primaryColor.color, theme.secondaryColor.color],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                          )
+                        : LinearGradient(
+                            colors: [Color(.systemGray6), Color(.systemGray6)],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                          )
                 )
                 .cornerRadius(20)
         }

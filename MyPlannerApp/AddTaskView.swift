@@ -2,7 +2,12 @@ import SwiftUI
 
 struct AddTaskView: View {
     @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var themeManager: ThemeManager
     @StateObject private var dataManager = DataManager.shared
+    
+    private var theme: AppTheme {
+        themeManager.currentTheme
+    }
     
     @State private var title = ""
     @State private var description = ""
@@ -113,6 +118,8 @@ struct AddTaskView: View {
                         saveTask()
                     }
                     .disabled(title.isEmpty)
+                    .foregroundColor(title.isEmpty ? .gray : theme.primaryColor.color)
+                    .fontWeight(.semibold)
                 }
             }
         }

@@ -1,7 +1,12 @@
 import SwiftUI
 
 struct GroceryListView: View {
+    @EnvironmentObject var themeManager: ThemeManager
     @StateObject private var dataManager = DataManager.shared
+    
+    private var theme: AppTheme {
+        themeManager.currentTheme
+    }
     @State private var showingAddItem = false
     @State private var newItemName = ""
     @State private var newItemQuantity = ""
@@ -74,7 +79,7 @@ struct GroceryListView: View {
             Button(action: { showingAddItem = true }) {
                 Image(systemName: "plus.circle.fill")
                     .font(.system(size: 28))
-                    .foregroundColor(.accentColor)
+                    .foregroundColor(theme.primaryColor.color)
             }
         }
         .padding()
