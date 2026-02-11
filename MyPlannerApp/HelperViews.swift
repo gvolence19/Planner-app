@@ -3,11 +3,16 @@ import SwiftUI
 // MARK: - Search Bar
 struct SearchBar: View {
     @Binding var text: String
+    @EnvironmentObject var themeManager: ThemeManager
+    
+    private var theme: AppTheme {
+        themeManager.currentTheme
+    }
     
     var body: some View {
         HStack {
             Image(systemName: "magnifyingglass")
-                .foregroundColor(.gray)
+                .foregroundColor(theme.primaryColor.color.opacity(0.6))
             
             TextField("Search", text: $text)
                 .textFieldStyle(PlainTextFieldStyle())
@@ -15,13 +20,17 @@ struct SearchBar: View {
             if !text.isEmpty {
                 Button(action: { text = "" }) {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.gray)
+                        .foregroundColor(theme.primaryColor.color.opacity(0.6))
                 }
             }
         }
-        .padding(8)
-        .background(Color(.systemGray6))
-        .cornerRadius(10)
+        .padding(10)
+        .background(theme.primaryColor.color.opacity(0.08))
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(theme.primaryColor.color.opacity(0.2), lineWidth: 1)
+        )
     }
 }
 

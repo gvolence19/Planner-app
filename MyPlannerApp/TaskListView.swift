@@ -74,6 +74,7 @@ struct TaskListView: View {
         }
         .sheet(isPresented: $showingAddTask) {
             AddTaskView()
+                .environmentObject(themeManager)
         }
     }
     
@@ -119,11 +120,12 @@ struct TaskListView: View {
         VStack(spacing: 16) {
             Image(systemName: "checkmark.circle")
                 .font(.system(size: 60))
-                .foregroundColor(.gray)
+                .foregroundColor(theme.primaryColor.color.opacity(0.5))
             
             Text("No Tasks")
                 .font(.title2)
                 .fontWeight(.semibold)
+                .foregroundColor(theme.primaryColor.color)
             
             Text("Tap the + button to add a new task")
                 .font(.body)
@@ -164,8 +166,13 @@ struct TaskListView: View {
 // MARK: - Task Row View
 struct TaskRowView: View {
     let task: Task
+    @EnvironmentObject var themeManager: ThemeManager
     @StateObject private var dataManager = DataManager.shared
     @State private var showingDetail = false
+    
+    private var theme: AppTheme {
+        themeManager.currentTheme
+    }
     
     var body: some View {
         Button(action: { showingDetail = true }) {
@@ -174,7 +181,7 @@ struct TaskRowView: View {
                 Button(action: { dataManager.toggleTaskCompletion(task) }) {
                     Image(systemName: task.completed ? "checkmark.circle.fill" : "circle")
                         .font(.system(size: 24))
-                        .foregroundColor(task.completed ? .green : .gray)
+                        .foregroundColor(task.completed ? theme.primaryColor.color : .gray)
                 }
                 .buttonStyle(PlainButtonStyle())
                 
@@ -199,12 +206,12 @@ struct TaskRowView: View {
                         // Category
                         if let category = task.category {
                             Text(category)
-                                .font(.system(size: 12))
-                                .foregroundColor(.secondary)
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(theme.primaryColor.color)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 2)
-                                .background(Color(.systemGray6))
-                                .cornerRadius(4)
+                                .background(theme.primaryColor.color.opacity(0.15))
+                                .cornerRadius(8)
                         }
                         
                         // Due Date
@@ -221,12 +228,16 @@ struct TaskRowView: View {
                 // Chevron
                 Image(systemName: "chevron.right")
                     .font(.system(size: 14))
-                    .foregroundColor(.gray)
+                    .foregroundColor(theme.primaryColor.color.opacity(0.5))
             }
             .padding()
             .background(Color(.systemBackground))
             .cornerRadius(12)
-            .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(theme.primaryColor.color.opacity(0.1), lineWidth: 1)
+            )
+            .shadow(color: theme.primaryColor.color.opacity(0.08), radius: 5, x: 0, y: 2)
         }
         .buttonStyle(PlainButtonStyle())
         .sheet(isPresented: $showingDetail) {

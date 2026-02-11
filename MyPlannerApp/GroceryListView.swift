@@ -64,6 +64,7 @@ struct GroceryListView: View {
         }
         .sheet(isPresented: $showingAddItem) {
             AddGroceryItemSheet(isPresented: $showingAddItem)
+                .environmentObject(themeManager)
         }
     }
     
@@ -125,8 +126,13 @@ struct GroceryListView: View {
 // MARK: - Grocery Item Row
 struct GroceryItemRow: View {
     let item: GroceryItem
+    @EnvironmentObject var themeManager: ThemeManager
     @StateObject private var dataManager = DataManager.shared
     @State private var showingEdit = false
+    
+    private var theme: AppTheme {
+        themeManager.currentTheme
+    }
     
     var body: some View {
         HStack(spacing: 12) {
@@ -134,7 +140,7 @@ struct GroceryItemRow: View {
             Button(action: { dataManager.toggleGroceryItem(item) }) {
                 Image(systemName: item.checked ? "checkmark.circle.fill" : "circle")
                     .font(.system(size: 24))
-                    .foregroundColor(item.checked ? .green : .gray)
+                    .foregroundColor(item.checked ? theme.primaryColor.color : .gray)
             }
             .buttonStyle(PlainButtonStyle())
             
@@ -154,12 +160,12 @@ struct GroceryItemRow: View {
                     
                     if let category = item.category, !category.isEmpty {
                         Text(category)
-                            .font(.system(size: 12))
-                            .foregroundColor(.secondary)
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(theme.primaryColor.color)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 2)
-                            .background(Color(.systemGray6))
-                            .cornerRadius(4)
+                            .background(theme.primaryColor.color.opacity(0.15))
+                            .cornerRadius(8)
                     }
                 }
             }
@@ -177,14 +183,21 @@ struct GroceryItemRow: View {
                 }
             } label: {
                 Image(systemName: "ellipsis.circle")
+                    .foregroundColor(theme.primaryColor.color)
                     .font(.system(size: 20))
-                    .foregroundColor(.gray)
             }
         }
         .padding()
         .background(Color(.systemBackground))
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(theme.primaryColor.color.opacity(0.1), lineWidth: 1)
+        )
+        .shadow(color: theme.primaryColor.color.opacity(0.08), radius: 5, x: 0, y: 2)
         .sheet(isPresented: $showingEdit) {
             EditGroceryItemSheet(item: item, isPresented: $showingEdit)
+                .environmentObject(themeManager)
         }
     }
 }

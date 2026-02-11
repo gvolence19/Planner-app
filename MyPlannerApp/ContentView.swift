@@ -66,9 +66,11 @@ struct ContentView: View {
         .preferredColorScheme(isDarkMode ? .dark : .light)
         .sheet(isPresented: $showingAddTask) {
             AddTaskView()
+                .environmentObject(themeManager)
         }
         .sheet(isPresented: $showingSettings) {
             SettingsView()
+                .environmentObject(themeManager)
         }
     }
     

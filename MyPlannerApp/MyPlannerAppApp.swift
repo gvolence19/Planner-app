@@ -54,5 +54,6 @@ struct ThemedContentView: View {
     var body: some View {
         ContentView()
             .tint(themeManager.currentTheme.accentColor.color)
+            .id(themeManager.currentTheme.id) // Force rebuild when theme changes
     }
 }
