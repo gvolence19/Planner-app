@@ -11,8 +11,15 @@ struct GroceryListView: View {
     @State private var newItemName = ""
     @State private var newItemQuantity = ""
     @State private var selectedCategory = ""
+    @State private var selectedIcon = ""
+    @State private var selectedRecurring: GroceryRecurring = .none
     
-    private let categories = ["Produce", "Dairy", "Meat", "Bakery", "Pantry", "Frozen", "Other"]
+    // Smart Suggestions
+    @State private var smartSuggestions: [SmartGrocerySuggestion] = []
+    @State private var showSuggestions = false
+    private let suggestionEngine = SmartGrocerySuggestionEngine.shared
+    
+    private let categories = ["Produce", "Dairy", "Meat", "Bakery", "Pantry", "Frozen", "Household", "Personal Care", "Snacks", "Beverages", "Other"]
     
     var body: some View {
         VStack(spacing: 0) {
@@ -146,12 +153,27 @@ struct GroceryItemRow: View {
             }
             .buttonStyle(PlainButtonStyle())
             
+            // Fun Icon (emoji)
+            if let icon = item.icon, !icon.isEmpty {
+                Text(icon)
+                    .font(.system(size: 28))
+            }
+            
             // Item Details
             VStack(alignment: .leading, spacing: 4) {
-                Text(item.name)
-                    .font(.system(size: 16))
-                    .foregroundColor(item.checked ? .secondary : .primary)
-                    .strikethrough(item.checked)
+                HStack(spacing: 6) {
+                    Text(item.name)
+                        .font(.system(size: 16))
+                        .foregroundColor(item.checked ? .secondary : .primary)
+                        .strikethrough(item.checked)
+                    
+                    // Recurring indicator
+                    if let recurring = item.recurring, recurring != .none {
+                        Image(systemName: recurring.icon)
+                            .font(.system(size: 12))
+                            .foregroundColor(theme.secondaryColor.color)
+                    }
+                }
                 
                 HStack(spacing: 8) {
                     if let quantity = item.quantity, !quantity.isEmpty {
@@ -168,6 +190,17 @@ struct GroceryItemRow: View {
                             .padding(.vertical, 2)
                             .background(theme.primaryColor.color.opacity(0.15))
                             .cornerRadius(8)
+                    }
+                    
+                    // Recurring badge
+                    if let recurring = item.recurring, recurring != .none {
+                        Text(recurring.displayName)
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundColor(theme.secondaryColor.color)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(theme.secondaryColor.color.opacity(0.15))
+                            .cornerRadius(6)
                     }
                 }
             }
@@ -208,20 +241,69 @@ struct GroceryItemRow: View {
 struct AddGroceryItemSheet: View {
     @Binding var isPresented: Bool
     @StateObject private var dataManager = DataManager.shared
+    @EnvironmentObject var themeManager: ThemeManager
+    
+    private var theme: AppTheme {
+        themeManager.currentTheme
+    }
     
     @State private var name = ""
     @State private var quantity = ""
     @State private var category = ""
     @State private var notes = ""
+    @State private var icon = ""
+    @State private var recurring: GroceryRecurring = .none
     
-    private let categories = ["Produce", "Dairy", "Meat", "Bakery", "Pantry", "Frozen", "Other"]
+    // Smart Suggestions
+    @State private var smartSuggestions: [SmartGrocerySuggestion] = []
+    @State private var showSuggestions = false
+    private let suggestionEngine = SmartGrocerySuggestionEngine.shared
+    
+    private let categories = ["Produce", "Dairy", "Meat", "Bakery", "Pantry", "Frozen", "Household", "Personal Care", "Snacks", "Beverages", "Other"]
     
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("Item Details")) {
-                    TextField("Item name", text: $name)
+                Section(header: HStack {
+                    Text("Item Details")
+                    Spacer()
+                    if showSuggestions && !smartSuggestions.isEmpty {
+                        HStack(spacing: 4) {
+                            Image(systemName: "sparkles")
+                                .font(.system(size: 12))
+                            Text("AI Suggestions")
+                                .font(.system(size: 12, weight: .medium))
+                        }
+                        .foregroundColor(theme.primaryColor.color)
+                    }
+                }) {
+                    TextField("Item name (e.g., 'apples', 'milk')", text: $name)
+                        .onChange(of: name) { newValue in
+                            updateSmartSuggestions(newValue)
+                        }
+                    
+                    // Smart Suggestions
+                    if showSuggestions && !smartSuggestions.isEmpty {
+                        ForEach(smartSuggestions) { suggestion in
+                            SmartGrocerySuggestionRow(suggestion: suggestion) {
+                                applySuggestion(suggestion)
+                            }
+                            .environmentObject(themeManager)
+                        }
+                    }
+                    
                     TextField("Quantity (optional)", text: $quantity)
+                    
+                    // Icon preview
+                    if !icon.isEmpty {
+                        HStack {
+                            Text("Icon:")
+                                .foregroundColor(.secondary)
+                            Text(icon)
+                                .font(.system(size: 32))
+                            Spacer()
+                        }
+                    }
                 }
                 
                 Section(header: Text("Category")) {
@@ -232,6 +314,31 @@ struct AddGroceryItemSheet: View {
                         }
                     }
                     .pickerStyle(MenuPickerStyle())
+                }
+                
+                Section(header: Text("Recurring"), footer: Text("Automatically re-add this item at the selected interval")) {
+                    Picker("Repeat", selection: $recurring) {
+                        ForEach(GroceryRecurring.allCases, id: \.self) { option in
+                            HStack {
+                                if !option.icon.isEmpty {
+                                    Image(systemName: option.icon)
+                                }
+                                Text(option.displayName)
+                            }
+                            .tag(option)
+                        }
+                    }
+                    .pickerStyle(MenuPickerStyle())
+                    
+                    if recurring != .none {
+                        HStack {
+                            Image(systemName: recurring.icon)
+                                .foregroundColor(theme.secondaryColor.color)
+                            Text("Will repeat \(recurring.displayName.lowercased())")
+                                .font(.system(size: 14))
+                                .foregroundColor(.secondary)
+                        }
+                    }
                 }
                 
                 Section(header: Text("Notes")) {
@@ -253,8 +360,29 @@ struct AddGroceryItemSheet: View {
                         addItem()
                     }
                     .disabled(name.isEmpty)
+                    .foregroundColor(name.isEmpty ? .gray : theme.primaryColor.color)
+                    .fontWeight(.semibold)
                 }
             }
+        }
+    }
+    
+    // MARK: - Smart Suggestions
+    private func updateSmartSuggestions(_ query: String) {
+        smartSuggestions = suggestionEngine.getSuggestions(for: query)
+        showSuggestions = !smartSuggestions.isEmpty && query.count >= 2
+    }
+    
+    private func applySuggestion(_ suggestion: SmartGrocerySuggestion) {
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+            name = suggestion.name
+            icon = suggestion.icon
+            category = suggestion.category
+            if let qty = suggestion.commonQuantity {
+                quantity = qty
+            }
+            showSuggestions = false
+            smartSuggestions = []
         }
     }
     
@@ -263,7 +391,10 @@ struct AddGroceryItemSheet: View {
             name: name,
             quantity: quantity.isEmpty ? nil : quantity,
             category: category.isEmpty ? nil : category,
-            notes: notes.isEmpty ? nil : notes
+            notes: notes.isEmpty ? nil : notes,
+            icon: icon.isEmpty ? nil : icon,
+            recurring: recurring == .none ? nil : recurring,
+            lastAdded: Date()
         )
         
         dataManager.addGroceryItem(item)

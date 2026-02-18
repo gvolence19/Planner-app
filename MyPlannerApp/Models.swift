@@ -151,6 +151,9 @@ struct GroceryItem: Identifiable, Codable, Hashable {
     var category: String?
     var checked: Bool
     var notes: String?
+    var icon: String? // Fun emoji icon
+    var recurring: GroceryRecurring? // Weekly, bi-weekly, monthly
+    var lastAdded: Date? // Track when last auto-added
     
     init(
         id: UUID = UUID(),
@@ -158,7 +161,10 @@ struct GroceryItem: Identifiable, Codable, Hashable {
         quantity: String? = nil,
         category: String? = nil,
         checked: Bool = false,
-        notes: String? = nil
+        notes: String? = nil,
+        icon: String? = nil,
+        recurring: GroceryRecurring? = nil,
+        lastAdded: Date? = nil
     ) {
         self.id = id
         self.name = name
@@ -166,6 +172,30 @@ struct GroceryItem: Identifiable, Codable, Hashable {
         self.category = category
         self.checked = checked
         self.notes = notes
+        self.icon = icon
+        self.recurring = recurring
+        self.lastAdded = lastAdded
+    }
+}
+
+// MARK: - Grocery Recurring Options
+enum GroceryRecurring: String, Codable, CaseIterable {
+    case none = "None"
+    case weekly = "Weekly"
+    case biweekly = "Bi-Weekly"
+    case monthly = "Monthly"
+    
+    var displayName: String {
+        self.rawValue
+    }
+    
+    var icon: String {
+        switch self {
+        case .none: return ""
+        case .weekly: return "arrow.clockwise"
+        case .biweekly: return "arrow.2.circlepath"
+        case .monthly: return "calendar.badge.clock"
+        }
     }
 }
 

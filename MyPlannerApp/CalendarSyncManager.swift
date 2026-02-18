@@ -11,14 +11,62 @@ class CalendarSyncManager: NSObject, ObservableObject {
     @Published var syncEnabled = false
     @Published var lastSyncDate: Date?
     @Published var errorMessage: String?
+    @Published var isSyncing = false
     
     // Sync statistics
     @Published var syncStats = SyncStats()
+    
+    // Auto-sync timer
+    private var autoSyncTimer: Timer?
+    private let autoSyncInterval: TimeInterval = 300 // 5 minutes
     
     override init() {
         super.init()
         loadSyncSettings()
         requestCalendarAccess()
+        startAutoSync()
+    }
+    
+    deinit {
+        stopAutoSync()
+    }
+    
+    // MARK: - Auto-Sync
+    func startAutoSync() {
+        stopAutoSync() // Clear any existing timer
+        
+        // Sync immediately if enabled
+        if syncEnabled && isAuthorized {
+            syncAllTasks()
+        }
+        
+        // Schedule recurring sync every 5 minutes
+        autoSyncTimer = Timer.scheduledTimer(withTimeInterval: autoSyncInterval, repeats: true) { [weak self] _ in
+            guard let self = self else { return }
+            if self.syncEnabled && self.isAuthorized {
+                self.syncAllTasks()
+            }
+        }
+    }
+    
+    func stopAutoSync() {
+        autoSyncTimer?.invalidate()
+        autoSyncTimer = nil
+    }
+    
+    // MARK: - Manual Sync
+    func manualSync() {
+        guard syncEnabled else {
+            errorMessage = "Sync is not enabled"
+            return
+        }
+        
+        guard isAuthorized else {
+            errorMessage = "Calendar access not authorized"
+            return
+        }
+        
+        syncAllTasks()
     }
     
     // MARK: - Authorization
@@ -71,6 +119,37 @@ class CalendarSyncManager: NSObject, ObservableObject {
         // Set default calendar if none selected
         if selectedCalendar == nil {
             selectedCalendar = eventStore.defaultCalendarForNewEvents
+        }
+    }
+    
+    // MARK: - Sync All Tasks
+    func syncAllTasks() {
+        guard isAuthorized, syncEnabled else { return }
+        
+        // Set syncing state
+        DispatchQueue.main.async {
+            self.isSyncing = true
+            self.errorMessage = nil
+        }
+        
+        // Get all incomplete tasks
+        let dataManager = DataManager.shared
+        let tasksToSync = dataManager.tasks.filter { !$0.completed && $0.dueDate != nil }
+        
+        // Sync each task
+        var syncedCount = 0
+        for task in tasksToSync {
+            syncTaskToCalendar(task)
+            syncedCount += 1
+        }
+        
+        // Update stats
+        DispatchQueue.main.async {
+            self.lastSyncDate = Date()
+            self.syncStats.totalSyncs += 1
+            self.syncStats.lastSyncedCount = syncedCount
+            self.isSyncing = false
+            self.saveSyncSettings()
         }
     }
     
@@ -305,6 +384,8 @@ struct SyncStats: Codable {
     var eventsImported: Int = 0
     var syncErrors: Int = 0
     var lastImportCount: Int = 0
+    var totalSyncs: Int = 0
+    var lastSyncedCount: Int = 0
 }
 
 // MARK: - Calendar Settings View

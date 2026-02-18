@@ -90,16 +90,10 @@ struct ContentView: View {
     // MARK: - Header View
     private var headerView: some View {
         HStack {
-            // App Title
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Plannio")
-                    .font(.system(size: 28, weight: .bold))
-                    .foregroundColor(theme.primaryColor.color)
-                
-                Text(todayDateString())
-                    .font(.system(size: 14))
-                    .foregroundColor(.secondary)
-            }
+            // Date
+            Text(todayDateString())
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(.secondary)
             
             Spacer()
             

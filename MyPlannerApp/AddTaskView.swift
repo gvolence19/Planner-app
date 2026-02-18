@@ -20,12 +20,42 @@ struct AddTaskView: View {
     @State private var recurring: RecurringOption = .none
     @State private var location = ""
     
+    // Smart Suggestions
+    @State private var smartSuggestions: [SmartTaskSuggestion] = []
+    @State private var showSuggestions = false
+    private let suggestionEngine = SmartTaskSuggestionEngine.shared
+    
     var body: some View {
         NavigationView {
             Form {
-                // Title Section
-                Section(header: Text("Task Details")) {
-                    TextField("Task title", text: $title)
+                // Title Section with Smart Suggestions
+                Section(header: HStack {
+                    Text("Task Details")
+                    Spacer()
+                    if showSuggestions && !smartSuggestions.isEmpty {
+                        HStack(spacing: 4) {
+                            Image(systemName: "sparkles")
+                                .font(.system(size: 12))
+                            Text("AI Suggestions")
+                                .font(.system(size: 12, weight: .medium))
+                        }
+                        .foregroundColor(theme.primaryColor.color)
+                    }
+                }) {
+                    TextField("Task title (e.g., 'dentist appointment')", text: $title)
+                        .onChange(of: title) { newValue in
+                            updateSmartSuggestions(newValue)
+                        }
+                    
+                    // Smart Suggestions
+                    if showSuggestions && !smartSuggestions.isEmpty {
+                        ForEach(smartSuggestions) { suggestion in
+                            SmartSuggestionRow(suggestion: suggestion) {
+                                applySuggestion(suggestion)
+                            }
+                            .environmentObject(themeManager)
+                        }
+                    }
                     
                     TextEditor(text: $description)
                         .frame(minHeight: 80)
@@ -122,6 +152,45 @@ struct AddTaskView: View {
                     .fontWeight(.semibold)
                 }
             }
+        }
+    }
+    
+    // MARK: - Smart Suggestions
+    private func updateSmartSuggestions(_ query: String) {
+        // Get suggestions from AI engine
+        smartSuggestions = suggestionEngine.getSuggestions(for: query)
+        
+        // Show suggestions if we have any and query is at least 3 characters
+        showSuggestions = !smartSuggestions.isEmpty && query.count >= 3
+    }
+    
+    private func applySuggestion(_ suggestion: SmartTaskSuggestion) {
+        // Apply the suggested values
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+            title = suggestion.title
+            
+            // Set category if suggested
+            if let categoryName = suggestion.category {
+                selectedCategory = dataManager.categories.first(where: { $0.name == categoryName })
+                    ?? TaskCategory(name: categoryName, icon: suggestion.icon, color: suggestion.color)
+            }
+            
+            // Set priority if suggested
+            if let suggestedPriority = suggestion.priority {
+                priority = suggestedPriority
+            }
+            
+            // Set time if suggested
+            if let time = suggestion.suggestedTime, !time.isEmpty {
+                startTime = time
+            }
+            
+            // Enable due date
+            hasDueDate = true
+            
+            // Hide suggestions after applying
+            showSuggestions = false
+            smartSuggestions = []
         }
     }
     

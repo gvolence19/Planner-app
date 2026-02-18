@@ -55,6 +55,13 @@ struct SettingsView: View {
                             Label("Calendar Integration", systemImage: "calendar.badge.clock")
                         }
                     }
+                    
+                    // Calendar Sync Section
+                    if CalendarSyncManager().syncEnabled {
+                        Section(header: Text("Calendar Sync"), footer: syncFooter) {
+                            CalendarSyncStatusRow()
+                        }
+                    }
                 } else {
                     Section(header: Text("Premium Features"), footer: Text("Upgrade to Premium to unlock these features")) {
                         // TODO: Add WidgetGalleryView.swift to Xcode project first
@@ -395,6 +402,118 @@ struct AboutView: View {
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
+        }
+    }
+    
+    private var syncFooter: some View {
+        Text("Calendar syncs automatically every 5 minutes. Tap 'Sync Now' for immediate sync.")
+    }
+}
+
+// MARK: - Calendar Sync Status Row
+struct CalendarSyncStatusRow: View {
+    @StateObject private var syncManager = CalendarSyncManager()
+    @EnvironmentObject var themeManager: ThemeManager
+    
+    private var theme: AppTheme {
+        themeManager.currentTheme
+    }
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            // Last Sync Info
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Last Sync")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    
+                    if let lastSync = syncManager.lastSyncDate {
+                        Text(timeAgoString(from: lastSync))
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundColor(.primary)
+                    } else {
+                        Text("Never")
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundColor(.secondary)
+                    }
+                }
+                
+                Spacer()
+                
+                // Sync Stats
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text("Tasks Synced")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    
+                    Text("\(syncManager.syncStats.lastSyncedCount)")
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundColor(theme.primaryColor.color)
+                }
+            }
+            
+            // Manual Sync Button
+            Button(action: {
+                syncManager.manualSync()
+            }) {
+                HStack(spacing: 8) {
+                    if syncManager.isSyncing {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            .scaleEffect(0.8)
+                    } else {
+                        Image(systemName: "arrow.triangle.2.circlepath")
+                            .font(.system(size: 16, weight: .semibold))
+                    }
+                    
+                    Text(syncManager.isSyncing ? "Syncing..." : "Sync Now")
+                        .font(.system(size: 16, weight: .semibold))
+                }
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(
+                    LinearGradient(
+                        colors: syncManager.isSyncing 
+                            ? [Color.gray, Color.gray.opacity(0.8)]
+                            : [theme.primaryColor.color, theme.secondaryColor.color],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .cornerRadius(10)
+            }
+            .disabled(syncManager.isSyncing)
+            
+            // Auto-sync indicator
+            HStack(spacing: 6) {
+                Circle()
+                    .fill(Color.green)
+                    .frame(width: 8, height: 8)
+                
+                Text("Auto-sync every 5 minutes")
+                    .font(.system(size: 12))
+                    .foregroundColor(.secondary)
+            }
+        }
+    }
+    
+    private func timeAgoString(from date: Date) -> String {
+        let now = Date()
+        let seconds = Int(now.timeIntervalSince(date))
+        
+        if seconds < 60 {
+            return "Just now"
+        } else if seconds < 3600 {
+            let minutes = seconds / 60
+            return "\(minutes) minute\(minutes == 1 ? "" : "s") ago"
+        } else if seconds < 86400 {
+            let hours = seconds / 3600
+            return "\(hours) hour\(hours == 1 ? "" : "s") ago"
+        } else {
+            let days = seconds / 86400
+            return "\(days) day\(days == 1 ? "" : "s") ago"
         }
     }
 }
