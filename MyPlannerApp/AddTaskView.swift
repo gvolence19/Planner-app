@@ -15,8 +15,6 @@ struct AddTaskView: View {
     @State private var priority: Priority = .medium
     @State private var dueDate = Date()
     @State private var hasDueDate = false
-    @State private var startTime = ""
-    @State private var duration = ""
     @State private var recurring: RecurringOption = .none
     @State private var location = ""
     
@@ -87,36 +85,45 @@ struct AddTaskView: View {
                     .pickerStyle(MenuPickerStyle())
                 }
                 
-                // Priority Section
+                // Priority Section (Fixed - using inline picker)
                 Section(header: Text("Priority")) {
-                    Picker("Priority", selection: $priority) {
-                        ForEach(Priority.allCases, id: \.self) { priority in
-                            HStack {
-                                Text(priority.emoji)
-                                Text(priority.rawValue.capitalized)
+                    HStack(spacing: 12) {
+                        ForEach(Priority.allCases, id: \.self) { priorityOption in
+                            Button(action: {
+                                priority = priorityOption
+                            }) {
+                                VStack(spacing: 8) {
+                                    Text(priorityOption.emoji)
+                                        .font(.system(size: 32))
+                                    
+                                    Text(priorityOption.rawValue.capitalized)
+                                        .font(.system(size: 13, weight: .medium))
+                                        .foregroundColor(priority == priorityOption ? theme.primaryColor.color : .secondary)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(priority == priorityOption ? theme.primaryColor.color.opacity(0.15) : Color(.secondarySystemBackground))
+                                )
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(priority == priorityOption ? theme.primaryColor.color : Color.clear, lineWidth: 2)
+                                )
                             }
-                            .tag(priority)
+                            .buttonStyle(PlainButtonStyle())
                         }
                     }
-                    .pickerStyle(SegmentedPickerStyle())
+                    .padding(.vertical, 4)
                 }
                 
-                // Due Date Section
-                Section(header: Text("Due Date")) {
-                    Toggle("Set due date", isOn: $hasDueDate)
+                // Due Date & Time Section (Simplified)
+                Section(header: Text("Schedule"), footer: Text("Set when this task is due")) {
+                    Toggle("Set due date & time", isOn: $hasDueDate)
                     
                     if hasDueDate {
-                        DatePicker("Date", selection: $dueDate, displayedComponents: [.date, .hourAndMinute])
+                        DatePicker("Due", selection: $dueDate, displayedComponents: [.date, .hourAndMinute])
                     }
-                }
-                
-                // Time and Duration Section
-                Section(header: Text("Time & Duration")) {
-                    TextField("Start time (e.g., 09:00)", text: $startTime)
-                        .keyboardType(.numbersAndPunctuation)
-                    
-                    TextField("Duration (minutes)", text: $duration)
-                        .keyboardType(.numberPad)
                 }
                 
                 // Recurring Section
@@ -182,7 +189,16 @@ struct AddTaskView: View {
             
             // Set time if suggested
             if let time = suggestion.suggestedTime, !time.isEmpty {
-                startTime = time
+                // Parse time and set dueDate
+                let components = time.split(separator: ":").compactMap { Int($0.trimmingCharacters(in: .whitespaces).prefix(2)) }
+                if components.count >= 2 {
+                    var dateComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
+                    dateComponents.hour = components[0]
+                    dateComponents.minute = components[1]
+                    if let newDate = Calendar.current.date(from: dateComponents) {
+                        dueDate = newDate
+                    }
+                }
             }
             
             // Enable due date
@@ -202,9 +218,7 @@ struct AddTaskView: View {
             category: selectedCategory?.name,
             priority: priority,
             recurring: recurring,
-            location: location.isEmpty ? nil : location,
-            startTime: startTime.isEmpty ? nil : startTime,
-            duration: duration.isEmpty ? nil : duration
+            location: location.isEmpty ? nil : location
         )
         
         dataManager.addTask(newTask)

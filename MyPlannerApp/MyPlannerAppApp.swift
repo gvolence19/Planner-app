@@ -52,7 +52,7 @@ struct ThemedContentView: View {
     @EnvironmentObject var themeManager: ThemeManager
     
     var body: some View {
-        ContentView()
+        PageFlipCalendarView()
             .tint(themeManager.currentTheme.accentColor.color)
             .id(themeManager.currentTheme.id) // Force rebuild when theme changes
     }
