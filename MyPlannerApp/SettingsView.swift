@@ -113,6 +113,13 @@ struct SettingsView: View {
                     Toggle("Notifications", isOn: $notificationsEnabled)
                     
                     NavigationLink {
+                        SleepNotificationsView()
+                            .environmentObject(themeManager)
+                    } label: {
+                        Label("Sleep Notifications & Alarm", systemImage: "moon.zzz.fill")
+                    }
+                    
+                    NavigationLink {
                         CategoryManagerView()
                     } label: {
                         Label("Manage Categories", systemImage: "tag")
