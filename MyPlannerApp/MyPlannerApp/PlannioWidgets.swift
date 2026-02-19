@@ -7,7 +7,7 @@ struct PlannioEntry: TimelineEntry {
     let tasks: [Task]
     let todayTaskCount: Int
     let completedCount: Int
-    let upcomingEvents: [EventItem]
+    // let upcomingEvents: [EventItem] // Commented out - not used in main app yet
     let theme: AppTheme
     let isPremium: Bool
 }
@@ -20,7 +20,7 @@ struct PlannioProvider: TimelineProvider {
             tasks: [],
             todayTaskCount: 0,
             completedCount: 0,
-            upcomingEvents: [],
+            // upcomingEvents: [], // Commented out
             theme: .classicBlue,
             isPremium: false
         )
@@ -35,7 +35,7 @@ struct PlannioProvider: TimelineProvider {
             tasks: dataManager.tasksForToday().prefix(5).map { $0 },
             todayTaskCount: dataManager.tasksForToday().count,
             completedCount: dataManager.tasks.filter { $0.completed }.count,
-            upcomingEvents: dataManager.upcomingEvents().prefix(3).map { $0 },
+            // upcomingEvents: dataManager.upcomingEvents().prefix(3).map { $0 }, // Commented out
             theme: themeManager.currentTheme,
             isPremium: dataManager.isPremium
         )
@@ -52,7 +52,7 @@ struct PlannioProvider: TimelineProvider {
             tasks: dataManager.tasksForToday().prefix(5).map { $0 },
             todayTaskCount: dataManager.tasksForToday().count,
             completedCount: dataManager.tasks.filter { $0.completed }.count,
-            upcomingEvents: dataManager.upcomingEvents().prefix(3).map { $0 },
+            // upcomingEvents: dataManager.upcomingEvents().prefix(3).map { $0 }, // Commented out
             theme: themeManager.currentTheme,
             isPremium: dataManager.isPremium
         )
@@ -389,7 +389,8 @@ struct LargePlannioWidget: Widget {
 }
 
 // MARK: - Widget Bundle
-@main
+// Note: @main is in MyPlannerAppApp.swift
+// Widgets are registered there, not here
 struct PlannioWidgets: WidgetBundle {
     var body: some Widget {
         SmallPlannioWidget()
