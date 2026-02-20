@@ -43,7 +43,7 @@ struct PlannerContainer: View {
                     .tag(4)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
-            .onChange(of: selectedTab) { oldValue, newValue in
+            .onChange(of: selectedTab) { newValue in
                 // Update page number based on selected tab
                 currentPage = newValue + 1
             }
