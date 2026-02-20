@@ -252,6 +252,8 @@ struct LargeTaskWidget: View {
                 .padding(.top, 8)
                 .padding(.bottom, 6)
                 
+                // Upcoming events section - commented out until EventItem is implemented
+                /*
                 if entry.upcomingEvents.isEmpty {
                     HStack {
                         Spacer()
@@ -290,6 +292,7 @@ struct LargeTaskWidget: View {
                     .padding(.horizontal)
                     .padding(.bottom, 8)
                 }
+                */
                 
                 Spacer()
             }
@@ -299,7 +302,6 @@ struct LargeTaskWidget: View {
     
     private func formatEventDate(_ date: Date) -> String {
         let calendar = Calendar.current
-        let now = Date()
         
         if calendar.isDateInToday(date) {
             return "Today"
