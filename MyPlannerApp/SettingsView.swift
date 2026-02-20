@@ -339,6 +339,11 @@ struct AddCategorySheet: View {
         dataManager.addCategory(category)
         isPresented = false
     }
+    
+    // Helper computed property for sync footer text
+    private var syncFooterText: String {
+        "Calendar syncs automatically every 5 minutes. Tap 'Sync Now' for immediate sync."
+    }
 }
 
 // MARK: - About View
@@ -410,10 +415,6 @@ struct AboutView: View {
                     .foregroundColor(.secondary)
             }
         }
-    }
-    
-    private var syncFooterText: String {
-        "Calendar syncs automatically every 5 minutes. Tap 'Sync Now' for immediate sync."
     }
 }
 
