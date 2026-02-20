@@ -21,7 +21,7 @@ struct PlannioProvider: TimelineProvider {
             todayTaskCount: 0,
             completedCount: 0,
             // upcomingEvents: [], // Commented out
-            theme: .classicBlue,
+            theme: ThemeManager.availableThemes.first ?? ThemeManager.shared.currentTheme,
             isPremium: false
         )
     }

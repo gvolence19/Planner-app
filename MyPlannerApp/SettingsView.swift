@@ -58,7 +58,7 @@ struct SettingsView: View {
                     
                     // Calendar Sync Section
                     if CalendarSyncManager().syncEnabled {
-                        Section(header: Text("Calendar Sync"), footer: syncFooter) {
+                        Section(header: Text("Calendar Sync"), footer: Text(syncFooterText)) {
                             CalendarSyncStatusRow()
                         }
                     }
@@ -412,8 +412,8 @@ struct AboutView: View {
         }
     }
     
-    private var syncFooter: some View {
-        Text("Calendar syncs automatically every 5 minutes. Tap 'Sync Now' for immediate sync.")
+    private var syncFooterText: String {
+        "Calendar syncs automatically every 5 minutes. Tap 'Sync Now' for immediate sync."
     }
 }
 
