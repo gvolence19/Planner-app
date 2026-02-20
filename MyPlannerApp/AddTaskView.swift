@@ -179,7 +179,7 @@ struct AddTaskView: View {
             // Set category if suggested
             if let categoryName = suggestion.category {
                 selectedCategory = dataManager.categories.first(where: { $0.name == categoryName })
-                    ?? TaskCategory(name: categoryName, color: suggestion.color, icon: suggestion.icon)
+                    ?? TaskCategory(name: categoryName, color: colorToString(suggestion.color), icon: suggestion.icon)
             }
             
             // Set priority if suggested
@@ -208,6 +208,22 @@ struct AddTaskView: View {
             showSuggestions = false
             smartSuggestions = []
         }
+    }
+    
+    // Helper function to convert Color to string format
+    private func colorToString(_ color: Color) -> String {
+        // Match common colors to their string representations
+        if color == .blue { return "bg-blue-500" }
+        if color == .green { return "bg-green-500" }
+        if color == .yellow { return "bg-yellow-500" }
+        if color == .red { return "bg-red-500" }
+        if color == .purple { return "bg-purple-500" }
+        if color == .indigo { return "bg-indigo-500" }
+        if color == .mint { return "bg-emerald-500" }
+        if color == .orange { return "bg-orange-500" }
+        if color == .pink { return "bg-pink-500" }
+        if color == .gray { return "bg-gray-500" }
+        return "bg-blue-500" // default
     }
     
     private func saveTask() {
