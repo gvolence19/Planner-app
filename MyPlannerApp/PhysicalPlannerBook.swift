@@ -27,11 +27,11 @@ struct PhysicalPlannerBook: View {
                     // Book shadow on desk
                     bookShadow
                     
-                    // The planner book itself
-                    openPlannerBook(geometry: geometry)
+                    // The planner - single page view with spiral on left
+                    singlePagePlanner(geometry: geometry)
                 }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 60)
+                .padding(.horizontal, 30)
+                .padding(.vertical, 50)
             }
             
             // Navigation controls overlay
@@ -90,85 +90,57 @@ struct PhysicalPlannerBook: View {
             .offset(y: 8)
     }
     
-    // MARK: - Open Planner Book
-    private func openPlannerBook(geometry: GeometryProxy) -> some View {
+    // MARK: - Single Page Planner
+    private func singlePagePlanner(geometry: GeometryProxy) -> some View {
         HStack(spacing: 0) {
-            // LEFT PAGE (previous/context)
-            leftPage
-                .frame(width: geometry.size.width / 2 - 4)
+            // LEFT EDGE: Spiral binding
+            spiralBinding
+                .frame(width: 30)
             
-            // CENTER BINDING
-            centerBinding
-                .frame(width: 8)
-            
-            // RIGHT PAGE (current content)
-            rightPage
-                .frame(width: geometry.size.width / 2 - 4)
+            // MAIN PAGE: Full width for content
+            mainPage(geometry: geometry)
         }
         .background(
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color(red: 0.15, green: 0.12, blue: 0.10)) // Book cover edge
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color(red: 0.2, green: 0.15, blue: 0.12)) // Book cover edge
+                .shadow(color: .black.opacity(0.3), radius: 20, x: -5, y: 10)
         )
-        .shadow(color: .black.opacity(0.3), radius: 20, x: 0, y: 10)
     }
     
-    // MARK: - Left Page
-    private var leftPage: some View {
+    // MARK: - Spiral Binding (Left Side)
+    private var spiralBinding: some View {
         ZStack {
-            // Paper
+            // Binding strip
             Rectangle()
                 .fill(
                     LinearGradient(
                         colors: [
-                            Color(red: 0.98, green: 0.97, blue: 0.95),
-                            Color(red: 0.99, green: 0.98, blue: 0.96),
-                            Color(red: 0.98, green: 0.97, blue: 0.94)
+                            Color(red: 0.25, green: 0.2, blue: 0.18),
+                            Color(red: 0.2, green: 0.15, blue: 0.12),
+                            Color(red: 0.25, green: 0.2, blue: 0.18)
                         ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
+                        startPoint: .leading,
+                        endPoint: .trailing
                     )
                 )
             
-            // Ruled lines for left page
-            ruledLines
-                .padding(.leading, 40)
-            
-            // Left page content (summary of previous section)
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    Spacer()
-                    Text(leftPageTitle)
-                        .font(.system(size: 14, weight: .medium, design: .serif))
-                        .foregroundColor(.gray.opacity(0.6))
-                        .padding(.trailing, 30)
-                }
-                
-                Spacer()
-                
-                // Page number on left
-                HStack {
-                    Text("\(currentPage - 1)")
-                        .font(.system(size: 12, design: .serif))
-                        .foregroundColor(.gray.opacity(0.5))
-                        .padding(.leading, 30)
-                    Spacer()
+            // Spiral coils
+            VStack(spacing: 35) {
+                ForEach(0..<15, id: \.self) { _ in
+                    Circle()
+                        .strokeBorder(Color.white.opacity(0.3), lineWidth: 1.5)
+                        .background(Circle().fill(Color.black.opacity(0.4)))
+                        .frame(width: 8, height: 8)
                 }
             }
-            .padding(.vertical, 30)
-            
-            // Holes for ring binding
-            if styleManager.showSpiralBinding {
-                ringBindingHoles(alignment: .trailing)
-            }
+            .padding(.vertical, 50)
         }
-        .clipShape(LeftPageShape())
-        .shadow(color: .black.opacity(0.15), radius: 3, x: 2, y: 0)
     }
     
-    // MARK: - Right Page  
-    private var rightPage: some View {
+    // MARK: - Main Page
+    private func mainPage(geometry: GeometryProxy) -> some View {
         ZStack {
-            // Paper
+            // Paper background
             Rectangle()
                 .fill(
                     LinearGradient(
@@ -188,123 +160,88 @@ struct PhysicalPlannerBook: View {
                 .opacity(0.015)
                 .blendMode(.multiply)
             
-            // Current page content
-            TabView(selection: $selectedTab) {
-                pageContent(PageFlipCalendarView()).tag(0)
-                pageContent(PlannerTasksView()).tag(1)
-                pageContent(PlannerGroceryView()).tag(2)
-                pageContent(PlannerSleepView()).tag(3)
-                pageContent(PlannerSettingsView()).tag(4)
+            // Punch holes along left edge
+            if styleManager.showSpiralBinding {
+                punchHoles
             }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            .onChange(of: selectedTab) { newValue in
-                withAnimation(.easeInOut(duration: 0.5)) {
-                    isFlipping = true
-                    currentPage = newValue + 1
+            
+            // Page content
+            VStack(spacing: 0) {
+                TabView(selection: $selectedTab) {
+                    pageContent(PageFlipCalendarView()).tag(0)
+                    pageContent(PlannerTasksView()).tag(1)
+                    pageContent(PlannerGroceryView()).tag(2)
+                    pageContent(PlannerSleepView()).tag(3)
+                    pageContent(PlannerSettingsView()).tag(4)
                 }
-                
-                // Haptic feedback
-                let impact = UIImpactFeedbackGenerator(style: .medium)
-                impact.impactOccurred()
-                
-                // Reset flip animation
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    isFlipping = false
+                .tabViewStyle(.page(indexDisplayMode: .never))
+                .onChange(of: selectedTab) { newValue in
+                    withAnimation(.easeInOut(duration: 0.4)) {
+                        isFlipping = true
+                        currentPage = newValue + 1
+                    }
+                    
+                    // Haptic feedback
+                    let impact = UIImpactFeedbackGenerator(style: .medium)
+                    impact.impactOccurred()
+                    
+                    // Reset flip animation
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                        isFlipping = false
+                    }
                 }
             }
             
-            // Page number on right
+            // Page number
             VStack {
                 Spacer()
                 HStack {
                     Spacer()
                     Text("\(currentPage)")
-                        .font(.system(size: 12, design: .serif))
+                        .font(.system(size: 14, design: .serif))
                         .foregroundColor(.gray.opacity(0.5))
-                        .padding(.trailing, 30)
-                        .padding(.bottom, 90)
+                        .padding(.trailing, 40)
+                        .padding(.bottom, 100)
                 }
             }
             
-            // Page corner curl (indicating more pages)
+            // Page curl in bottom-right corner
             if selectedTab < 4 {
                 VStack {
                     Spacer()
                     HStack {
                         Spacer()
                         pageCurlCorner
+                            .padding(.trailing, 30)
+                            .padding(.bottom, 100)
                     }
                 }
-                .padding(.bottom, 90)
-            }
-            
-            // Holes for ring binding
-            if styleManager.showSpiralBinding {
-                ringBindingHoles(alignment: .leading)
             }
         }
-        .clipShape(RightPageShape())
-        .shadow(color: .black.opacity(0.15), radius: 3, x: -2, y: 0)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .shadow(color: .black.opacity(0.2), radius: 8, x: -3, y: 0)
         .rotation3DEffect(
-            .degrees(isFlipping ? -10 : 0),
+            .degrees(isFlipping ? -15 : 0),
             axis: (x: 0, y: 1, z: 0),
             anchor: .leading,
-            perspective: 0.3
+            perspective: 0.5
         )
     }
     
-    // MARK: - Center Binding
-    private var centerBinding: some View {
-        LinearGradient(
-            colors: [
-                Color.black.opacity(0.6),
-                Color.black.opacity(0.4),
-                Color.black.opacity(0.6)
-            ],
-            startPoint: .leading,
-            endPoint: .trailing
-        )
-        .overlay(
-            // Spiral coils
-            VStack(spacing: 35) {
-                ForEach(0..<12, id: \.self) { _ in
-                    Circle()
-                        .strokeBorder(Color.gray.opacity(0.8), lineWidth: 1.5)
-                        .background(Circle().fill(Color.black.opacity(0.3)))
-                        .frame(width: 6, height: 6)
-                }
-            }
-            .padding(.vertical, 40)
-        )
-    }
-    
-    // MARK: - Ring Binding Holes
-    private func ringBindingHoles(alignment: HorizontalAlignment) -> some View {
+    // MARK: - Punch Holes
+    private var punchHoles: some View {
         VStack(spacing: 50) {
-            ForEach(0..<10, id: \.self) { _ in
+            ForEach(0..<12, id: \.self) { _ in
                 Circle()
-                    .strokeBorder(Color.gray.opacity(0.3), lineWidth: 1)
-                    .background(Circle().fill(Color.white.opacity(0.8)))
-                    .frame(width: 10, height: 10)
-                    .shadow(color: .black.opacity(0.2), radius: 2, x: 1, y: 1)
+                    .strokeBorder(Color.gray.opacity(0.3), lineWidth: 1.5)
+                    .background(Circle().fill(Color.white))
+                    .frame(width: 14, height: 14)
+                    .shadow(color: .black.opacity(0.3), radius: 3, x: 2, y: 2)
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment == .leading ? .topLeading : .topTrailing)
-        .padding(alignment == .leading ? .leading : .trailing, 15)
-        .padding(.vertical, 50)
-    }
-    
-    // MARK: - Ruled Lines
-    private var ruledLines: some View {
-        VStack(spacing: 24) {
-            ForEach(0..<20, id: \.self) { _ in
-                Rectangle()
-                    .fill(Color.blue.opacity(0.08))
-                    .frame(height: 1)
-            }
-        }
-        .padding(.top, 50)
-        .padding(.trailing, 30)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .padding(.leading, 45)
+        .padding(.vertical, 60)
     }
     
     // MARK: - Page Content
