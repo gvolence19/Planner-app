@@ -155,11 +155,16 @@ struct RealisticPlannerContainer: View {
             if styleManager.showSpiralBinding {
                 VStack(spacing: 30) {
                     ForEach(0..<20, id: \.self) { _ in
-                        Circle()
-                            .stroke(theme.primaryColor.color.opacity(0.3), lineWidth: 2)
-                            .fill(Color.white)
-                            .frame(width: 12, height: 12)
-                            .shadow(color: .black.opacity(0.2), radius: 2, x: 1, y: 1)
+                        ZStack {
+                            Circle()
+                                .fill(Color.white)
+                                .frame(width: 12, height: 12)
+                            
+                            Circle()
+                                .strokeBorder(theme.primaryColor.color.opacity(0.3), lineWidth: 2)
+                                .frame(width: 12, height: 12)
+                        }
+                        .shadow(color: .black.opacity(0.2), radius: 2, x: 1, y: 1)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
