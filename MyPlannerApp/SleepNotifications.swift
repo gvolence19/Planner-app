@@ -116,7 +116,7 @@ class SleepNotificationManager: ObservableObject {
         
         // Calculate 1 hour before bedtime
         var windDownHour = bedtimeHour - 1
-        var windDownMinute = bedtimeMinute
+        let windDownMinute = bedtimeMinute
         
         if windDownHour < 0 {
             windDownHour += 24

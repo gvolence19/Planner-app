@@ -187,7 +187,6 @@ class DataManager: ObservableObject {
     }
     
     func upcomingTasks() -> [Task] {
-        let calendar = Calendar.current
         let today = Date()
         
         return tasks.filter { task in

@@ -454,7 +454,7 @@ struct SleepTrackingView: View {
         let bedComponents = parseTime(savedBedtime)
         let wakeComponents = parseTime(savedWakeTime)
         
-        var bedHour = bedComponents.hour
+        let bedHour = bedComponents.hour
         let bedMinute = bedComponents.minute
         var wakeHour = wakeComponents.hour
         let wakeMinute = wakeComponents.minute
