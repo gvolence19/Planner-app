@@ -179,7 +179,7 @@ struct AddTaskView: View {
             // Set category if suggested
             if let categoryName = suggestion.category {
                 selectedCategory = dataManager.categories.first(where: { $0.name == categoryName })
-                    ?? TaskCategory(name: categoryName, icon: suggestion.icon, color: suggestion.color)
+                    ?? TaskCategory(name: categoryName, color: suggestion.color, icon: suggestion.icon)
             }
             
             // Set priority if suggested

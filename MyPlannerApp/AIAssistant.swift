@@ -80,7 +80,6 @@ class AIAssistantManager: ObservableObject {
     
     // MARK: - Summary Functions
     private func summarizeToday() {
-        let today = Date()
         let calendar = Calendar.current
         
         let todayTasks = dataManager.tasks.filter { task in
