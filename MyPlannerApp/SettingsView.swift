@@ -221,6 +221,11 @@ struct SettingsView: View {
         dataManager.saveTasks()
         dataManager.saveGroceryItems()
     }
+    
+    // Computed property for calendar sync footer
+    private var syncFooterText: String {
+        "Calendar syncs automatically every 5 minutes. Tap 'Sync Now' for immediate sync."
+    }
 }
 
 // MARK: - Category Manager View
@@ -338,11 +343,6 @@ struct AddCategorySheet: View {
         let category = TaskCategory(name: name, color: selectedColor, icon: icon)
         dataManager.addCategory(category)
         isPresented = false
-    }
-    
-    // Helper computed property for sync footer text
-    private var syncFooterText: String {
-        "Calendar syncs automatically every 5 minutes. Tap 'Sync Now' for immediate sync."
     }
 }
 
