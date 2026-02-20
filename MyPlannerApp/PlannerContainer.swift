@@ -25,29 +25,28 @@ struct PlannerContainer: View {
                 // Tab 0: Calendar (Page-Flip)
                 PageFlipCalendarView()
                     .tag(0)
-                    .onChange(of: selectedTab) { _ in currentPage = 1 }
                 
                 // Tab 1: Tasks List
                 PlannerTasksView()
                     .tag(1)
-                    .onChange(of: selectedTab) { _ in currentPage = 2 }
                 
                 // Tab 2: Grocery List
                 PlannerGroceryView()
                     .tag(2)
-                    .onChange(of: selectedTab) { _ in currentPage = 3 }
                 
                 // Tab 3: Sleep & Wellness
                 PlannerSleepView()
                     .tag(3)
-                    .onChange(of: selectedTab) { _ in currentPage = 4 }
                 
                 // Tab 4: Settings
                 PlannerSettingsView()
                     .tag(4)
-                    .onChange(of: selectedTab) { _ in currentPage = 5 }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
+            .onChange(of: selectedTab) { oldValue, newValue in
+                // Update page number based on selected tab
+                currentPage = newValue + 1
+            }
             
             // Page decorations
             if styleManager.showPageEdges {
@@ -373,7 +372,7 @@ struct PlannerSleepView: View {
                 )
                 
                 // Original sleep content
-                MealsAndSleepViews()
+                SleepTrackingView()
                     .padding(.top, 16)
                 
                 Spacer(minLength: 100)
