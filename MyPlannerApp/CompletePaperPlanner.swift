@@ -151,10 +151,10 @@ struct CompletePaperPlanner: View {
             
             // Content (ALL VIEWS WRAPPED IN WHITE)
             cleanContentArea(for: index)
-                .padding(.leading, 80)
-                .padding(.trailing, 35)
-                .padding(.top, 50)
-                .padding(.bottom, 85)
+                .padding(.leading, 55)  // Even more reduced - was 65
+                .padding(.trailing, 15) // Even more reduced - was 25
+                .padding(.top, 40)      // Reduced
+                .padding(.bottom, 70)   // Reduced
             
             // Realistic page curl
             VStack {
@@ -198,33 +198,24 @@ struct CompletePaperPlanner: View {
             .allowsHitTesting(false)
     }
     
-    // MARK: - Clean Content Area (WHITE BACKGROUND FOR ALL)
+    // MARK: - Clean Content Area (WHITE BACKGROUND + FULL THEMES)
     private func cleanContentArea(for index: Int) -> some View {
         ZStack {
-            // Force white background
             Color.white
             
             ScrollView(showsIndicators: false) {
-                ZStack {
-                    Color.white
-                    
-                    VStack(spacing: 0) {
-                        Group {
-                            switch index {
-                            case 0: SimplePlannerCalendar()
-                            case 1: SimplePlannerTasks()
-                            case 2: SimplePlannerGrocery()
-                            case 3: SimplePlannerSleep()
-                            case 4: SimplePlannerSettings()
-                            default: EmptyView()
-                            }
-                        }
-                        .background(Color.white)
-                        .colorScheme(.light)
+                Group {
+                    switch index {
+                    case 0: CleanCalendarView()
+                    case 1: PlannerTasksView()      // Original themed view
+                    case 2: PlannerGroceryView()    // Original themed view
+                    case 3: PlannerSleepView()      // Original themed view
+                    case 4: PlannerSettingsView()   // Original themed view
+                    default: EmptyView()
                     }
-                    .padding(.horizontal, 25)  // More horizontal space
-                    .padding(.vertical, 20)     // More vertical space
                 }
+                .background(Color.white)
+                .colorScheme(.light)
             }
         }
         .background(Color.white)
