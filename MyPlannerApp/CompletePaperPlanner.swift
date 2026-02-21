@@ -212,56 +212,23 @@ struct CompletePaperPlanner: View {
                         Group {
                             switch index {
                             case 0: CleanCalendarView()
-                            case 1: cleanTasksView
-                            case 2: cleanGroceryView
-                            case 3: cleanSleepView
-                            case 4: cleanSettingsView
+                            case 1: CleanTasksView()
+                            case 2: CleanGroceryView()
+                            case 3: CleanSleepView()
+                            case 4: CleanSettingsView()
                             default: EmptyView()
                             }
                         }
                         .background(Color.white)
                         .colorScheme(.light)
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 15)
+                    .padding(.horizontal, 25)  // More horizontal space
+                    .padding(.vertical, 20)     // More vertical space
                 }
             }
         }
         .background(Color.white)
         .colorScheme(.light)
-    }
-    
-    // MARK: - Clean Content Views (Strip backgrounds)
-    private var cleanTasksView: some View {
-        ZStack {
-            Color.white
-            PlannerTasksView()
-                .background(Color.white)
-        }
-    }
-    
-    private var cleanGroceryView: some View {
-        ZStack {
-            Color.white
-            PlannerGroceryView()
-                .background(Color.white)
-        }
-    }
-    
-    private var cleanSleepView: some View {
-        ZStack {
-            Color.white
-            PlannerSleepView()
-                .background(Color.white)
-        }
-    }
-    
-    private var cleanSettingsView: some View {
-        ZStack {
-            Color.white
-            PlannerSettingsView()
-                .background(Color.white)
-        }
     }
     
     // MARK: - Tab Shadows On Page
