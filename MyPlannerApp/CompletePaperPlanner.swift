@@ -211,11 +211,11 @@ struct CompletePaperPlanner: View {
                     VStack(spacing: 0) {
                         Group {
                             switch index {
-                            case 0: CleanCalendarView()
-                            case 1: CleanTasksView()
-                            case 2: CleanGroceryView()
-                            case 3: CleanSleepView()
-                            case 4: CleanSettingsView()
+                            case 0: SimplePlannerCalendar()
+                            case 1: SimplePlannerTasks()
+                            case 2: SimplePlannerGrocery()
+                            case 3: SimplePlannerSleep()
+                            case 4: SimplePlannerSettings()
                             default: EmptyView()
                             }
                         }
