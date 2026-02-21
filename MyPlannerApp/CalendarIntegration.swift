@@ -58,6 +58,7 @@ enum SyncDirection: String, CaseIterable, Codable {
 }
 
 // MARK: - Multi Calendar Manager
+@MainActor
 class MultiCalendarManager: ObservableObject {
     @Published var connectedCalendars: [ConnectedCalendar] = []
     @Published var appleCalendars: [EKCalendar] = []

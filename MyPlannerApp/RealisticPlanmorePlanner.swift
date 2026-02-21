@@ -66,11 +66,35 @@ struct RealisticPlanmorePlanner: View {
             // CONTENT - ALMOST FULL WIDTH
             VStack(spacing: 0) {
                 TabView(selection: $selectedTab) {
-                    contentPage(SimplePlannerCalendar()).tag(0)
-                    contentPage(SimplePlannerTasks()).tag(1)
-                    contentPage(SimplePlannerGrocery()).tag(2)
-                    contentPage(SimplePlannerSleep()).tag(3)
-                    contentPage(SimplePlannerSettings()).tag(4)
+                    ScrollView(showsIndicators: false) {
+                        SimplePlannerCalendar()
+                    }
+                    .background(Color.white)
+                    .tag(0)
+                    
+                    ScrollView(showsIndicators: false) {
+                        SimplePlannerTasks()
+                    }
+                    .background(Color.white)
+                    .tag(1)
+                    
+                    ScrollView(showsIndicators: false) {
+                        SimplePlannerGrocery()
+                    }
+                    .background(Color.white)
+                    .tag(2)
+                    
+                    ScrollView(showsIndicators: false) {
+                        SimplePlannerSleep()
+                    }
+                    .background(Color.white)
+                    .tag(3)
+                    
+                    ScrollView(showsIndicators: false) {
+                        SimplePlannerSettings()
+                    }
+                    .background(Color.white)
+                    .tag(4)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
             }
@@ -88,14 +112,6 @@ struct RealisticPlanmorePlanner: View {
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: 6))
-    }
-    
-    // MARK: - Content Page
-    private func contentPage<Content: View>(_ content: Content) -> some View {
-        ScrollView(showsIndicators: false) {
-            content
-        }
-        .background(Color.white)
     }
     
     // MARK: - Spiral Holes
@@ -158,7 +174,7 @@ struct RealisticPlanmorePlanner: View {
         } label: {
             ZStack(alignment: .trailing) {
                 // Tab shape - sticks out from page
-                TabShape(selected: isSelected)
+                PlannerDividerTab(selected: isSelected)
                     .fill(
                         LinearGradient(
                             colors: [
@@ -194,7 +210,7 @@ struct RealisticPlanmorePlanner: View {
 }
 
 // MARK: - Tab Shape (Physical Divider Shape)
-struct TabShape: Shape {
+struct PlannerDividerTab: Shape {
     let selected: Bool
     
     func path(in rect: CGRect) -> Path {
