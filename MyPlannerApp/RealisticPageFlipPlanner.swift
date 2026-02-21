@@ -157,21 +157,36 @@ struct RealisticPageFlipPlanner: View {
     
     // MARK: - Content View
     private func contentView(for index: Int) -> some View {
-        ScrollView(showsIndicators: false) {
-            Group {
-                switch index {
-                case 0: PageFlipCalendarView()
-                case 1: PlannerTasksView()
-                case 2: PlannerGroceryView()
-                case 3: PlannerSleepView()
-                case 4: PlannerSettingsView()
-                default: EmptyView()
+        ZStack {
+            // Force white background
+            Color.white
+            
+            ScrollView(showsIndicators: false) {
+                ZStack {
+                    // White background layer
+                    Color.white
+                    
+                    VStack {
+                        Group {
+                            switch index {
+                            case 0: CleanCalendarView()
+                            case 1: PlannerTasksView()
+                            case 2: PlannerGroceryView()
+                            case 3: PlannerSleepView()
+                            case 4: PlannerSettingsView()
+                            default: EmptyView()
+                            }
+                        }
+                        .background(Color.white) // Force white on content
+                        .colorScheme(.light) // Force light mode on content
+                    }
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 12)
                 }
             }
-            .padding(.horizontal, 18)
-            .padding(.vertical, 12)
         }
         .background(Color.white)
+        .colorScheme(.light) // Force light mode
     }
     
     // MARK: - Spiral Holes
