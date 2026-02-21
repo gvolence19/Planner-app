@@ -45,6 +45,7 @@ struct ProperPlannerDesign: View {
             }
         }
         .ignoresSafeArea()
+        .preferredColorScheme(.light) // Force light mode for clean white pages
     }
     
     // MARK: - Planner Page
@@ -76,9 +77,10 @@ struct ProperPlannerDesign: View {
                     impact.impactOccurred()
                 }
             }
-            .padding(.leading, 55)
-            .padding(.trailing, 15)
-            .padding(.vertical, 25)
+            .padding(.leading, 65) // Increased from 55
+            .padding(.trailing, 25) // Increased from 15
+            .padding(.top, 40) // Increased from 25
+            .padding(.bottom, 70) // Increased from 25
             
             // Spiral holes
             spiralHoles
@@ -100,8 +102,8 @@ struct ProperPlannerDesign: View {
                     Text("\(selectedTab + 1)")
                         .font(.system(size: 11, design: .serif))
                         .foregroundColor(.gray.opacity(0.4))
-                        .padding(.trailing, 25)
-                        .padding(.bottom, 50)
+                        .padding(.trailing, 30)
+                        .padding(.bottom, 55)
                 }
             }
         }
@@ -111,9 +113,14 @@ struct ProperPlannerDesign: View {
     // MARK: - Scrollable Content
     private func scrollContent<Content: View>(_ content: Content) -> some View {
         ScrollView(showsIndicators: false) {
-            content
-                .padding(.horizontal, 8)
+            ZStack {
+                Color.white
+                content
+                    .padding(.horizontal, 20) // Increased from 8
+                    .padding(.vertical, 15) // Added vertical padding
+            }
         }
+        .background(Color.white)
     }
     
     // MARK: - Spiral Holes
