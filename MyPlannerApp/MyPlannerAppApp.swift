@@ -52,7 +52,7 @@ struct ThemedContentView: View {
     @EnvironmentObject var themeManager: ThemeManager
     
     var body: some View {
-        RealisticPlanmorePlanner()
+        PlanmorePlanner()
             .tint(themeManager.currentTheme.accentColor.color)
             .id(themeManager.currentTheme.id) // Force rebuild when theme changes
     }
