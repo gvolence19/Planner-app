@@ -11,15 +11,17 @@ struct PlanmorePlanner: View {
         themeManager.currentTheme
     }
     
-    // Tabs matching Planmore exactly
+    // Tabs matching post-it note style
     let tabs = [
         ("Day", Color(red: 0.3, green: 0.3, blue: 0.35)),
-        ("Week", Color(red: 1.0, green: 0.85, blue: 0.4)),
-        ("Month", Color(red: 0.6, green: 0.9, blue: 0.7)),
-        ("Year", Color(red: 0.7, green: 0.8, blue: 0.95)),
-        ("Tasks", Color(red: 0.95, green: 0.7, blue: 0.85)),
-        ("Notes", Color(red: 1.0, green: 0.8, blue: 0.65))
+        ("Week", Color(red: 1.0, green: 0.95, blue: 0.4)),      // Yellow post-it
+        ("Month", Color(red: 0.5, green: 0.85, blue: 0.6)),     // Green post-it
+        ("Year", Color(red: 0.7, green: 0.85, blue: 1.0)),      // Blue post-it
+        ("Tasks", Color(red: 1.0, green: 0.7, blue: 0.8)),      // Pink post-it
+        ("Notes", Color(red: 1.0, green: 0.85, blue: 0.6))      // Orange post-it
     ]
+    
+    @State private var showSettings = false
     
     var body: some View {
         GeometryReader { geometry in
@@ -34,8 +36,8 @@ struct PlanmorePlanner: View {
                         .frame(maxWidth: geometry.size.width - 85)
                         .background(Color(white: 0.12))
                     
-                    // PLANMORE-STYLE TABS (MUST BE VISIBLE)
-                    planmoreTabs
+                    // POST-IT NOTE TABS
+                    postItTabs
                         .frame(width: 85)
                         .background(Color(white: 0.15))
                 }
@@ -43,6 +45,9 @@ struct PlanmorePlanner: View {
         }
         .ignoresSafeArea()
         .preferredColorScheme(.dark)
+        .sheet(isPresented: $showSettings) {
+            settingsSheet
+        }
     }
     
     // MARK: - Main Content
@@ -63,47 +68,51 @@ struct PlanmorePlanner: View {
     // MARK: - Day View (Main Calendar)
     private var dayView: some View {
         VStack(spacing: 0) {
-            // Top bar with calendar grid and current day
-            HStack(alignment: .top, spacing: 20) {
-                // Mini calendar
-                miniCalendar
-                    .padding(.leading, 20)
-                
-                Spacer()
-                
-                // Large day display
-                VStack(spacing: 4) {
-                    Text("February 2026")
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundColor(.gray)
+            // Top section with calendar and big date - FIXED HEIGHT
+            VStack(spacing: 0) {
+                HStack(alignment: .top, spacing: 15) {
+                    // Mini calendar
+                    miniCalendar
+                        .padding(.leading, 15)
                     
-                    Text("27")
-                        .font(.system(size: 120, weight: .bold))
-                        .foregroundColor(.white)
+                    Spacer()
                     
-                    Text("Friday, Week 9")
-                        .font(.system(size: 16))
-                        .foregroundColor(.gray)
+                    // LARGE DAY DISPLAY - PROMINENT
+                    VStack(spacing: 2) {
+                        Text("February 2026")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.gray)
+                        
+                        Text("27")
+                            .font(.system(size: 100, weight: .bold))
+                            .foregroundColor(.white)
+                        
+                        Text("Friday, Week 9")
+                            .font(.system(size: 14))
+                            .foregroundColor(.gray)
+                    }
+                    .padding(.trailing, 10)
+                    
+                    Spacer()
+                    
+                    // Menu button
+                    Button(action: {}) {
+                        Image(systemName: "line.3.horizontal")
+                            .font(.system(size: 18))
+                            .foregroundColor(.blue)
+                            .padding(10)
+                            .background(Color(white: 0.2))
+                            .cornerRadius(8)
+                    }
+                    .padding(.trailing, 15)
                 }
-                .frame(maxWidth: .infinity)
-                
-                Spacer()
-                
-                // Menu button
-                Button(action: {}) {
-                    Image(systemName: "line.3.horizontal")
-                        .font(.system(size: 20))
-                        .foregroundColor(.blue)
-                        .padding(12)
-                        .background(Color(white: 0.2))
-                        .cornerRadius(8)
-                }
-                .padding(.trailing, 20)
+                .padding(.top, 15)
+                .padding(.bottom, 10)
             }
-            .padding(.top, 20)
-            .padding(.bottom, 30)
+            .frame(height: 200)
+            .background(Color(white: 0.12))
             
-            // Event slots
+            // Event slots - scrollable
             ScrollView(showsIndicators: false) {
                 eventSlots
             }
@@ -112,33 +121,37 @@ struct PlanmorePlanner: View {
     
     // MARK: - Mini Calendar
     private var miniCalendar: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 10) {
             // Day headers
-            HStack(spacing: 8) {
+            HStack(spacing: 6) {
                 ForEach(["S", "M", "T", "W", "T", "F", "S"], id: \.self) { day in
                     Text(day)
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.system(size: 10, weight: .medium))
                         .foregroundColor(.gray)
-                        .frame(width: 24)
+                        .frame(width: 22)
                 }
             }
             
-            // Calendar grid (simplified)
-            VStack(spacing: 6) {
+            // Calendar grid (clickable dates)
+            VStack(spacing: 5) {
                 ForEach(0..<5, id: \.self) { row in
-                    HStack(spacing: 8) {
+                    HStack(spacing: 6) {
                         ForEach(0..<7, id: \.self) { col in
                             let day = row * 7 + col + 1
                             if day <= 28 {
-                                Text("\(day)")
-                                    .font(.system(size: 13))
-                                    .foregroundColor(day == 27 ? .white : (day == 21 ? .blue : .gray))
-                                    .frame(width: 24, height: 24)
-                                    .background(day == 27 ? Color.blue : Color.clear)
-                                    .cornerRadius(12)
+                                Button(action: {
+                                    selectedDate = Calendar.current.date(from: DateComponents(year: 2026, month: 2, day: day)) ?? Date()
+                                }) {
+                                    Text("\(day)")
+                                        .font(.system(size: 12))
+                                        .foregroundColor(day == 27 ? .white : (day == 21 ? .blue : .gray))
+                                        .frame(width: 22, height: 22)
+                                        .background(day == 27 ? Color.blue : Color.clear)
+                                        .cornerRadius(11)
+                                }
                             } else {
                                 Text("")
-                                    .frame(width: 24, height: 24)
+                                    .frame(width: 22, height: 22)
                             }
                         }
                     }
@@ -305,13 +318,23 @@ struct PlanmorePlanner: View {
                         .padding(.top, 40)
                         .padding(.horizontal, 20)
                     
-                    // Task items
+                    // Task items (clickable to toggle)
                     VStack(spacing: 15) {
-                        taskItem("Complete project proposal", completed: false)
-                        taskItem("Review design mockups", completed: false)
-                        taskItem("Send follow-up emails", completed: true)
-                        taskItem("Prepare presentation", completed: false)
-                        taskItem("Team standup meeting", completed: true)
+                        Button(action: {}) {
+                            taskItem("Complete project proposal", completed: false)
+                        }
+                        Button(action: {}) {
+                            taskItem("Review design mockups", completed: false)
+                        }
+                        Button(action: {}) {
+                            taskItem("Send follow-up emails", completed: true)
+                        }
+                        Button(action: {}) {
+                            taskItem("Prepare presentation", completed: false)
+                        }
+                        Button(action: {}) {
+                            taskItem("Team standup meeting", completed: true)
+                        }
                     }
                     .padding(.horizontal, 20)
                     
@@ -382,30 +405,36 @@ struct PlanmorePlanner: View {
         .cornerRadius(12)
     }
     
-    // MARK: - Planmore Tabs
-    private var planmoreTabs: some View {
+    // MARK: - Post-It Note Tabs
+    private var postItTabs: some View {
         VStack(spacing: 0) {
             Spacer()
                 .frame(height: 60)
             
             ForEach(0..<tabs.count, id: \.self) { index in
-                planmoreTab(index: index)
+                postItTab(index: index)
             }
             
             Spacer()
             
             // Icon buttons at bottom
             VStack(spacing: 12) {
-                iconButton(icon: "gearshape.fill", color: Color(red: 1.0, green: 0.8, blue: 0.65))
-                iconButton(icon: "calendar", color: Color(red: 0.6, green: 0.9, blue: 0.5))
-                iconButton(icon: "magnifyingglass", color: Color(red: 0.95, green: 0.7, blue: 0.85))
+                Button(action: { showSettings = true }) {
+                    iconButton(icon: "gearshape.fill", color: Color(red: 1.0, green: 0.8, blue: 0.65))
+                }
+                Button(action: { selectedTab = 0 }) {
+                    iconButton(icon: "calendar", color: Color(red: 0.6, green: 0.9, blue: 0.5))
+                }
+                Button(action: { selectedTab = 5 }) {
+                    iconButton(icon: "magnifyingglass", color: Color(red: 0.95, green: 0.7, blue: 0.85))
+                }
             }
             .padding(.bottom, 40)
         }
     }
     
-    // MARK: - Planmore Tab (with scalloped edge)
-    private func planmoreTab(index: Int) -> some View {
+    // MARK: - Post-It Tab (Rectangular with shadow)
+    private func postItTab(index: Int) -> some View {
         let isSelected = selectedTab == index
         
         return Button {
@@ -415,71 +444,94 @@ struct PlanmorePlanner: View {
                 impact.impactOccurred()
             }
         } label: {
-            ScallopedTab(selected: isSelected)
-                .fill(tabs[index].1)
-                .frame(width: isSelected ? 75 : 70, height: 120)
-                .overlay(
-                    Text(tabs[index].0)
-                        .font(.system(size: isSelected ? 15 : 13, weight: .semibold))
-                        .foregroundColor(index == 0 ? .white : .black)
-                        .rotationEffect(.degrees(-90))
-                        .offset(x: isSelected ? 5 : 3)
-                )
-                .shadow(color: .black.opacity(0.3), radius: 5, x: -2, y: 2)
-                .padding(.vertical, 4)
+            ZStack {
+                // Post-it note rectangle
+                RoundedRectangle(cornerRadius: 3)
+                    .fill(tabs[index].1)
+                    .frame(width: isSelected ? 75 : 70, height: 110)
+                    .shadow(color: .black.opacity(0.3), radius: 4, x: 2, y: 3)
+                    .rotationEffect(.degrees(isSelected ? 2 : 1))
+                
+                // Text
+                Text(tabs[index].0)
+                    .font(.system(size: isSelected ? 15 : 13, weight: .semibold))
+                    .foregroundColor(index == 0 ? .white : .black)
+                    .rotationEffect(.degrees(-90))
+            }
+            .padding(.vertical, 4)
         }
         .buttonStyle(.plain)
     }
     
     // MARK: - Icon Button
     private func iconButton(icon: String, color: Color) -> some View {
-        Button(action: {}) {
-            Image(systemName: icon)
-                .font(.system(size: 16, weight: .medium))
-                .foregroundColor(.black)
-                .frame(width: 45, height: 45)
-                .background(
-                    Circle()
-                        .fill(color)
-                        .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
-                )
+        Image(systemName: icon)
+            .font(.system(size: 16, weight: .medium))
+            .foregroundColor(.black)
+            .frame(width: 45, height: 45)
+            .background(
+                Circle()
+                    .fill(color)
+                    .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
+            )
+    }
+    
+    // MARK: - Settings Sheet
+    private var settingsSheet: some View {
+        NavigationView {
+            ZStack {
+                Color(white: 0.12).ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(spacing: 25) {
+                        settingRow(icon: "bell.fill", title: "Notifications", color: .blue)
+                        settingRow(icon: "paintbrush.fill", title: "Themes", color: .purple)
+                        settingRow(icon: "square.and.arrow.up.fill", title: "Export Data", color: .green)
+                        settingRow(icon: "person.fill", title: "Account", color: .orange)
+                        settingRow(icon: "info.circle.fill", title: "About", color: .gray)
+                    }
+                    .padding(20)
+                }
+            }
+            .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        showSettings = false
+                    }
+                    .foregroundColor(.blue)
+                }
+            }
         }
+        .preferredColorScheme(.dark)
+    }
+    
+    private func settingRow(icon: String, title: String, color: Color) -> some View {
+        HStack(spacing: 15) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(color)
+                    .frame(width: 40, height: 40)
+                
+                Image(systemName: icon)
+                    .font(.system(size: 20))
+                    .foregroundColor(.white)
+            }
+            
+            Text(title)
+                .font(.system(size: 18))
+                .foregroundColor(.white)
+            
+            Spacer()
+            
+            Image(systemName: "chevron.right")
+                .font(.system(size: 14))
+                .foregroundColor(.gray)
+        }
+        .padding(15)
+        .background(Color(white: 0.2))
+        .cornerRadius(12)
     }
 }
 
-// MARK: - Scalloped Tab Shape (Planmore Style)
-struct ScallopedTab: Shape {
-    let selected: Bool
-    
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        
-        let scallop: CGFloat = 15 // Scallop curve depth
-        
-        // Start at bottom left
-        path.move(to: CGPoint(x: 0, y: rect.height))
-        
-        // Left edge with scallop
-        path.addQuadCurve(
-            to: CGPoint(x: scallop, y: rect.height / 2),
-            control: CGPoint(x: -scallop * 0.7, y: rect.height * 0.75)
-        )
-        path.addQuadCurve(
-            to: CGPoint(x: 0, y: 0),
-            control: CGPoint(x: -scallop * 0.7, y: rect.height * 0.25)
-        )
-        
-        // Top edge
-        path.addLine(to: CGPoint(x: rect.width, y: 0))
-        
-        // Right edge
-        path.addLine(to: CGPoint(x: rect.width, y: rect.height))
-        
-        // Bottom edge
-        path.addLine(to: CGPoint(x: 0, y: rect.height))
-        
-        path.closeSubpath()
-        
-        return path
-    }
-}
