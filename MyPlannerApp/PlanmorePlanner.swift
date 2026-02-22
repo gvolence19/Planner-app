@@ -6,6 +6,9 @@ struct PlanmorePlanner: View {
     @EnvironmentObject var dataManager: DataManager
     @State private var selectedTab = 0
     @State private var selectedDate = Date()
+    @State private var showSettings = false
+    @State private var selectedTheme: String = "Default"
+    @State private var selectedStyle: String = "Modern"
     
     private var theme: AppTheme {
         themeManager.currentTheme
@@ -26,15 +29,15 @@ struct PlanmorePlanner: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                // Background
-                Color(white: 0.15)
+                // Background with style
+                styleBackground
                     .ignoresSafeArea()
                 
                 HStack(spacing: 0) {
                     // MAIN CONTENT AREA
                     mainContent
                         .frame(maxWidth: geometry.size.width - 85)
-                        .background(Color(white: 0.12))
+                        .background(styleContentBackground)
                     
                     // POST-IT NOTE TABS
                     postItTabs
@@ -47,6 +50,45 @@ struct PlanmorePlanner: View {
         .preferredColorScheme(.dark)
         .sheet(isPresented: $showSettings) {
             settingsSheet
+        }
+    }
+    
+    // MARK: - Style Backgrounds
+    private var styleBackground: some View {
+        Group {
+            switch selectedStyle {
+            case "Antique Calendar":
+                Color(red: 0.9, green: 0.85, blue: 0.7) // Aged paper color
+            case "Hello Kitty":
+                LinearGradient(colors: [Color.pink.opacity(0.3), Color.white.opacity(0.2)], startPoint: .topLeading, endPoint: .bottomTrailing)
+            case "Thunderstorm":
+                LinearGradient(colors: [Color(white: 0.1), Color(white: 0.2)], startPoint: .top, endPoint: .bottom)
+            case "Minimalist":
+                Color.white
+            case "Nature":
+                LinearGradient(colors: [Color.green.opacity(0.3), Color.green.opacity(0.1)], startPoint: .top, endPoint: .bottom)
+            default:
+                Color(white: 0.15)
+            }
+        }
+    }
+    
+    private var styleContentBackground: some View {
+        Group {
+            switch selectedStyle {
+            case "Antique Calendar":
+                Color(red: 0.95, green: 0.92, blue: 0.85)
+            case "Hello Kitty":
+                Color.white.opacity(0.95)
+            case "Thunderstorm":
+                Color(white: 0.12)
+            case "Minimalist":
+                Color.white
+            case "Nature":
+                Color.white.opacity(0.9)
+            default:
+                Color(white: 0.12)
+            }
         }
     }
     
@@ -70,48 +112,60 @@ struct PlanmorePlanner: View {
         GeometryReader { geo in
             VStack(spacing: 0) {
                 // Top section - FIXED AND VISIBLE
-                HStack(alignment: .top, spacing: 0) {
-                    // Mini calendar - LEFT SIDE
-                    VStack(alignment: .leading, spacing: 10) {
-                        miniCalendar
-                    }
-                    .frame(width: 180)
-                    .padding(.leading, 15)
-                    .padding(.top, 15)
-                    
-                    Spacer()
-                    
-                    // BIG DATE - CENTER
-                    VStack(spacing: 2) {
-                        Text(selectedDate.formatted(.dateTime.month(.wide).year()))
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.gray)
+                VStack(spacing: 0) {
+                    HStack(alignment: .top, spacing: 0) {
+                        // Mini calendar - LEFT SIDE
+                        VStack(alignment: .leading, spacing: 10) {
+                            miniCalendar
+                        }
+                        .frame(width: 180)
+                        .padding(.leading, 15)
                         
-                        Text(selectedDate.formatted(.dateTime.day()))
-                            .font(.system(size: 90, weight: .bold))
-                            .foregroundColor(.white)
+                        Spacer()
                         
-                        Text(selectedDate.formatted(.dateTime.weekday(.wide)) + ", Week \(weekNumber(for: selectedDate))")
-                            .font(.system(size: 14))
-                            .foregroundColor(.gray)
+                        // BIG DATE - CENTER
+                        VStack(spacing: 0) {
+                            Text(selectedDate.formatted(.dateTime.month(.wide).year()))
+                                .font(.system(size: 15, weight: .medium))
+                                .foregroundColor(.gray)
+                                .padding(.bottom, 2)
+                            
+                            Text(selectedDate.formatted(.dateTime.day()))
+                                .font(.system(size: 80, weight: .bold))
+                                .foregroundColor(.white)
+                                .padding(.bottom, 2)
+                            
+                            HStack(spacing: 4) {
+                                Text(selectedDate.formatted(.dateTime.weekday(.wide)))
+                                    .font(.system(size: 13))
+                                    .foregroundColor(.gray)
+                                Text("•")
+                                    .font(.system(size: 13))
+                                    .foregroundColor(.gray)
+                                Text("Week \(weekNumber(for: selectedDate))")
+                                    .font(.system(size: 13))
+                                    .foregroundColor(.gray)
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                        
+                        Spacer()
+                        
+                        // Menu button - RIGHT
+                        Button(action: {}) {
+                            Image(systemName: "line.3.horizontal")
+                                .font(.system(size: 18))
+                                .foregroundColor(.blue)
+                                .padding(10)
+                                .background(Color(white: 0.2))
+                                .cornerRadius(8)
+                        }
+                        .padding(.trailing, 15)
                     }
-                    .frame(maxWidth: .infinity)
-                    
-                    Spacer()
-                    
-                    // Menu button - RIGHT
-                    Button(action: {}) {
-                        Image(systemName: "line.3.horizontal")
-                            .font(.system(size: 18))
-                            .foregroundColor(.blue)
-                            .padding(10)
-                            .background(Color(white: 0.2))
-                            .cornerRadius(8)
-                    }
-                    .padding(.trailing, 15)
-                    .padding(.top, 15)
+                    .padding(.top, 25) // More padding at top
+                    .padding(.bottom, 15)
                 }
-                .frame(height: 180)
+                .frame(height: 200)
                 .background(Color(white: 0.12))
                 
                 // Event slots - scrollable
@@ -346,44 +400,104 @@ struct PlanmorePlanner: View {
     }
     
     private var yearView: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                Text("2026")
+        let calendar = Calendar.current
+        let year = calendar.component(.year, from: selectedDate)
+        
+        return VStack(spacing: 0) {
+            // Year navigation
+            HStack {
+                Button(action: {
+                    if let newDate = calendar.date(byAdding: .year, value: -1, to: selectedDate) {
+                        selectedDate = newDate
+                    }
+                }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.blue)
+                        .font(.system(size: 20))
+                }
+                
+                Spacer()
+                
+                Text("\(year)")
                     .font(.system(size: 32, weight: .bold))
                     .foregroundColor(.white)
-                    .padding(.top, 40)
                 
+                Spacer()
+                
+                Button(action: {
+                    if let newDate = calendar.date(byAdding: .year, value: 1, to: selectedDate) {
+                        selectedDate = newDate
+                    }
+                }) {
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(.blue)
+                        .font(.system(size: 20))
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 40)
+            .padding(.bottom, 20)
+            
+            ScrollView {
                 // 12 month mini calendars
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
-                    ForEach(["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], id: \.self) { month in
-                        VStack(spacing: 8) {
-                            Text(month)
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(.white)
-                            
-                            // Mini month grid
-                            VStack(spacing: 4) {
-                                ForEach(0..<5, id: \.self) { _ in
-                                    HStack(spacing: 4) {
-                                        ForEach(0..<7, id: \.self) { _ in
-                                            Circle()
-                                                .fill(Color(white: 0.3))
-                                                .frame(width: 6, height: 6)
-                                        }
-                                    }
-                                }
+                    ForEach(1...12, id: \.self) { month in
+                        Button(action: {
+                            if let newDate = calendar.date(from: DateComponents(year: year, month: month, day: 1)) {
+                                selectedDate = newDate
+                                selectedTab = 2 // Go to month view
                             }
+                        }) {
+                            monthMiniCalendar(month: month, year: year)
                         }
-                        .padding(12)
-                        .background(Color(white: 0.2))
-                        .cornerRadius(12)
                     }
                 }
                 .padding(.horizontal, 20)
-                
-                Spacer()
             }
         }
+        .gesture(
+            DragGesture()
+                .onEnded { value in
+                    if value.translation.width < -50 {
+                        if let newDate = calendar.date(byAdding: .year, value: 1, to: selectedDate) {
+                            selectedDate = newDate
+                        }
+                    } else if value.translation.width > 50 {
+                        if let newDate = calendar.date(byAdding: .year, value: -1, to: selectedDate) {
+                            selectedDate = newDate
+                        }
+                    }
+                }
+        )
+    }
+    
+    private func monthMiniCalendar(month: Int, year: Int) -> some View {
+        let monthName = DateFormatter().monthSymbols[month - 1].prefix(3)
+        let currentMonth = Calendar.current.component(.month, from: selectedDate)
+        let currentYear = Calendar.current.component(.year, from: selectedDate)
+        let isCurrentMonth = (month == currentMonth && year == currentYear)
+        
+        return VStack(spacing: 8) {
+            Text(String(monthName))
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(isCurrentMonth ? .blue : .white)
+            
+            // Mini month grid
+            VStack(spacing: 4) {
+                ForEach(0..<5, id: \.self) { _ in
+                    HStack(spacing: 4) {
+                        ForEach(0..<7, id: \.self) { _ in
+                            Circle()
+                                .fill(Color(white: 0.3))
+                                .frame(width: 6, height: 6)
+                        }
+                    }
+                }
+            }
+        }
+        .padding(12)
+        .background(isCurrentMonth ? Color.blue.opacity(0.2) : Color(white: 0.2))
+        .cornerRadius(12)
     }
     
     private var tasksView: some View {
@@ -632,26 +746,88 @@ struct PlanmorePlanner: View {
         ZStack {
             Color(white: 0.12).ignoresSafeArea()
             ScrollView {
-                VStack(spacing: 15) {
-                    ForEach(["Ocean Blue", "Lavender Dream", "Forest Green", "Sunset Orange", "Rose Pink"], id: \.self) { theme in
-                        Button(action: {}) {
-                            HStack {
-                                Text(theme)
-                                    .foregroundColor(.white)
-                                Spacer()
-                                Circle()
-                                    .fill(Color.blue)
-                                    .frame(width: 30, height: 30)
+                VStack(alignment: .leading, spacing: 25) {
+                    // Color Themes
+                    Text("Color Themes")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 20)
+                    
+                    VStack(spacing: 15) {
+                        ForEach([("Default", Color.blue), ("Ocean Blue", Color.cyan), ("Lavender Dream", Color.purple), ("Forest Green", Color.green), ("Sunset Orange", Color.orange), ("Rose Pink", Color.pink)], id: \.0) { theme in
+                            Button(action: {
+                                selectedTheme = theme.0
+                            }) {
+                                HStack {
+                                    Text(theme.0)
+                                        .foregroundColor(.white)
+                                    Spacer()
+                                    Circle()
+                                        .fill(theme.1)
+                                        .frame(width: 30, height: 30)
+                                    if selectedTheme == theme.0 {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .foregroundColor(.green)
+                                    }
+                                }
+                                .padding()
+                                .background(Color(white: 0.2))
+                                .cornerRadius(12)
                             }
-                            .padding()
-                            .background(Color(white: 0.2))
-                            .cornerRadius(12)
                         }
                     }
+                    .padding(.horizontal, 20)
+                    
+                    // Visual Styles
+                    Text("Visual Styles")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 20)
+                    
+                    VStack(spacing: 15) {
+                        ForEach(["Modern", "Antique Calendar", "Hello Kitty", "Thunderstorm", "Minimalist", "Nature"], id: \.self) { style in
+                            Button(action: {
+                                selectedStyle = style
+                            }) {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(style)
+                                            .foregroundColor(.white)
+                                            .font(.system(size: 17, weight: .medium))
+                                        Text(styleDescription(style))
+                                            .foregroundColor(.gray)
+                                            .font(.system(size: 13))
+                                    }
+                                    Spacer()
+                                    if selectedStyle == style {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .foregroundColor(.green)
+                                    }
+                                }
+                                .padding()
+                                .background(Color(white: 0.2))
+                                .cornerRadius(12)
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 20)
                 }
-                .padding(20)
+                .padding(.vertical, 20)
             }
-            .navigationTitle("Themes")
+            .navigationTitle("Themes & Styles")
+        }
+    }
+    
+    private func styleDescription(_ style: String) -> String {
+        switch style {
+        case "Modern": return "Clean and contemporary"
+        case "Antique Calendar": return "Vintage paper with aged look"
+        case "Hello Kitty": return "Cute and colorful"
+        case "Thunderstorm": return "Dark clouds and rain"
+        case "Minimalist": return "Simple and clean"
+        case "Nature": return "Forest and greenery"
+        default: return ""
         }
     }
     
