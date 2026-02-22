@@ -24,8 +24,6 @@ struct PlanmorePlanner: View {
         ("Notes", Color(red: 1.0, green: 0.85, blue: 0.6))      // Orange post-it
     ]
     
-    @State private var showSettings = false
-    
     var body: some View {
         GeometryReader { geometry in
             ZStack {
