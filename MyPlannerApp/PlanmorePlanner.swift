@@ -31,16 +31,14 @@ struct PlanmorePlanner: View {
                 HStack(spacing: 0) {
                     // MAIN CONTENT AREA
                     mainContent
-                        .frame(maxWidth: .infinity)
+                        .frame(maxWidth: geometry.size.width - 85)
                         .background(Color(white: 0.12))
-                        .cornerRadius(8)
                     
-                    // PLANMORE-STYLE TABS
+                    // PLANMORE-STYLE TABS (MUST BE VISIBLE)
                     planmoreTabs
                         .frame(width: 85)
+                        .background(Color(white: 0.15))
                 }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 30)
             }
         }
         .ignoresSafeArea()
@@ -64,47 +62,50 @@ struct PlanmorePlanner: View {
     
     // MARK: - Day View (Main Calendar)
     private var dayView: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 20) {
-                // Top bar with calendar grid and current day
-                HStack(alignment: .top, spacing: 30) {
-                    // Mini calendar
-                    miniCalendar
+        VStack(spacing: 0) {
+            // Top bar with calendar grid and current day
+            HStack(alignment: .top, spacing: 20) {
+                // Mini calendar
+                miniCalendar
+                    .padding(.leading, 20)
+                
+                Spacer()
+                
+                // Large day display
+                VStack(spacing: 4) {
+                    Text("February 2026")
+                        .font(.system(size: 18, weight: .medium))
+                        .foregroundColor(.gray)
                     
-                    // Large day display
-                    VStack(spacing: 4) {
-                        Text("February 2026")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.gray)
-                        
-                        Text("27")
-                            .font(.system(size: 100, weight: .bold))
-                            .foregroundColor(.white)
-                        
-                        Text("Friday, Week 9")
-                            .font(.system(size: 14))
-                            .foregroundColor(.gray)
-                    }
+                    Text("27")
+                        .font(.system(size: 120, weight: .bold))
+                        .foregroundColor(.white)
                     
-                    Spacer()
-                    
-                    // Menu button
-                    Button(action: {}) {
-                        Image(systemName: "line.3.horizontal")
-                            .font(.system(size: 20))
-                            .foregroundColor(.blue)
-                            .padding(12)
-                            .background(Color(white: 0.2))
-                            .cornerRadius(8)
-                    }
+                    Text("Friday, Week 9")
+                        .font(.system(size: 16))
+                        .foregroundColor(.gray)
                 }
-                .padding(.horizontal, 20)
-                .padding(.top, 20)
+                .frame(maxWidth: .infinity)
                 
-                // Event slots
+                Spacer()
+                
+                // Menu button
+                Button(action: {}) {
+                    Image(systemName: "line.3.horizontal")
+                        .font(.system(size: 20))
+                        .foregroundColor(.blue)
+                        .padding(12)
+                        .background(Color(white: 0.2))
+                        .cornerRadius(8)
+                }
+                .padding(.trailing, 20)
+            }
+            .padding(.top, 20)
+            .padding(.bottom, 30)
+            
+            // Event slots
+            ScrollView(showsIndicators: false) {
                 eventSlots
-                
-                Spacer(minLength: 100)
             }
         }
     }
@@ -195,6 +196,9 @@ struct PlanmorePlanner: View {
     // MARK: - Planmore Tabs
     private var planmoreTabs: some View {
         VStack(spacing: 0) {
+            Spacer()
+                .frame(height: 60)
+            
             ForEach(0..<tabs.count, id: \.self) { index in
                 planmoreTab(index: index)
             }
@@ -202,14 +206,13 @@ struct PlanmorePlanner: View {
             Spacer()
             
             // Icon buttons at bottom
-            VStack(spacing: 15) {
+            VStack(spacing: 12) {
                 iconButton(icon: "gearshape.fill", color: Color(red: 1.0, green: 0.8, blue: 0.65))
                 iconButton(icon: "calendar", color: Color(red: 0.6, green: 0.9, blue: 0.5))
                 iconButton(icon: "magnifyingglass", color: Color(red: 0.95, green: 0.7, blue: 0.85))
             }
-            .padding(.bottom, 30)
+            .padding(.bottom, 40)
         }
-        .padding(.top, 15)
     }
     
     // MARK: - Planmore Tab (with scalloped edge)
@@ -243,13 +246,13 @@ struct PlanmorePlanner: View {
     private func iconButton(icon: String, color: Color) -> some View {
         Button(action: {}) {
             Image(systemName: icon)
-                .font(.system(size: 18, weight: .medium))
+                .font(.system(size: 16, weight: .medium))
                 .foregroundColor(.black)
-                .frame(width: 50, height: 50)
+                .frame(width: 45, height: 45)
                 .background(
                     Circle()
                         .fill(color)
-                        .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
+                        .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
                 )
         }
     }
