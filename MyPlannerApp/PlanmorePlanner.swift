@@ -174,23 +174,212 @@ struct PlanmorePlanner: View {
     
     // MARK: - Placeholder Views
     private var weekView: some View {
-        Text("Week View").foregroundColor(.white)
+        VStack(spacing: 20) {
+            Text("Week View")
+                .font(.system(size: 28, weight: .bold))
+                .foregroundColor(.white)
+                .padding(.top, 40)
+            
+            // 7-day week grid placeholder
+            VStack(spacing: 15) {
+                ForEach(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], id: \.self) { day in
+                    HStack {
+                        Text(day)
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.gray)
+                            .frame(width: 100, alignment: .leading)
+                        
+                        Rectangle()
+                            .fill(Color(white: 0.2))
+                            .frame(height: 60)
+                            .cornerRadius(8)
+                    }
+                    .padding(.horizontal, 20)
+                }
+            }
+            
+            Spacer()
+        }
     }
     
     private var monthView: some View {
-        Text("Month View").foregroundColor(.white)
+        VStack(spacing: 20) {
+            Text("February 2026")
+                .font(.system(size: 28, weight: .bold))
+                .foregroundColor(.white)
+                .padding(.top, 40)
+            
+            // Full month calendar grid
+            VStack(spacing: 15) {
+                // Day headers
+                HStack(spacing: 12) {
+                    ForEach(["S", "M", "T", "W", "T", "F", "S"], id: \.self) { day in
+                        Text(day)
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.gray)
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+                .padding(.horizontal, 20)
+                
+                // Calendar grid
+                VStack(spacing: 8) {
+                    ForEach(0..<5, id: \.self) { row in
+                        HStack(spacing: 12) {
+                            ForEach(0..<7, id: \.self) { col in
+                                let day = row * 7 + col + 1
+                                if day <= 28 {
+                                    Text("\(day)")
+                                        .font(.system(size: 18))
+                                        .foregroundColor(day == 27 ? .white : .gray)
+                                        .frame(maxWidth: .infinity)
+                                        .frame(height: 50)
+                                        .background(day == 27 ? Color.blue : Color(white: 0.2))
+                                        .cornerRadius(8)
+                                } else {
+                                    Text("")
+                                        .frame(maxWidth: .infinity)
+                                        .frame(height: 50)
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                    }
+                }
+            }
+            
+            Spacer()
+        }
     }
     
     private var yearView: some View {
-        Text("Year View").foregroundColor(.white)
+        ScrollView {
+            VStack(spacing: 20) {
+                Text("2026")
+                    .font(.system(size: 32, weight: .bold))
+                    .foregroundColor(.white)
+                    .padding(.top, 40)
+                
+                // 12 month mini calendars
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
+                    ForEach(["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], id: \.self) { month in
+                        VStack(spacing: 8) {
+                            Text(month)
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(.white)
+                            
+                            // Mini month grid
+                            VStack(spacing: 4) {
+                                ForEach(0..<5, id: \.self) { _ in
+                                    HStack(spacing: 4) {
+                                        ForEach(0..<7, id: \.self) { _ in
+                                            Circle()
+                                                .fill(Color(white: 0.3))
+                                                .frame(width: 6, height: 6)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        .padding(12)
+                        .background(Color(white: 0.2))
+                        .cornerRadius(12)
+                    }
+                }
+                .padding(.horizontal, 20)
+                
+                Spacer()
+            }
+        }
     }
     
     private var tasksView: some View {
-        Text("Tasks View").foregroundColor(.white)
+        ZStack {
+            Color(white: 0.12)
+            
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    Text("My Tasks")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(.top, 40)
+                        .padding(.horizontal, 20)
+                    
+                    // Task items
+                    VStack(spacing: 15) {
+                        taskItem("Complete project proposal", completed: false)
+                        taskItem("Review design mockups", completed: false)
+                        taskItem("Send follow-up emails", completed: true)
+                        taskItem("Prepare presentation", completed: false)
+                        taskItem("Team standup meeting", completed: true)
+                    }
+                    .padding(.horizontal, 20)
+                    
+                    Spacer()
+                }
+            }
+        }
+    }
+    
+    private func taskItem(_ title: String, completed: Bool) -> some View {
+        HStack(spacing: 15) {
+            Image(systemName: completed ? "checkmark.circle.fill" : "circle")
+                .font(.system(size: 24))
+                .foregroundColor(completed ? .green : .gray)
+            
+            Text(title)
+                .font(.system(size: 17))
+                .foregroundColor(completed ? .gray : .white)
+                .strikethrough(completed)
+            
+            Spacer()
+        }
+        .padding(16)
+        .background(Color(white: 0.2))
+        .cornerRadius(12)
     }
     
     private var notesView: some View {
-        Text("Notes View").foregroundColor(.white)
+        ZStack {
+            Color(white: 0.12)
+            
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    Text("Notes")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(.top, 40)
+                        .padding(.horizontal, 20)
+                    
+                    // Note items
+                    VStack(spacing: 15) {
+                        noteItem("Meeting Notes", "Discussed Q1 goals and timeline...")
+                        noteItem("Ideas", "New feature concepts for the app...")
+                        noteItem("Shopping List", "Groceries for the week...")
+                    }
+                    .padding(.horizontal, 20)
+                    
+                    Spacer()
+                }
+            }
+        }
+    }
+    
+    private func noteItem(_ title: String, _ preview: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(.white)
+            
+            Text(preview)
+                .font(.system(size: 14))
+                .foregroundColor(.gray)
+                .lineLimit(2)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(Color(white: 0.2))
+        .cornerRadius(12)
     }
     
     // MARK: - Planmore Tabs
