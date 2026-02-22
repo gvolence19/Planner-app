@@ -45,9 +45,19 @@ struct PlanmorePlanner: View {
             }
         }
         .ignoresSafeArea()
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(styleColorScheme)
         .sheet(isPresented: $showSettings) {
             settingsSheet
+        }
+    }
+    
+    // Dynamic color scheme based on style
+    private var styleColorScheme: ColorScheme? {
+        switch selectedStyle {
+        case "Antique Calendar", "Hello Kitty", "Minimalist", "Nature":
+            return .light
+        default:
+            return .dark
         }
     }
     
@@ -203,7 +213,7 @@ struct PlanmorePlanner: View {
     private var dayView: some View {
         GeometryReader { geo in
             VStack(spacing: 0) {
-                // Top section - FIXED AND VISIBLE
+                // Top section - MORE SPACE, NO WEEK NUMBER
                 VStack(spacing: 0) {
                     HStack(alignment: .top, spacing: 10) {
                         // Mini calendar - LEFT SIDE (smaller)
@@ -214,23 +224,20 @@ struct PlanmorePlanner: View {
                         .padding(.leading, 10)
                         
                         // BIG DATE - CENTER (more space)
-                        VStack(spacing: 0) {
+                        VStack(spacing: 2) {
                             Text(selectedDate.formatted(.dateTime.month(.abbreviated).year()))
                                 .font(.system(size: 14, weight: .medium))
                                 .foregroundColor(.gray)
-                                .padding(.bottom, 2)
                             
                             Text(selectedDate.formatted(.dateTime.day()))
                                 .font(.system(size: 75, weight: .bold))
                                 .foregroundColor(.white)
-                                .padding(.bottom, 2)
                             
-                            // Single line with compact spacing
-                            Text("\(selectedDate.formatted(.dateTime.weekday(.abbreviated))) • Wk \(weekNumber(for: selectedDate))")
-                                .font(.system(size: 12))
+                            // JUST DAY OF WEEK - NO WEEK NUMBER
+                            Text(selectedDate.formatted(.dateTime.weekday(.wide)))
+                                .font(.system(size: 14))
                                 .foregroundColor(.gray)
                                 .lineLimit(1)
-                                .fixedSize(horizontal: true, vertical: false)
                         }
                         .frame(maxWidth: .infinity)
                         
@@ -245,10 +252,10 @@ struct PlanmorePlanner: View {
                         }
                         .padding(.trailing, 10)
                     }
-                    .padding(.top, 30) // Extra padding at top
-                    .padding(.bottom, 15)
+                    .padding(.top, 45) // MORE padding at top so everything is visible
+                    .padding(.bottom, 20)
                 }
-                .frame(height: 195)
+                .frame(height: 220) // Taller header
                 .background(styleContentBackground.opacity(0.95))
                 
                 // Event slots - scrollable
@@ -272,11 +279,6 @@ struct PlanmorePlanner: View {
                     }
                 }
         )
-    }
-    
-    private func weekNumber(for date: Date) -> Int {
-        let calendar = Calendar.current
-        return calendar.component(.weekOfYear, from: date)
     }
     
     // MARK: - Mini Calendar
@@ -512,7 +514,7 @@ struct PlanmorePlanner: View {
                 
                 Spacer()
                 
-                Text("\(year)")
+                Text("\(year)")  // No formatting - displays as plain number
                     .font(.system(size: 32, weight: .bold))
                     .foregroundColor(.white)
                 
