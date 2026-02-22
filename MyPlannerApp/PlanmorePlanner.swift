@@ -51,20 +51,114 @@ struct PlanmorePlanner: View {
         }
     }
     
-    // MARK: - Style Backgrounds
+    // MARK: - Style Backgrounds (Image-like themes)
     private var styleBackground: some View {
-        Group {
+        ZStack {
             switch selectedStyle {
             case "Antique Calendar":
-                Color(red: 0.9, green: 0.85, blue: 0.7) // Aged paper color
+                // Vintage aged paper texture
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.95, green: 0.9, blue: 0.75),
+                        Color(red: 0.9, green: 0.85, blue: 0.7),
+                        Color(red: 0.88, green: 0.83, blue: 0.68)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                // Paper texture overlay
+                Rectangle()
+                    .fill(Color.brown.opacity(0.03))
+                    .blendMode(.multiply)
+                
             case "Hello Kitty":
-                LinearGradient(colors: [Color.pink.opacity(0.3), Color.white.opacity(0.2)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                // Pink Hello Kitty themed background
+                ZStack {
+                    LinearGradient(
+                        colors: [Color.pink.opacity(0.4), Color.pink.opacity(0.2)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    // Polka dots pattern
+                    ForEach(0..<20, id: \.self) { i in
+                        Circle()
+                            .fill(Color.white.opacity(0.2))
+                            .frame(width: 40, height: 40)
+                            .offset(
+                                x: CGFloat((i % 5) * 80 - 160),
+                                y: CGFloat((i / 5) * 150 - 300)
+                            )
+                    }
+                    // Bow pattern
+                    ForEach(0..<10, id: \.self) { i in
+                        Image(systemName: "suit.heart.fill")
+                            .font(.system(size: 20))
+                            .foregroundColor(.pink.opacity(0.15))
+                            .offset(
+                                x: CGFloat((i % 3) * 120 - 120),
+                                y: CGFloat((i / 3) * 180 - 360)
+                            )
+                    }
+                }
+                
             case "Thunderstorm":
-                LinearGradient(colors: [Color(white: 0.1), Color(white: 0.2)], startPoint: .top, endPoint: .bottom)
+                // Dark thunderstorm clouds
+                ZStack {
+                    // Dark sky
+                    LinearGradient(
+                        colors: [
+                            Color(red: 0.15, green: 0.15, blue: 0.2),
+                            Color(red: 0.1, green: 0.1, blue: 0.15),
+                            Color(red: 0.08, green: 0.08, blue: 0.12)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    // Storm clouds
+                    ForEach(0..<15, id: \.self) { i in
+                        Ellipse()
+                            .fill(Color.gray.opacity(0.3))
+                            .frame(width: CGFloat(100 + i * 20), height: CGFloat(60 + i * 10))
+                            .blur(radius: 20)
+                            .offset(
+                                x: CGFloat((i % 4) * 90 - 180),
+                                y: CGFloat((i / 4) * 120 - 240)
+                            )
+                    }
+                    // Lightning effect
+                    Rectangle()
+                        .fill(Color.white.opacity(0.03))
+                        .blendMode(.screen)
+                }
+                
             case "Minimalist":
                 Color.white
+                
             case "Nature":
-                LinearGradient(colors: [Color.green.opacity(0.3), Color.green.opacity(0.1)], startPoint: .top, endPoint: .bottom)
+                // Forest/nature themed
+                ZStack {
+                    LinearGradient(
+                        colors: [
+                            Color.green.opacity(0.3),
+                            Color.green.opacity(0.2),
+                            Color(red: 0.5, green: 0.7, blue: 0.4).opacity(0.25)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    // Leaf patterns
+                    ForEach(0..<25, id: \.self) { i in
+                        Image(systemName: "leaf.fill")
+                            .font(.system(size: CGFloat(15 + i % 20)))
+                            .foregroundColor(.green.opacity(0.15))
+                            .rotationEffect(.degrees(Double(i * 30)))
+                            .offset(
+                                x: CGFloat((i % 5) * 75 - 150),
+                                y: CGFloat((i / 5) * 140 - 350)
+                            )
+                    }
+                }
+                
             default:
                 Color(white: 0.15)
             }
@@ -75,15 +169,15 @@ struct PlanmorePlanner: View {
         Group {
             switch selectedStyle {
             case "Antique Calendar":
-                Color(red: 0.95, green: 0.92, blue: 0.85)
+                Color(red: 0.97, green: 0.94, blue: 0.88)
             case "Hello Kitty":
-                Color.white.opacity(0.95)
+                Color.white.opacity(0.97)
             case "Thunderstorm":
-                Color(white: 0.12)
+                Color(white: 0.12).opacity(0.95)
             case "Minimalist":
                 Color.white
             case "Nature":
-                Color.white.opacity(0.9)
+                Color.white.opacity(0.92)
             default:
                 Color(white: 0.12)
             }
@@ -111,60 +205,51 @@ struct PlanmorePlanner: View {
             VStack(spacing: 0) {
                 // Top section - FIXED AND VISIBLE
                 VStack(spacing: 0) {
-                    HStack(alignment: .top, spacing: 0) {
-                        // Mini calendar - LEFT SIDE
-                        VStack(alignment: .leading, spacing: 10) {
+                    HStack(alignment: .top, spacing: 10) {
+                        // Mini calendar - LEFT SIDE (smaller)
+                        VStack(alignment: .leading, spacing: 8) {
                             miniCalendar
                         }
-                        .frame(width: 180)
-                        .padding(.leading, 15)
+                        .frame(width: 165)
+                        .padding(.leading, 10)
                         
-                        Spacer()
-                        
-                        // BIG DATE - CENTER
+                        // BIG DATE - CENTER (more space)
                         VStack(spacing: 0) {
-                            Text(selectedDate.formatted(.dateTime.month(.wide).year()))
-                                .font(.system(size: 15, weight: .medium))
+                            Text(selectedDate.formatted(.dateTime.month(.abbreviated).year()))
+                                .font(.system(size: 14, weight: .medium))
                                 .foregroundColor(.gray)
                                 .padding(.bottom, 2)
                             
                             Text(selectedDate.formatted(.dateTime.day()))
-                                .font(.system(size: 80, weight: .bold))
+                                .font(.system(size: 75, weight: .bold))
                                 .foregroundColor(.white)
                                 .padding(.bottom, 2)
                             
-                            HStack(spacing: 4) {
-                                Text(selectedDate.formatted(.dateTime.weekday(.wide)))
-                                    .font(.system(size: 13))
-                                    .foregroundColor(.gray)
-                                Text("•")
-                                    .font(.system(size: 13))
-                                    .foregroundColor(.gray)
-                                Text("Week \(weekNumber(for: selectedDate))")
-                                    .font(.system(size: 13))
-                                    .foregroundColor(.gray)
-                            }
+                            // Single line with compact spacing
+                            Text("\(selectedDate.formatted(.dateTime.weekday(.abbreviated))) • Wk \(weekNumber(for: selectedDate))")
+                                .font(.system(size: 12))
+                                .foregroundColor(.gray)
+                                .lineLimit(1)
+                                .fixedSize(horizontal: true, vertical: false)
                         }
                         .frame(maxWidth: .infinity)
-                        
-                        Spacer()
                         
                         // Menu button - RIGHT
                         Button(action: {}) {
                             Image(systemName: "line.3.horizontal")
-                                .font(.system(size: 18))
+                                .font(.system(size: 16))
                                 .foregroundColor(.blue)
-                                .padding(10)
+                                .padding(8)
                                 .background(Color(white: 0.2))
                                 .cornerRadius(8)
                         }
-                        .padding(.trailing, 15)
+                        .padding(.trailing, 10)
                     }
-                    .padding(.top, 25) // More padding at top
+                    .padding(.top, 30) // Extra padding at top
                     .padding(.bottom, 15)
                 }
-                .frame(height: 200)
-                .background(Color(white: 0.12))
+                .frame(height: 195)
+                .background(styleContentBackground.opacity(0.95))
                 
                 // Event slots - scrollable
                 ScrollView(showsIndicators: false) {
@@ -177,12 +262,10 @@ struct PlanmorePlanner: View {
             DragGesture()
                 .onEnded { value in
                     if value.translation.width < -50 {
-                        // Swipe left - next day
                         selectedDate = Calendar.current.date(byAdding: .day, value: 1, to: selectedDate) ?? selectedDate
                         let impact = UIImpactFeedbackGenerator(style: .light)
                         impact.impactOccurred()
                     } else if value.translation.width > 50 {
-                        // Swipe right - previous day
                         selectedDate = Calendar.current.date(byAdding: .day, value: -1, to: selectedDate) ?? selectedDate
                         let impact = UIImpactFeedbackGenerator(style: .light)
                         impact.impactOccurred()
@@ -254,11 +337,11 @@ struct PlanmorePlanner: View {
         VStack(spacing: 0) {
             ForEach(0..<24, id: \.self) { hour in
                 HStack(spacing: 0) {
-                    // Hour label
-                    Text("\(hour):00")
+                    // Hour label (12-hour format)
+                    Text(formatHour(hour))
                         .font(.system(size: 11))
                         .foregroundColor(.gray)
-                        .frame(width: 50, alignment: .trailing)
+                        .frame(width: 60, alignment: .trailing)
                         .padding(.trailing, 10)
                     
                     // Event line
@@ -272,6 +355,19 @@ struct PlanmorePlanner: View {
             }
         }
         .padding(.horizontal, 20)
+    }
+    
+    // Convert 24-hour to 12-hour format
+    private func formatHour(_ hour: Int) -> String {
+        if hour == 0 {
+            return "12:00 AM"
+        } else if hour < 12 {
+            return "\(hour):00 AM"
+        } else if hour == 12 {
+            return "12:00 PM"
+        } else {
+            return "\(hour - 12):00 PM"
+        }
     }
     
     // MARK: - Placeholder Views
@@ -819,12 +915,12 @@ struct PlanmorePlanner: View {
     
     private func styleDescription(_ style: String) -> String {
         switch style {
-        case "Modern": return "Clean and contemporary"
-        case "Antique Calendar": return "Vintage paper with aged look"
-        case "Hello Kitty": return "Cute and colorful"
-        case "Thunderstorm": return "Dark clouds and rain"
-        case "Minimalist": return "Simple and clean"
-        case "Nature": return "Forest and greenery"
+        case "Modern": return "Clean dark interface"
+        case "Antique Calendar": return "Vintage aged paper texture"
+        case "Hello Kitty": return "Pink with polka dots & hearts"
+        case "Thunderstorm": return "Dark storm clouds background"
+        case "Minimalist": return "Pure white simplicity"
+        case "Nature": return "Green leaves & forest vibes"
         default: return ""
         }
     }
