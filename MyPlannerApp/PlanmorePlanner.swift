@@ -9,6 +9,8 @@ struct PlanmorePlanner: View {
     @State private var showSettings = false
     @State private var selectedTheme: String = "Default"
     @State private var selectedStyle: String = "Modern"
+    @State private var showAISuggestions = false
+    @State private var showVoiceCommand = false
     
     private var theme: AppTheme {
         themeManager.currentTheme
@@ -49,6 +51,9 @@ struct PlanmorePlanner: View {
         .sheet(isPresented: $showSettings) {
             settingsSheet
         }
+        .sheet(isPresented: $showVoiceCommand) {
+            voiceCommandSheet
+        }
     }
     
     // Dynamic color scheme based on style
@@ -66,19 +71,19 @@ struct PlanmorePlanner: View {
         ZStack {
             switch selectedStyle {
             case "Antique Calendar":
-                // Vintage aged paper texture
+                // Vintage aged paper texture - MORE VISIBLE
                 LinearGradient(
                     colors: [
-                        Color(red: 0.95, green: 0.9, blue: 0.75),
-                        Color(red: 0.9, green: 0.85, blue: 0.7),
-                        Color(red: 0.88, green: 0.83, blue: 0.68)
+                        Color(red: 0.92, green: 0.85, blue: 0.65), // More saturated tan
+                        Color(red: 0.88, green: 0.80, blue: 0.60), // Darker tan
+                        Color(red: 0.85, green: 0.78, blue: 0.58)  // Even darker
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
                 // Paper texture overlay
                 Rectangle()
-                    .fill(Color.brown.opacity(0.03))
+                    .fill(Color.brown.opacity(0.05))
                     .blendMode(.multiply)
                 
             case "Hello Kitty":
@@ -179,15 +184,15 @@ struct PlanmorePlanner: View {
         Group {
             switch selectedStyle {
             case "Antique Calendar":
-                Color(red: 0.97, green: 0.94, blue: 0.88)
+                Color(red: 0.97, green: 0.94, blue: 0.88).opacity(0.7) // More transparent
             case "Hello Kitty":
-                Color.white.opacity(0.97)
+                Color.white.opacity(0.6) // More transparent
             case "Thunderstorm":
-                Color(white: 0.12).opacity(0.95)
+                Color(white: 0.12).opacity(0.8) // More transparent
             case "Minimalist":
-                Color.white
+                Color.white.opacity(0.9)
             case "Nature":
-                Color.white.opacity(0.92)
+                Color.white.opacity(0.6) // More transparent
             default:
                 Color(white: 0.12)
             }
@@ -216,12 +221,12 @@ struct PlanmorePlanner: View {
                 // Top section - MORE SPACE, NO WEEK NUMBER
                 VStack(spacing: 0) {
                     HStack(alignment: .top, spacing: 10) {
-                        // Mini calendar - LEFT SIDE (smaller)
+                        // Mini calendar - LEFT SIDE (BIGGER)
                         VStack(alignment: .leading, spacing: 8) {
                             miniCalendar
                         }
-                        .frame(width: 165)
-                        .padding(.leading, 10)
+                        .frame(width: 260) // Much wider for bigger calendar
+                        .padding(.leading, 15)
                         
                         // BIG DATE - CENTER (more space)
                         VStack(spacing: 2) {
@@ -242,13 +247,30 @@ struct PlanmorePlanner: View {
                         .frame(maxWidth: .infinity)
                         
                         // Menu button - RIGHT
-                        Button(action: {}) {
-                            Image(systemName: "line.3.horizontal")
-                                .font(.system(size: 16))
-                                .foregroundColor(.blue)
-                                .padding(8)
-                                .background(Color(white: 0.2))
-                                .cornerRadius(8)
+                        VStack(spacing: 8) {
+                            // Voice Command Button
+                            Button(action: {
+                                showVoiceCommand = true
+                            }) {
+                                Image(systemName: "mic.fill")
+                                    .font(.system(size: 16))
+                                    .foregroundColor(.white)
+                                    .padding(8)
+                                    .background(
+                                        LinearGradient(colors: [Color.purple, Color.blue], startPoint: .leading, endPoint: .trailing)
+                                    )
+                                    .cornerRadius(8)
+                            }
+                            
+                            // Menu button
+                            Button(action: {}) {
+                                Image(systemName: "line.3.horizontal")
+                                    .font(.system(size: 16))
+                                    .foregroundColor(.blue)
+                                    .padding(8)
+                                    .background(Color(white: 0.2))
+                                    .cornerRadius(8)
+                            }
                         }
                         .padding(.trailing, 10)
                     }
@@ -256,7 +278,7 @@ struct PlanmorePlanner: View {
                     .padding(.bottom, 20)
                 }
                 .frame(height: 220) // Taller header
-                .background(styleContentBackground.opacity(0.95))
+                .background(styleContentBackground) // No extra opacity!
                 
                 // Event slots - scrollable
                 ScrollView(showsIndicators: false) {
@@ -283,18 +305,18 @@ struct PlanmorePlanner: View {
     
     // MARK: - Mini Calendar
     private var miniCalendar: some View {
-        VStack(spacing: 8) {
-            // Day headers
-            HStack(spacing: 6) {
+        VStack(spacing: 12) {
+            // Day headers - BIGGER
+            HStack(spacing: 10) {
                 ForEach(["S", "M", "T", "W", "T", "F", "S"], id: \.self) { day in
                     Text(day)
-                        .font(.system(size: 10, weight: .medium))
+                        .font(.system(size: 14, weight: .bold))
                         .foregroundColor(.gray)
-                        .frame(width: 22)
+                        .frame(width: 32)
                 }
             }
             
-            // Calendar grid (clickable dates)
+            // Calendar grid (clickable dates) - MUCH BIGGER
             let calendar = Calendar.current
             let month = calendar.component(.month, from: selectedDate)
             let year = calendar.component(.year, from: selectedDate)
@@ -302,9 +324,9 @@ struct PlanmorePlanner: View {
             let firstWeekday = calendar.component(.weekday, from: calendar.date(from: DateComponents(year: year, month: month, day: 1))!)
             let selectedDay = calendar.component(.day, from: selectedDate)
             
-            VStack(spacing: 4) {
+            VStack(spacing: 8) {
                 ForEach(0..<6, id: \.self) { row in
-                    HStack(spacing: 6) {
+                    HStack(spacing: 10) {
                         ForEach(0..<7, id: \.self) { col in
                             let dayOffset = row * 7 + col - (firstWeekday - 1) + 1
                             if dayOffset > 0 && dayOffset <= daysInMonth {
@@ -316,16 +338,16 @@ struct PlanmorePlanner: View {
                                     }
                                 }) {
                                     Text("\(dayOffset)")
-                                        .font(.system(size: 11))
+                                        .font(.system(size: 15, weight: .medium))
                                         .foregroundColor(dayOffset == selectedDay ? .white : .gray)
-                                        .frame(width: 22, height: 22)
+                                        .frame(width: 32, height: 32)
                                         .background(dayOffset == selectedDay ? Color.blue : Color.clear)
-                                        .cornerRadius(11)
+                                        .cornerRadius(16)
                                 }
                                 .buttonStyle(.plain)
                             } else {
                                 Text("")
-                                    .frame(width: 22, height: 22)
+                                    .frame(width: 32, height: 32)
                             }
                         }
                     }
@@ -602,11 +624,34 @@ struct PlanmorePlanner: View {
             
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    Text("My Tasks")
-                        .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(.white)
-                        .padding(.top, 40)
-                        .padding(.horizontal, 20)
+                    // Header with AI button
+                    HStack {
+                        Text("My Tasks")
+                            .font(.system(size: 28, weight: .bold))
+                            .foregroundColor(.white)
+                        
+                        Spacer()
+                        
+                        // AI Suggestions Button
+                        Button(action: {
+                            showAISuggestions = true
+                        }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "sparkles")
+                                Text("AI")
+                            }
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(
+                                LinearGradient(colors: [Color.purple, Color.blue], startPoint: .leading, endPoint: .trailing)
+                            )
+                            .cornerRadius(20)
+                        }
+                    }
+                    .padding(.top, 40)
+                    .padding(.horizontal, 20)
                     
                     // Task items (clickable to toggle)
                     VStack(spacing: 15) {
@@ -632,6 +677,166 @@ struct PlanmorePlanner: View {
                 }
             }
         }
+        .sheet(isPresented: $showAISuggestions) {
+            aiSuggestionsSheet
+        }
+    }
+    
+    // AI Suggestions Sheet
+    private var aiSuggestionsSheet: some View {
+        NavigationView {
+            ZStack {
+                Color(white: 0.12).ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 20) {
+                        // AI Task Suggestions
+                        Text("AI Task Suggestions")
+                            .font(.system(size: 22, weight: .bold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 20)
+                        
+                        VStack(spacing: 12) {
+                            aiSuggestionCard("Review quarterly reports", category: "Work", icon: "chart.bar.fill", color: .blue)
+                            aiSuggestionCard("Schedule dentist appointment", category: "Health", icon: "heart.fill", color: .red)
+                            aiSuggestionCard("Buy groceries for the week", category: "Shopping", icon: "cart.fill", color: .green)
+                            aiSuggestionCard("Call mom", category: "Personal", icon: "phone.fill", color: .purple)
+                            aiSuggestionCard("Workout session", category: "Fitness", icon: "figure.run", color: .orange)
+                        }
+                        .padding(.horizontal, 20)
+                        
+                        // AI Templates
+                        Text("AI Templates")
+                            .font(.system(size: 22, weight: .bold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 20)
+                            .padding(.top, 20)
+                        
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 15) {
+                                templateCard("Morning Routine", icon: "sunrise.fill", color: .orange)
+                                templateCard("Work Day", icon: "briefcase.fill", color: .blue)
+                                templateCard("Workout Plan", icon: "figure.strengthtraining.traditional", color: .red)
+                                templateCard("Meal Prep", icon: "fork.knife", color: .green)
+                                templateCard("Study Session", icon: "book.fill", color: .purple)
+                            }
+                            .padding(.horizontal, 20)
+                        }
+                        
+                        // Smart Grocery Suggestions
+                        Text("Smart Grocery List")
+                            .font(.system(size: 22, weight: .bold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 20)
+                            .padding(.top, 20)
+                        
+                        VStack(spacing: 12) {
+                            groceryCategory("Vegetables", items: ["Broccoli", "Carrots", "Spinach"])
+                            groceryCategory("Fruits", items: ["Apples", "Bananas", "Oranges"])
+                            groceryCategory("Protein", items: ["Chicken", "Eggs", "Greek Yogurt"])
+                            groceryCategory("Pantry", items: ["Rice", "Pasta", "Olive Oil"])
+                        }
+                        .padding(.horizontal, 20)
+                    }
+                    .padding(.vertical, 20)
+                }
+            }
+            .navigationTitle("AI Assistant")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        showAISuggestions = false
+                    }
+                    .foregroundColor(.blue)
+                }
+            }
+        }
+        .preferredColorScheme(.dark)
+    }
+    
+    private func aiSuggestionCard(_ title: String, category: String, icon: String, color: Color) -> some View {
+        HStack(spacing: 15) {
+            ZStack {
+                Circle()
+                    .fill(color.opacity(0.2))
+                    .frame(width: 50, height: 50)
+                
+                Image(systemName: icon)
+                    .foregroundColor(color)
+                    .font(.system(size: 20))
+            }
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.white)
+                
+                Text(category)
+                    .font(.system(size: 13))
+                    .foregroundColor(.gray)
+            }
+            
+            Spacer()
+            
+            Button(action: {}) {
+                Image(systemName: "plus.circle.fill")
+                    .foregroundColor(.blue)
+                    .font(.system(size: 24))
+            }
+        }
+        .padding()
+        .background(Color(white: 0.2))
+        .cornerRadius(12)
+    }
+    
+    private func templateCard(_ title: String, icon: String, color: Color) -> some View {
+        VStack(spacing: 10) {
+            ZStack {
+                Circle()
+                    .fill(color.opacity(0.2))
+                    .frame(width: 60, height: 60)
+                
+                Image(systemName: icon)
+                    .foregroundColor(color)
+                    .font(.system(size: 28))
+            }
+            
+            Text(title)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(.white)
+                .multilineTextAlignment(.center)
+        }
+        .frame(width: 120)
+        .padding()
+        .background(Color(white: 0.2))
+        .cornerRadius(12)
+    }
+    
+    private func groceryCategory(_ category: String, items: [String]) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(category)
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(.white)
+            
+            ForEach(items, id: \.self) { item in
+                HStack {
+                    Image(systemName: "circle")
+                        .foregroundColor(.gray)
+                    Text(item)
+                        .foregroundColor(.white)
+                    Spacer()
+                    Button(action: {}) {
+                        Image(systemName: "plus.circle")
+                            .foregroundColor(.green)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+        }
+        .padding()
+        .background(Color(white: 0.2))
+        .cornerRadius(12)
     }
     
     private func taskItem(_ title: String, completed: Bool) -> some View {
@@ -1041,6 +1246,92 @@ struct PlanmorePlanner: View {
         .padding(15)
         .background(Color(white: 0.2))
         .cornerRadius(12)
+    }
+    
+    // MARK: - Voice Command Sheet
+    private var voiceCommandSheet: some View {
+        NavigationView {
+            ZStack {
+                Color(white: 0.12).ignoresSafeArea()
+                
+                VStack(spacing: 30) {
+                    Spacer()
+                    
+                    // Microphone animation
+                    ZStack {
+                        Circle()
+                            .fill(
+                                LinearGradient(colors: [Color.purple.opacity(0.3), Color.blue.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                            )
+                            .frame(width: 150, height: 150)
+                        
+                        Circle()
+                            .stroke(
+                                LinearGradient(colors: [Color.purple, Color.blue], startPoint: .topLeading, endPoint: .bottomTrailing),
+                                lineWidth: 4
+                            )
+                            .frame(width: 120, height: 120)
+                        
+                        Image(systemName: "mic.fill")
+                            .font(.system(size: 50))
+                            .foregroundColor(.white)
+                    }
+                    
+                    Text("Listening...")
+                        .font(.system(size: 24, weight: .semibold))
+                        .foregroundColor(.white)
+                    
+                    Text("Try saying:")
+                        .font(.system(size: 16))
+                        .foregroundColor(.gray)
+                    
+                    VStack(alignment: .leading, spacing: 12) {
+                        voiceCommandExample("\"Add task: Buy groceries\"")
+                        voiceCommandExample("\"Create event tomorrow at 3pm\"")
+                        voiceCommandExample("\"Show my tasks for today\"")
+                        voiceCommandExample("\"Set reminder for Monday\"")
+                    }
+                    .padding(.horizontal, 20)
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        showVoiceCommand = false
+                    }) {
+                        Text("Cancel")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color(white: 0.2))
+                            .cornerRadius(12)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 40)
+                }
+            }
+            .navigationTitle("Voice Command")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        showVoiceCommand = false
+                    }
+                    .foregroundColor(.blue)
+                }
+            }
+        }
+        .preferredColorScheme(.dark)
+    }
+    
+    private func voiceCommandExample(_ text: String) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: "quote.bubble.fill")
+                .foregroundColor(.blue)
+            Text(text)
+                .font(.system(size: 15))
+                .foregroundColor(.white)
+        }
     }
 }
 
