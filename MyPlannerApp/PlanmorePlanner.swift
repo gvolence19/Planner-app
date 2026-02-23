@@ -16,15 +16,56 @@ struct PlanmorePlanner: View {
         themeManager.currentTheme
     }
     
-    // Tabs matching post-it note style
-    let tabs = [
-        ("Day", Color(red: 0.3, green: 0.3, blue: 0.35)),
-        ("Week", Color(red: 1.0, green: 0.95, blue: 0.4)),      // Yellow post-it
-        ("Month", Color(red: 0.5, green: 0.85, blue: 0.6)),     // Green post-it
-        ("Year", Color(red: 0.7, green: 0.85, blue: 1.0)),      // Blue post-it
-        ("Tasks", Color(red: 1.0, green: 0.7, blue: 0.8)),      // Pink post-it
-        ("Notes", Color(red: 1.0, green: 0.85, blue: 0.6))      // Orange post-it
-    ]
+    // Tabs matching post-it note style - THEMED based on selected style
+    var tabs: [(String, Color)] {
+        switch selectedStyle {
+        case "Antique Calendar":
+            return [
+                ("Day", Color(red: 0.8, green: 0.7, blue: 0.5)),
+                ("Week", Color(red: 0.85, green: 0.75, blue: 0.55)),
+                ("Month", Color(red: 0.9, green: 0.8, blue: 0.6)),
+                ("Year", Color(red: 0.78, green: 0.68, blue: 0.48)),
+                ("Tasks", Color(red: 0.82, green: 0.72, blue: 0.52)),
+                ("Notes", Color(red: 0.88, green: 0.78, blue: 0.58))
+            ]
+        case "Hello Kitty":
+            return [
+                ("Day", Color.pink),
+                ("Week", Color.pink.opacity(0.8)),
+                ("Month", Color(red: 1.0, green: 0.8, blue: 0.9)),
+                ("Year", Color(red: 1.0, green: 0.6, blue: 0.8)),
+                ("Tasks", Color.pink.opacity(0.9)),
+                ("Notes", Color(red: 1.0, green: 0.7, blue: 0.85))
+            ]
+        case "Thunderstorm":
+            return [
+                ("Day", Color(white: 0.3)),
+                ("Week", Color(white: 0.35)),
+                ("Month", Color(white: 0.4)),
+                ("Year", Color.yellow.opacity(0.7)),
+                ("Tasks", Color(white: 0.45)),
+                ("Notes", Color(white: 0.38))
+            ]
+        case "Nature":
+            return [
+                ("Day", Color.green),
+                ("Week", Color.green.opacity(0.8)),
+                ("Month", Color(red: 0.6, green: 0.9, blue: 0.6)),
+                ("Year", Color(red: 0.4, green: 0.8, blue: 0.4)),
+                ("Tasks", Color.green.opacity(0.9)),
+                ("Notes", Color(red: 0.5, green: 0.85, blue: 0.5))
+            ]
+        default:
+            return [
+                ("Day", Color(red: 0.3, green: 0.3, blue: 0.35)),
+                ("Week", Color(red: 1.0, green: 0.95, blue: 0.4)),
+                ("Month", Color(red: 0.5, green: 0.85, blue: 0.6)),
+                ("Year", Color(red: 0.7, green: 0.85, blue: 1.0)),
+                ("Tasks", Color(red: 1.0, green: 0.7, blue: 0.8)),
+                ("Notes", Color(red: 1.0, green: 0.85, blue: 0.6))
+            ]
+        }
+    }
     
     var body: some View {
         GeometryReader { geometry in
@@ -34,14 +75,14 @@ struct PlanmorePlanner: View {
                     .ignoresSafeArea()
                 
                 HStack(spacing: 0) {
-                    // MAIN CONTENT AREA
+                    // MAIN CONTENT AREA - Give more space, less covered by tabs
                     mainContent
-                        .frame(maxWidth: geometry.size.width - 85)
+                        .frame(maxWidth: geometry.size.width - 100) // More space away from tabs
                         .background(styleContentBackground)
                     
                     // POST-IT NOTE TABS
                     postItTabs
-                        .frame(width: 85)
+                        .frame(width: 100)
                         .background(Color(white: 0.15))
                 }
             }
@@ -71,138 +112,202 @@ struct PlanmorePlanner: View {
         ZStack {
             switch selectedStyle {
             case "Antique Calendar":
-                // BOLD vintage paper
-                LinearGradient(
-                    colors: [
-                        Color(red: 0.88, green: 0.78, blue: 0.55), // Much darker tan
-                        Color(red: 0.82, green: 0.72, blue: 0.50),
-                        Color(red: 0.78, green: 0.68, blue: 0.48)
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                
-            case "Hello Kitty":
-                // BRIGHT PINK with BIG Hello Kitty faces
+                // REALISTIC VINTAGE PAPER TEXTURE
                 ZStack {
-                    // BRIGHT pink background
-                    LinearGradient(
-                        colors: [Color.pink, Color.pink.opacity(0.8)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                    
-                    // BIG Hello Kitty faces (cat faces with bows)
-                    ForEach(0..<12, id: \.self) { i in
-                        ZStack {
-                            // Cat face
-                            Circle()
-                                .fill(Color.white.opacity(0.4))
-                                .frame(width: 80, height: 80)
-                            
-                            // Eyes
-                            HStack(spacing: 20) {
-                                Circle().fill(Color.black.opacity(0.3)).frame(width: 10, height: 10)
-                                Circle().fill(Color.black.opacity(0.3)).frame(width: 10, height: 10)
-                            }
-                            .offset(y: -5)
-                            
-                            // Nose
-                            Image(systemName: "triangle.fill")
-                                .font(.system(size: 8))
-                                .foregroundColor(.pink.opacity(0.3))
-                                .offset(y: 5)
-                            
-                            // Bow
-                            Image(systemName: "bowtie.fill")
-                                .font(.system(size: 20))
-                                .foregroundColor(.red.opacity(0.4))
-                                .offset(x: 30, y: -30)
-                        }
-                        .offset(
-                            x: CGFloat((i % 3) * 140 - 140),
-                            y: CGFloat((i / 3) * 200 - 400)
-                        )
-                    }
-                    
-                    // Hearts
-                    ForEach(0..<15, id: \.self) { i in
-                        Image(systemName: "heart.fill")
-                            .font(.system(size: CGFloat(20 + i % 30)))
-                            .foregroundColor(.white.opacity(0.3))
-                            .offset(
-                                x: CGFloat((i % 4) * 100 - 150),
-                                y: CGFloat((i / 4) * 180 - 360)
-                            )
-                            .rotationEffect(.degrees(Double(i * 25)))
-                    }
-                }
-                
-            case "Thunderstorm":
-                // DARK STORM with VISIBLE LIGHTNING
-                ZStack {
-                    // Very dark storm sky
+                    // Base aged paper color
                     LinearGradient(
                         colors: [
-                            Color(red: 0.1, green: 0.1, blue: 0.15),
-                            Color(red: 0.05, green: 0.05, blue: 0.1),
-                            Color.black
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                    
-                    // BIG lightning bolts
-                    ForEach(0..<8, id: \.self) { i in
-                        Image(systemName: "bolt.fill")
-                            .font(.system(size: CGFloat(40 + i * 10)))
-                            .foregroundColor(.yellow.opacity(0.3))
-                            .offset(
-                                x: CGFloat((i % 3) * 130 - 130),
-                                y: CGFloat((i / 3) * 250 - 400)
-                            )
-                            .rotationEffect(.degrees(Double(i * 30)))
-                    }
-                    
-                    // Rain effect
-                    ForEach(0..<30, id: \.self) { i in
-                        Rectangle()
-                            .fill(Color.white.opacity(0.2))
-                            .frame(width: 2, height: CGFloat(30 + i % 20))
-                            .offset(
-                                x: CGFloat((i % 6) * 60 - 150),
-                                y: CGFloat((i / 6) * 150 - 400)
-                            )
-                            .rotationEffect(.degrees(15))
-                    }
-                }
-                
-            case "Minimalist":
-                Color.white
-                
-            case "Nature":
-                // BRIGHT GREEN forest
-                ZStack {
-                    LinearGradient(
-                        colors: [
-                            Color.green.opacity(0.7),
-                            Color.green.opacity(0.5),
-                            Color(red: 0.3, green: 0.6, blue: 0.3).opacity(0.6)
+                            Color(red: 0.92, green: 0.87, blue: 0.75),
+                            Color(red: 0.88, green: 0.82, blue: 0.68),
+                            Color(red: 0.85, green: 0.78, blue: 0.65)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
                     
-                    // BIG leaves
+                    // Paper fiber texture simulation
+                    ForEach(0..<200, id: \.self) { i in
+                        Rectangle()
+                            .fill(Color.brown.opacity(0.02))
+                            .frame(width: CGFloat.random(in: 20...100), height: 1)
+                            .rotationEffect(.degrees(Double.random(in: -15...15)))
+                            .offset(
+                                x: CGFloat.random(in: -200...200),
+                                y: CGFloat.random(in: -400...400)
+                            )
+                    }
+                    
+                    // Age spots and stains
+                    ForEach(0..<30, id: \.self) { i in
+                        Circle()
+                            .fill(Color(red: 0.6, green: 0.5, blue: 0.3).opacity(0.1))
+                            .frame(width: CGFloat.random(in: 20...80))
+                            .blur(radius: 15)
+                            .offset(
+                                x: CGFloat.random(in: -180...180),
+                                y: CGFloat.random(in: -400...400)
+                            )
+                    }
+                    
+                    // Worn edges effect
+                    Rectangle()
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.clear, Color(red: 0.7, green: 0.6, blue: 0.4).opacity(0.2)],
+                                startPoint: .center,
+                                endPoint: .trailing
+                            )
+                        )
+                }
+                
+            case "Hello Kitty":
+                // KAWAII PINK DREAMLAND (not copyrighted Hello Kitty, but similar aesthetic)
+                ZStack {
+                    // Soft pink gradient like cotton candy
+                    LinearGradient(
+                        colors: [
+                            Color(red: 1.0, green: 0.8, blue: 0.9),
+                            Color(red: 1.0, green: 0.85, blue: 0.92),
+                            Color(red: 0.98, green: 0.75, blue: 0.88)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    
+                    // Soft pastel clouds
+                    ForEach(0..<15, id: \.self) { i in
+                        Ellipse()
+                            .fill(Color.white.opacity(0.4))
+                            .frame(width: CGFloat(80 + i * 15), height: CGFloat(50 + i * 8))
+                            .blur(radius: 20)
+                            .offset(
+                                x: CGFloat((i % 4) * 100 - 150),
+                                y: CGFloat((i / 4) * 180 - 350)
+                            )
+                    }
+                    
+                    // Sparkles
+                    ForEach(0..<40, id: \.self) { i in
+                        Image(systemName: "sparkles")
+                            .font(.system(size: CGFloat(10 + i % 20)))
+                            .foregroundColor(.white.opacity(0.5))
+                            .offset(
+                                x: CGFloat((i % 6) * 70 - 180),
+                                y: CGFloat((i / 6) * 130 - 400)
+                            )
+                    }
+                    
+                    // Floating hearts
+                    ForEach(0..<25, id: \.self) { i in
+                        Image(systemName: "heart.fill")
+                            .font(.system(size: CGFloat(15 + i % 25)))
+                            .foregroundColor(Color.pink.opacity(0.3))
+                            .offset(
+                                x: CGFloat((i % 5) * 80 - 160),
+                                y: CGFloat((i / 5) * 160 - 380)
+                            )
+                            .rotationEffect(.degrees(Double(i * 20)))
+                    }
+                    
+                    // Soft bokeh circles (like dreamy photography)
                     ForEach(0..<20, id: \.self) { i in
+                        Circle()
+                            .fill(
+                                RadialGradient(
+                                    colors: [Color.white.opacity(0.3), Color.clear],
+                                    center: .center,
+                                    startRadius: 0,
+                                    endRadius: 40
+                                )
+                            )
+                            .frame(width: CGFloat(40 + i * 8))
+                            .offset(
+                                x: CGFloat((i % 4) * 110 - 160),
+                                y: CGFloat((i / 4) * 170 - 400)
+                            )
+                    }
+                }
+                
+            case "Thunderstorm":
+                // REAL THUNDERSTORM PHOTO (user's image)
+                Image("thunderstorm-background")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .ignoresSafeArea()
+                
+            case "Minimalist":
+                // CLEAN WHITE WITH SUBTLE TEXTURE
+                ZStack {
+                    Color.white
+                    
+                    // Subtle paper texture
+                    ForEach(0..<100, id: \.self) { i in
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.01))
+                            .frame(width: CGFloat.random(in: 50...150), height: 1)
+                            .rotationEffect(.degrees(Double.random(in: -5...5)))
+                            .offset(
+                                x: CGFloat.random(in: -200...200),
+                                y: CGFloat.random(in: -400...400)
+                            )
+                    }
+                }
+                
+            case "Nature":
+                // LUSH FOREST WITH LEAVES
+                ZStack {
+                    // Rich green forest gradient
+                    LinearGradient(
+                        colors: [
+                            Color(red: 0.2, green: 0.5, blue: 0.3),
+                            Color(red: 0.25, green: 0.55, blue: 0.35),
+                            Color(red: 0.3, green: 0.6, blue: 0.4)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    
+                    // Leaf layers (multiple depths for realism)
+                    ForEach(0..<50, id: \.self) { i in
+                        Image(systemName: "leaf.fill")
+                            .font(.system(size: CGFloat(20 + i % 50)))
+                            .foregroundColor(Color.green.opacity(0.15))
+                            .rotationEffect(.degrees(Double(i * 25)))
+                            .offset(
+                                x: CGFloat((i % 6) * 70 - 180),
+                                y: CGFloat((i / 6) * 100 - 400)
+                            )
+                    }
+                    
+                    // Darker leaves for depth
+                    ForEach(0..<30, id: \.self) { i in
                         Image(systemName: "leaf.fill")
                             .font(.system(size: CGFloat(30 + i % 40)))
-                            .foregroundColor(.green.opacity(0.3))
+                            .foregroundColor(Color(red: 0.15, green: 0.4, blue: 0.2).opacity(0.2))
                             .rotationEffect(.degrees(Double(i * 30)))
                             .offset(
-                                x: CGFloat((i % 4) * 90 - 135),
-                                y: CGFloat((i / 4) * 160 - 400)
+                                x: CGFloat((i % 5) * 90 - 180),
+                                y: CGFloat((i / 5) * 130 - 350)
                             )
+                    }
+                    
+                    // Light filtering through leaves effect
+                    ForEach(0..<10, id: \.self) { i in
+                        Circle()
+                            .fill(
+                                RadialGradient(
+                                    colors: [Color(red: 0.9, green: 1.0, blue: 0.7).opacity(0.2), Color.clear],
+                                    center: .center,
+                                    startRadius: 0,
+                                    endRadius: 60
+                                )
+                            )
+                            .frame(width: 80)
+                            .offset(
+                                x: CGFloat((i % 3) * 130 - 130),
+                                y: CGFloat((i / 3) * 200 - 300)
+                            )
+                            .blur(radius: 20)
                     }
                 }
                 
@@ -248,63 +353,68 @@ struct PlanmorePlanner: View {
     
     // MARK: - Day View (Main Calendar)
     private var dayView: some View {
-        VStack(spacing: 0) {
-            // Top section - GUARANTEED VISIBILITY
-            HStack(alignment: .center, spacing: 15) {
-                // Mini calendar
-                miniCalendar
-                    .frame(width: 260)
-                    .padding(.leading, 20)
-                
-                Spacer()
-                
-                // BIG DATE - CENTERED AND LARGE
-                VStack(spacing: 4) {
-                    Text(selectedDate.formatted(.dateTime.month(.abbreviated).year()))
-                        .font(.system(size: 15, weight: .medium))
-                        .foregroundColor(.gray)
+        ScrollView {
+            VStack(spacing: 0) {
+                // HEADER WITH GUARANTEED SPACE
+                VStack(spacing: 15) {
+                    // Mini calendar at TOP
+                    miniCalendar
+                        .padding(.top, 30)
                     
-                    Text(selectedDate.formatted(.dateTime.day()))
-                        .font(.system(size: 90, weight: .bold))
-                        .foregroundColor(.white)
-                    
-                    Text(selectedDate.formatted(.dateTime.weekday(.wide)))
-                        .font(.system(size: 15))
-                        .foregroundColor(.gray)
-                }
-                
-                Spacer()
-                
-                // Buttons
-                VStack(spacing: 8) {
-                    Button(action: { showVoiceCommand = true }) {
-                        Image(systemName: "mic.fill")
+                    // BIG DATE IN MIDDLE - VERY PROMINENT AND THEMED
+                    VStack(spacing: 8) {
+                        Text(selectedDate.formatted(.dateTime.month(.abbreviated)))
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(themedTextColor)
+                        
+                        Text("\(Calendar.current.component(.day, from: selectedDate))")
+                            .font(.system(size: 100, weight: .bold))
+                            .foregroundColor(themedAccentColor)
+                        
+                        Text(selectedDate.formatted(.dateTime.weekday(.wide)))
                             .font(.system(size: 16))
+                            .foregroundColor(themedTextColor)
+                        
+                        Text(String(Calendar.current.component(.year, from: selectedDate)))
+                            .font(.system(size: 14))
+                            .foregroundColor(themedTextColor)
+                    }
+                    .padding(.bottom, 20)
+                    
+                    // Buttons
+                    HStack(spacing: 15) {
+                        Button(action: { showVoiceCommand = true }) {
+                            HStack {
+                                Image(systemName: "mic.fill")
+                                Text("Voice")
+                            }
+                            .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(.white)
-                            .padding(8)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
                             .background(LinearGradient(colors: [.purple, .blue], startPoint: .leading, endPoint: .trailing))
-                            .cornerRadius(8)
+                            .cornerRadius(20)
+                        }
+                        
+                        Button(action: {}) {
+                            HStack {
+                                Image(systemName: "plus")
+                                Text("Event")
+                            }
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background(Color.blue)
+                            .cornerRadius(20)
+                        }
                     }
-                    
-                    Button(action: {}) {
-                        Image(systemName: "line.3.horizontal")
-                            .font(.system(size: 16))
-                            .foregroundColor(.blue)
-                            .padding(8)
-                            .background(Color(white: 0.2))
-                            .cornerRadius(8)
-                    }
+                    .padding(.bottom, 20)
                 }
-                .padding(.trailing, 15)
-            }
-            .padding(.top, 60) // MUCH more top padding
-            .padding(.bottom, 25)
-            .frame(height: 280) // Much taller
-            .background(styleContentBackground)
-            
-            // Event slots
-            ScrollView(showsIndicators: false) {
+                
+                // Event slots
                 eventSlots
+                    .padding(.top, 20)
             }
         }
         // SWIPE TO CHANGE DAYS
@@ -327,17 +437,17 @@ struct PlanmorePlanner: View {
     // MARK: - Mini Calendar
     private var miniCalendar: some View {
         VStack(spacing: 12) {
-            // Day headers - BIGGER
+            // Day headers - THEMED
             HStack(spacing: 10) {
                 ForEach(["S", "M", "T", "W", "T", "F", "S"], id: \.self) { day in
                     Text(day)
                         .font(.system(size: 14, weight: .bold))
-                        .foregroundColor(.gray)
+                        .foregroundColor(themedTextColor)
                         .frame(width: 32)
                 }
             }
             
-            // Calendar grid (clickable dates) - MUCH BIGGER
+            // Calendar grid - FULLY THEMED
             let calendar = Calendar.current
             let month = calendar.component(.month, from: selectedDate)
             let year = calendar.component(.year, from: selectedDate)
@@ -360,9 +470,9 @@ struct PlanmorePlanner: View {
                                 }) {
                                     Text("\(dayOffset)")
                                         .font(.system(size: 15, weight: .medium))
-                                        .foregroundColor(dayOffset == selectedDay ? .white : .gray)
+                                        .foregroundColor(dayOffset == selectedDay ? .white : themedTextColor)
                                         .frame(width: 32, height: 32)
-                                        .background(dayOffset == selectedDay ? Color.blue : Color.clear)
+                                        .background(dayOffset == selectedDay ? themedAccentColor : themedCellBackground)
                                         .cornerRadius(16)
                                 }
                                 .buttonStyle(.plain)
@@ -377,26 +487,61 @@ struct PlanmorePlanner: View {
         }
     }
     
+    // MARK: - Themed Colors
+    private var themedTextColor: Color {
+        switch selectedStyle {
+        case "Antique Calendar": return Color(red: 0.4, green: 0.3, blue: 0.2)
+        case "Hello Kitty": return .pink
+        case "Thunderstorm": return .gray
+        case "Minimalist": return .black
+        case "Nature": return Color(red: 0.2, green: 0.5, blue: 0.2)
+        default: return .gray
+        }
+    }
+    
+    private var themedAccentColor: Color {
+        switch selectedStyle {
+        case "Antique Calendar": return Color(red: 0.6, green: 0.4, blue: 0.2)
+        case "Hello Kitty": return .pink
+        case "Thunderstorm": return .yellow
+        case "Minimalist": return .black
+        case "Nature": return .green
+        default: return .blue
+        }
+    }
+    
+    private var themedCellBackground: Color {
+        switch selectedStyle {
+        case "Antique Calendar": return Color(red: 0.95, green: 0.92, blue: 0.85).opacity(0.5)
+        case "Hello Kitty": return Color.pink.opacity(0.1)
+        case "Thunderstorm": return Color(white: 0.2).opacity(0.3)
+        case "Minimalist": return Color.white
+        case "Nature": return Color.green.opacity(0.1)
+        default: return Color.clear
+        }
+    }
+    
     // MARK: - Event Slots
     private var eventSlots: some View {
         VStack(spacing: 0) {
             ForEach(0..<24, id: \.self) { hour in
                 HStack(spacing: 0) {
-                    // Hour label (12-hour format)
+                    // Hour label - THEMED
                     Text(formatHour(hour))
-                        .font(.system(size: 11))
-                        .foregroundColor(.gray)
-                        .frame(width: 60, alignment: .trailing)
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(themedTextColor)
+                        .frame(width: 70, alignment: .trailing)
                         .padding(.trailing, 10)
                     
-                    // Event line
+                    // Event line - THEMED
                     Rectangle()
-                        .fill(Color.gray.opacity(0.2))
+                        .fill(themedTextColor.opacity(0.2))
                         .frame(height: 1)
                     
                     Spacer()
                 }
                 .frame(height: 60)
+                .background(themedCellBackground.opacity(0.3))
             }
         }
         .padding(.horizontal, 20)
@@ -557,7 +702,8 @@ struct PlanmorePlanner: View {
                 
                 Spacer()
                 
-                Text("\(year)")  // No formatting - displays as plain number
+                // YEAR WITHOUT COMMA - using String interpolation
+                Text(String(year))
                     .font(.system(size: 32, weight: .bold))
                     .foregroundColor(.white)
                 
