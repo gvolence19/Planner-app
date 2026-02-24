@@ -229,11 +229,17 @@ struct PlanmorePlanner: View {
                 }
                 
             case "Thunderstorm":
-                // REAL THUNDERSTORM PHOTO (user's image)
-                Image("thunderstorm-background")
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .ignoresSafeArea()
+                // REAL THUNDERSTORM PHOTO with darkening overlay for UI visibility
+                ZStack {
+                    Image("thunderstorm-background")
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .ignoresSafeArea()
+                    
+                    // Slight darkening so text/UI shows better
+                    Color.black.opacity(0.25)
+                        .ignoresSafeArea()
+                }
                 
             case "Minimalist":
                 // CLEAN WHITE WITH SUBTLE TEXTURE
@@ -321,17 +327,17 @@ struct PlanmorePlanner: View {
         Group {
             switch selectedStyle {
             case "Antique Calendar":
-                Color(red: 0.97, green: 0.94, blue: 0.88).opacity(0.5) // Very transparent
+                Color(red: 0.97, green: 0.94, blue: 0.88).opacity(0.92) // More opaque!
             case "Hello Kitty":
-                Color.white.opacity(0.4) // Very transparent
+                Color.white.opacity(0.88) // More opaque!
             case "Thunderstorm":
-                Color(white: 0.12).opacity(0.6) // Semi-transparent
+                Color(white: 0.12).opacity(0.90) // More opaque!
             case "Minimalist":
-                Color.white.opacity(0.9)
+                Color.white.opacity(0.95)
             case "Nature":
-                Color.white.opacity(0.4) // Very transparent
+                Color(red: 0.95, green: 0.98, blue: 0.95).opacity(0.88) // More opaque!
             default:
-                Color(white: 0.12)
+                Color(white: 0.12).opacity(0.95)
             }
         }
     }
