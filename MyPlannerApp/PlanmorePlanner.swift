@@ -11,6 +11,7 @@ struct PlanmorePlanner: View {
     @State private var selectedStyle: String = "Modern"
     @State private var showAISuggestions = false
     @State private var showVoiceCommand = false
+    @State private var showAddEvent = false
     
     private var theme: AppTheme {
         themeManager.currentTheme
@@ -94,6 +95,9 @@ struct PlanmorePlanner: View {
         }
         .sheet(isPresented: $showVoiceCommand) {
             voiceCommandSheet
+        }
+        .sheet(isPresented: $showAddEvent) {
+            addEventSheet
         }
     }
     
@@ -327,17 +331,17 @@ struct PlanmorePlanner: View {
         Group {
             switch selectedStyle {
             case "Antique Calendar":
-                Color(red: 0.97, green: 0.94, blue: 0.88).opacity(0.92) // More opaque!
+                Color(red: 0.97, green: 0.94, blue: 0.88).opacity(0.98) // Almost solid!
             case "Hello Kitty":
-                Color.white.opacity(0.88) // More opaque!
+                Color.white.opacity(0.96) // Almost solid!
             case "Thunderstorm":
-                Color(white: 0.12).opacity(0.90) // More opaque!
+                Color(white: 0.12).opacity(0.96) // Almost solid!
             case "Minimalist":
-                Color.white.opacity(0.95)
+                Color.white.opacity(0.98)
             case "Nature":
-                Color(red: 0.95, green: 0.98, blue: 0.95).opacity(0.88) // More opaque!
+                Color(red: 0.95, green: 0.98, blue: 0.95).opacity(0.96) // Almost solid!
             default:
-                Color(white: 0.12).opacity(0.95)
+                Color(white: 0.12).opacity(0.98)
             }
         }
     }
@@ -402,7 +406,7 @@ struct PlanmorePlanner: View {
                             .cornerRadius(20)
                         }
                         
-                        Button(action: {}) {
+                        Button(action: { showAddEvent = true }) {
                             HStack {
                                 Image(systemName: "plus")
                                 Text("Event")
@@ -1505,6 +1509,114 @@ struct PlanmorePlanner: View {
                 .font(.system(size: 15))
                 .foregroundColor(.white)
         }
+    }
+    
+    // MARK: - Add Event Sheet
+    private var addEventSheet: some View {
+        NavigationView {
+            ZStack {
+                Color(white: 0.12).ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 25) {
+                        // Event Title
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Event Title")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.gray)
+                            
+                            TextField("Enter event name", text: .constant(""))
+                                .font(.system(size: 18))
+                                .foregroundColor(.white)
+                                .padding()
+                                .background(Color(white: 0.2))
+                                .cornerRadius(12)
+                        }
+                        
+                        // Date & Time
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Date & Time")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.gray)
+                            
+                            HStack {
+                                Image(systemName: "calendar")
+                                    .foregroundColor(.blue)
+                                Text(selectedDate.formatted(.dateTime.month().day().year()))
+                                    .foregroundColor(.white)
+                                Spacer()
+                                Image(systemName: "clock")
+                                    .foregroundColor(.blue)
+                                Text(selectedDate.formatted(.dateTime.hour().minute()))
+                                    .foregroundColor(.white)
+                            }
+                            .padding()
+                            .background(Color(white: 0.2))
+                            .cornerRadius(12)
+                        }
+                        
+                        // Location
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Location (Optional)")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.gray)
+                            
+                            HStack {
+                                Image(systemName: "location.fill")
+                                    .foregroundColor(.blue)
+                                TextField("Add location", text: .constant(""))
+                                    .foregroundColor(.white)
+                            }
+                            .padding()
+                            .background(Color(white: 0.2))
+                            .cornerRadius(12)
+                        }
+                        
+                        // Notes
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Notes (Optional)")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.gray)
+                            
+                            TextEditor(text: .constant(""))
+                                .foregroundColor(.white)
+                                .frame(height: 100)
+                                .padding(8)
+                                .background(Color(white: 0.2))
+                                .cornerRadius(12)
+                        }
+                        
+                        // Save Button
+                        Button(action: {
+                            showAddEvent = false
+                        }) {
+                            Text("Create Event")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(
+                                    LinearGradient(colors: [Color.blue, Color.blue.opacity(0.8)], startPoint: .leading, endPoint: .trailing)
+                                )
+                                .cornerRadius(12)
+                        }
+                        .padding(.top, 20)
+                    }
+                    .padding(20)
+                }
+            }
+            .navigationTitle("New Event")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        showAddEvent = false
+                    }
+                    .foregroundColor(.gray)
+                }
+            }
+        }
+        .preferredColorScheme(.dark)
     }
 }
 
